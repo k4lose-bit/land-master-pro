@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stage 2. 임야(산)·농지 정복 퀘스트 | Land Master Pro</title>
+  <meta name="description" content="산과 논·밭을 매입할 때 맞닥뜨리는 경사도·규제 돌파 마스터클래스 (5개 관문)">
+  <link rel="canonical" href="https://land.free336.com/stage2.html">
+  <meta property="og:title" content="Stage 2. 임야(산)·농지 정복 퀘스트 | Land Master Pro">
+  <meta property="og:description" content="산과 논·밭을 매입할 때 맞닥뜨리는 경사도·규제 돌파 마스터클래스 (5개 관문)">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://land.free336.com/stage2.html">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧭</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/style.css">
+  <script src="assets/config.js"></script>
+  <script src="assets/facts-data.js"></script>
+  <script src="assets/app.js" defer></script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="index.html"><span aria-hidden="true">🧭</span><b>Land Master Pro</b><span>경기북부 토지 탐사대</span></a>
+      <div class="header-tools">
+        <input type="text" id="headerSearch" class="search-input" placeholder="🧭 현장 검색">
+        <span class="streak-chip" id="streakChip">🔥 1일 연속</span>
+        <span class="xp-chip" id="xpChip">Lv.1 토지 견습생 · 0 XP</span>
+      </div>
+    </div>
+    <nav class="site-nav">
+      <a href="index.html">🏠 홈</a>
+      <a href="stage1.html">S1. 맹지·도로</a>
+      <a href="stage2.html">S2. 임야·농지</a>
+      <a href="stage3.html">S3. 용도지역</a>
+      <a href="stage4.html">S4. 권리·계약</a>
+      <a href="stage5.html">S5. 토지보상</a>
+      <a href="notices.html">📡 공고 와처</a>
+      <a href="guide.html">🌐 토지이음 가이드</a>
+      <a href="community.html">💬 커뮤니티</a>
+    </nav>
+  </header>
+  <div class="search-overlay" id="searchOverlay">
+    <div class="search-panel" id="searchResults"></div>
+  </div>
+  <div class="ad-interstitial hidden" id="adInterstitial">
+    <div class="ad-slot-card">
+      <div class="ad-slot-label">광고 (준비 중 — AD_INTERSTITIAL_ENABLED=false)</div>
+      <div class="ad-slot-box" id="adSlotBox">여기에 실제 애드센스 전면광고 코드가 들어갈 자리입니다.</div>
+      <button class="btn ghost sm" id="adSlotClose" type="button">닫고 계속하기 →</button>
+    </div>
+  </div>
+  <main>
+
+    <div class="page-head">
+      <h1 style="color:#16B981;">Stage 2. 임야(산)·농지 정복 퀘스트</h1>
+      <p>산과 논·밭을 매입할 때 맞닥뜨리는 경사도·규제 돌파 마스터클래스 (5개 관문)</p>
+      <div class="diff-dots">난이도 흐름 &nbsp;<i style="background:#16B981" title="관문 2-1 · 초급"></i><i style="background:#16B981" title="관문 2-2 · 초급"></i><i style="background:#E8A33D" title="관문 2-3 · 중급"></i><i style="background:#E8A33D" title="관문 2-4 · 중급"></i><i style="background:#E0524B" title="관문 2-5 · 고급"></i>&nbsp; (초급 → 고급 순으로 배치됨)</div>
+    </div>
+    <div class="progress-wrap" data-stage-progress="2">
+      <div class="progress-title"><span>이 스테이지 진행도</span><span data-progress-label>0/5 관문 완료 (0%)</span></div>
+      <div class="progress-bar-bg"><div class="progress-bar-fill" style="background:#16B981;"></div></div>
+    </div>
+    <div class="intro-box" style="border-left-color:#16B981;">경기북부 토지의 대부분은 임야와 농지입니다. 가격이 싼 데는 이유가 있습니다 — 산지관리법과 농지법이라는 두 개의 강력한 규제 체계가 겹겹이 걸려 있기 때문입니다. 이 스테이지에서는 임야의 경사도·보전산지 규제, 농지의 취득 자격과 전용 절차, 그리고 분묘기지권 같은 임야 특유의 숨은 함정까지, 싼 땅이 싼 이유와 그중에서 진짜 기회를 골라내는 눈을 만듭니다.</div>
+    
+    <div class="module-card" data-module="2-1" id="mod-2-1" data-ox-answer="true" data-snap="경사도는 시·군 조례와 산지관리법령이 이중으로 심사합니다. 시세보다 싼 임야는 대개 경사도가 그 이유입니다.">
+      <div class="mod-top">
+        <span class="mod-num">관문 2-1</span>
+        <span class="diff-badge" style="color:#16B981; border-color:#16B981;">초급</span>
+      </div>
+      <h3>임야 경사도 분석 — 인허가의 1차 관문<span class="done-badge">✔ 클리어</span></h3>
+
+      <p class="hook-q">🤔 산을 살 때 가장 먼저 봐야 할 숫자는 평당가가 아니라?</p>
+      <p class="ox-statement">📝 OX 퀴즈 — <b>임야는 평균경사도가 기준을 넘으면 개발행위허가 자체가 반려될 수 있다.</b></p>
+      <div class="ox-row">
+        <button class="ox-btn" data-val="true">⭕ 맞다</button>
+        <button class="ox-btn" data-val="false">❌ 아니다</button>
+      </div>
+      <div class="ox-feedback"></div>
+      <div class="tag-row"><span class="tag-pill">#임야</span><span class="tag-pill">#경사도</span><span class="tag-pill">#산지전용</span></div>
+
+      <button class="more-btn" type="button" aria-expanded="false">🔍 실전 사례·전체 해설 더보기 (심화 퀴즈 포함)</button>
+
+      <div class="deep-dive hidden">
+        <div class="lesson-box"><b>📖 핵심 가이드</b><br>임야 개발의 첫 번째 심사 항목은 경사도입니다. 기준이 두 겹입니다: ① <b>개발행위허가</b> 단계에서는 각 시·군 도시계획조례가 정한 경사도 기준(지역별로 대략 15~25도 수준으로 상이)을 넘으면 허가가 반려되고, ② <b>산지전용허가</b> 단계에서는 산지관리법령상 평균경사도 기준(원칙적으로 25도 이하)을 충족해야 합니다. 같은 임야라도 측정 구역을 어떻게 잡느냐에 따라 평균경사도가 달라지므로, 매입 전 산림청 '임업정보 다드림'이나 국토정보플랫폼의 경사 분석, 나아가 측량사무소의 평균경사도 측정 용역으로 수치를 확보해야 합니다. 조례 기준은 수시로 개정되니 반드시 해당 시·군의 현행 조례를 확인하세요.</div>
+        <div class="case-box">
+          <div class="ct">📌 Case: 시세보다 30% 싼 임야, 알고 보니 평균경사도 24도</div>
+          <div class="cs">💡 해결방법: 조례 기준이 20도인 시·군이라면 개발행위허가가 사실상 불가능한 땅입니다. 싼 이유가 경사도라면 &#x27;조례 개정 기대&#x27;는 투자 근거가 될 수 없습니다. 매입 전 평균경사도 측정 결과를 계약 특약(기준 초과 시 해제)으로 거는 방법도 있습니다.</div>
+        </div>
+        <div class="trap-box"><b>💥 실무 함정:</b> 경사도를 통과해도 암반이 나오면 토목공사비가 땅값을 넘어설 수 있습니다. 절토·성토 계획과 개략 토목 견적(가설계)을 먼저 받아보세요.</div>
+        <div class="quiz-box" data-module="2-1" data-ans="1" data-exp="경사도 기준은 이중 심사 구조입니다. 조례 기준(시·군마다 상이)과 산지관리법령 기준(평균경사도 25도 이하 원칙)을 모두 통과해야 합니다." data-wrong="전국 공통 수치는 없습니다. 시·군 조례 + 산지관리법령의 이중 기준이며, 하나라도 초과하면 반려됩니다.">
+          <p class="q">⚔️ 심화 퀴즈 2-1. 임야 개발 시 경사도 심사에 대한 설명으로 맞는 것은?</p>
+          <button class="quiz-opt" type="button">전국 공통으로 15도를 넘으면 개발이 금지된다</button>
+        <button class="quiz-opt" type="button">개발행위허가는 시·군 조례 기준, 산지전용은 산지관리법령 기준으로 각각 심사된다</button>
+        <button class="quiz-opt" type="button">경사도는 참고사항일 뿐 허가 요건이 아니다</button>
+          <div class="quiz-feedback"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="module-card" data-module="2-2" id="mod-2-2" data-ox-answer="true" data-snap="산지는 보전산지(임업용·공익용)와 준보전산지로 나뉩니다. 개발이 열려 있는 쪽은 준보전산지뿐이라 가격 차이가 정직하게 반영됩니다.">
+      <div class="mod-top">
+        <span class="mod-num">관문 2-2</span>
+        <span class="diff-badge" style="color:#16B981; border-color:#16B981;">초급</span>
+      </div>
+      <h3>보전산지 vs 준보전산지<span class="done-badge">✔ 클리어</span></h3>
+
+      <p class="hook-q">🤔 똑같이 생긴 산인데 가격이 4배 차이 나는 이유, 토지이음 한 줄에 있다?</p>
+      <p class="ox-statement">📝 OX 퀴즈 — <b>&#x27;공익용산지&#x27;는 개인이 주택이나 창고를 짓기 매우 어렵다.</b></p>
+      <div class="ox-row">
+        <button class="ox-btn" data-val="true">⭕ 맞다</button>
+        <button class="ox-btn" data-val="false">❌ 아니다</button>
+      </div>
+      <div class="ox-feedback"></div>
+      <div class="tag-row"><span class="tag-pill">#보전산지</span><span class="tag-pill">#준보전산지</span><span class="tag-pill">#산지관리법</span></div>
+
+      <button class="more-btn" type="button" aria-expanded="false">🔍 실전 사례·전체 해설 더보기 (심화 퀴즈 포함)</button>
+
+      <div class="deep-dive hidden">
+        <div class="lesson-box"><b>📖 핵심 가이드</b><br>산지관리법은 모든 임야를 <b>보전산지</b>와 <b>준보전산지</b>로 나눕니다. 투자 관점에서 이 구분이 임야 가격의 절반을 설명합니다. 보전산지는 다시 임업용산지(임업 생산 목적)와 공익용산지(재해 방지·자연보전 목적)로 나뉘는데, 공익용산지가 가장 엄격해 개인의 개발은 사실상 불가능하고, 임업용산지는 임업인 주택·농림어업용 시설 등 제한된 용도만 가능합니다. 반면 <b>준보전산지는 산지전용허가를 받아 주택·공장·창고 등 다양한 개발이 상대적으로 용이</b>합니다. 확인 방법은 토지이음의 '지역지구등 지정여부'란입니다. '임업용산지' 또는 '공익용산지' 표기가 있으면 보전산지, 아무 표기가 없으면 준보전산지입니다.</div>
+        <div class="case-box">
+          <div class="ct">📌 Case: 같은 능선의 임야 두 필지, 한쪽은 평당 5만원 다른 쪽은 20만원</div>
+          <div class="cs">💡 해결방법: 토지이음에서 산지 구분부터 확인하세요. 싼 쪽이 공익용산지라면 가격 차이는 &#x27;할인&#x27;이 아니라 정당한 가치 반영입니다. 준보전산지 여부가 임야 실사의 0순위 체크포인트입니다.</div>
+        </div>
+        <div class="trap-box"><b>💥 실무 함정:</b> 기획부동산이 파는 싼 임야의 상당수가 공익용산지 또는 급경사 보전산지입니다. &#x27;개발 예정&#x27;, &#x27;도로 곧 개통&#x27; 같은 말보다 산지 구분 표기 하나가 더 정확합니다.</div>
+        <div class="quiz-box" data-module="2-2" data-ans="2" data-exp="준보전산지는 산지전용허가를 통해 다양한 용도의 개발이 상대적으로 쉽습니다. 공익용산지는 사실상 개발 불가, 임업용산지는 임업 관련 용도로 제한됩니다." data-wrong="보전산지(임업용·공익용)는 용도 제한이 강합니다. 개발 목적이라면 준보전산지를 찾아야 하고, 토지이음에서 바로 확인됩니다.">
+          <p class="q">⚔️ 심화 퀴즈 2-2. 개인 투자자가 주택·창고 등으로 개발하기에 상대적으로 가장 용이한 산지는?</p>
+          <button class="quiz-opt" type="button">공익용산지</button>
+        <button class="quiz-opt" type="button">임업용산지</button>
+        <button class="quiz-opt" type="button">준보전산지</button>
+          <div class="quiz-feedback"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="module-card" data-module="2-3" id="mod-2-3" data-ox-answer="false" data-snap="농지법 개정(2021) 이후 농업진흥구역 내 주말영농 목적 취득은 금지됩니다. 진흥구역 밖에서만 세대 합산 1,000㎡ 미만까지 가능합니다.">
+      <div class="mod-top">
+        <span class="mod-num">관문 2-3</span>
+        <span class="diff-badge" style="color:#E8A33D; border-color:#E8A33D;">중급</span>
+      </div>
+      <h3>농지취득자격증명과 농지법의 벽<span class="done-badge">✔ 클리어</span></h3>
+
+      <p class="hook-q">🤔 농지는 아무나 살 수 없다? 도시 사람도 밭을 살 수 있을까?</p>
+      <p class="ox-statement">📝 OX 퀴즈 — <b>농업진흥구역 안의 농지는 주말·체험영농 목적으로 취득할 수 있다.</b></p>
+      <div class="ox-row">
+        <button class="ox-btn" data-val="true">⭕ 맞다</button>
+        <button class="ox-btn" data-val="false">❌ 아니다</button>
+      </div>
+      <div class="ox-feedback"></div>
+      <div class="tag-row"><span class="tag-pill">#농지</span><span class="tag-pill">#농취증</span><span class="tag-pill">#농지법</span></div>
+
+      <button class="more-btn" type="button" aria-expanded="false">🔍 실전 사례·전체 해설 더보기 (심화 퀴즈 포함)</button>
+
+      <div class="deep-dive hidden">
+        <div class="lesson-box"><b>📖 핵심 가이드</b><br>농지(전·답·과수원)는 원칙적으로 <b>농사를 지을 사람만 살 수 있습니다</b>(경자유전 원칙). 소유권 이전등기에 <b>농지취득자격증명(농취증)</b>이 반드시 필요하고, 발급받으려면 농업경영계획서를 제출해 실제 경작 의사와 능력을 심사받습니다. 2021년 농지법 강화 이후 심사가 크게 깐깐해졌습니다: 주말·체험영농 목적 취득은 세대 합산 1,000㎡ 미만까지 가능하지만 <b>농업진흥지역 안에서는 주말영농 목적 취득 자체가 금지</b>되었고, 일부 지역은 농지위원회 심의까지 거칩니다. 취득 후 정당한 사유 없이 경작하지 않으면 처분명령·이행강제금 대상이 됩니다. 농지 투자는 '살 수 있는가'부터가 관문입니다.</div>
+        <div class="case-box">
+          <div class="ct">📌 Case: 도시 거주자가 남양주 농업진흥지역 답 800㎡를 주말농장용으로 계약</div>
+          <div class="cs">💡 해결방법: 농업진흥지역 내 농지는 주말·체험영농 목적 취득이 불가하므로 농취증이 반려됩니다. 계약 전 취득 가능 여부를 확인했어야 하며, 계약서에 &#x27;농취증 미발급 시 계약 해제 및 계약금 반환&#x27; 특약이 없다면 계약금을 날릴 수 있습니다.</div>
+        </div>
+        <div class="trap-box"><b>💥 실무 함정:</b> 농취증 특약 없이 계약하는 것이 농지 거래 최대 사고 유형입니다. 잔금·등기 단계에서 농취증이 안 나오면 이행불능 분쟁으로 갑니다.</div>
+        <div class="quiz-box" data-module="2-3" data-ans="1" data-exp="농지법 개정(2021)으로 농업진흥지역 내 주말영농 목적 취득이 금지되었습니다. 진흥지역 밖에서 세대 합산 1,000㎡ 미만까지만 가능합니다." data-wrong="주말영농은 &#x27;진흥지역 밖 + 세대 합산 1,000㎡ 미만&#x27;이라는 두 조건을 모두 지켜야 합니다.">
+          <p class="q">⚔️ 심화 퀴즈 2-3. 주말·체험영농 목적의 농지 취득에 대한 설명으로 맞는 것은?</p>
+          <button class="quiz-opt" type="button">면적 제한 없이 자유롭게 취득할 수 있다</button>
+        <button class="quiz-opt" type="button">세대 합산 1,000㎡ 미만까지 가능하나 농업진흥지역 안에서는 불가하다</button>
+        <button class="quiz-opt" type="button">농업진흥지역 안에서만 가능하다</button>
+          <div class="quiz-feedback"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="module-card" data-module="2-4" id="mod-2-4" data-ox-answer="true" data-snap="전용 면적 × (산림청 고시 단가 + 공시지가 1%)로 계산됩니다. 여기에 토목공사비까지 더해야 진짜 조성 원가가 나옵니다.">
+      <div class="mod-top">
+        <span class="mod-num">관문 2-4</span>
+        <span class="diff-badge" style="color:#E8A33D; border-color:#E8A33D;">중급</span>
+      </div>
+      <h3>산지전용허가와 개발 비용 계산<span class="done-badge">✔ 클리어</span></h3>
+
+      <p class="hook-q">🤔 산을 대지로 바꾸는 데 땅값 말고 또 얼마가 들어갈까?</p>
+      <p class="ox-statement">📝 OX 퀴즈 — <b>산지전용허가를 받으면 &#x27;대체산림자원조성비&#x27;라는 비용을 내야 한다.</b></p>
+      <div class="ox-row">
+        <button class="ox-btn" data-val="true">⭕ 맞다</button>
+        <button class="ox-btn" data-val="false">❌ 아니다</button>
+      </div>
+      <div class="ox-feedback"></div>
+      <div class="tag-row"><span class="tag-pill">#산지전용</span><span class="tag-pill">#대체산림자원조성비</span><span class="tag-pill">#임야</span></div>
+
+      <button class="more-btn" type="button" aria-expanded="false">🔍 실전 사례·전체 해설 더보기 (심화 퀴즈 포함)</button>
+
+      <div class="deep-dive hidden">
+        <div class="lesson-box"><b>📖 핵심 가이드</b><br>임야를 대지나 공장용지로 바꾸려면 <b>산지전용허가</b>를 받아야 합니다. 심사 기준은 평균경사도, 입목축적(나무의 양이 관할 시·군 평균 대비 일정 비율 이하), 표고 등이며, 허가가 나면 두 가지 돈이 나갑니다: ① <b>대체산림자원조성비</b> — 전용 면적에 단가(준보전산지/보전산지별로 매년 산림청 고시 + 개별공시지가의 1% 가산)를 곱해 납부, ② <b>복구비 예치</b> — 공사 중단 시 원상복구를 담보하는 예치금. 여기에 토목공사비(절토·성토·옹벽·배수)까지 더해야 실제 조성 원가가 나옵니다. 임야 투자 수익 계산은 '땅값 + 전용비용 + 토목비 vs 조성 후 시세'의 산수이며, 이 산수를 매입 전에 끝내는 것이 이 관문의 목표입니다.</div>
+        <div class="case-box">
+          <div class="ct">📌 Case: 평당 10만원 준보전산지 1,000평, 조성 후 주변 대지 시세는 평당 80만원</div>
+          <div class="cs">💡 해결방법: 대체산림자원조성비(수천만 원대)+토목비(경사에 따라 수천만~수억)+각종 부담금을 견적 내 보면 실수익이 확정됩니다. 가설계+개략견적 비용(수백만 원)은 아끼지 말아야 할 보험료입니다.</div>
+        </div>
+        <div class="trap-box"><b>💥 실무 함정:</b> 입목축적 기준은 의외의 복병입니다. 나무가 울창한 임야는 경사가 완만해도 전용허가가 반려될 수 있습니다. 산림조사서를 미리 확인하세요.</div>
+        <div class="quiz-box" data-module="2-4" data-ans="0" data-exp="대체산림자원조성비는 전용 면적에 매년 고시되는 단가(산지 구분별 상이)와 개별공시지가 1% 가산액을 곱해 산정합니다." data-wrong="매입가나 건축비가 아니라 &#x27;전용 면적 × (고시 단가 + 공시지가 1%)&#x27;입니다. 공시지가가 높은 땅일수록 전용 비용도 커집니다.">
+          <p class="q">⚔️ 심화 퀴즈 2-4. 산지전용허가 시 납부하는 &#x27;대체산림자원조성비&#x27;의 산정 방식은?</p>
+          <button class="quiz-opt" type="button">전용 면적 × (산림청 고시 단가 + 개별공시지가의 1%)</button>
+        <button class="quiz-opt" type="button">토지 매입가의 10% 정액</button>
+        <button class="quiz-opt" type="button">건축 연면적 × 표준건축비의 5%</button>
+          <div class="quiz-feedback"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="module-card" data-module="2-5" id="mod-2-5" data-ox-answer="false" data-snap="2001.1.13 이전 분묘는 20년 점유로 분묘기지권이 성립할 수 있어 임의 개장은 위험합니다. 다만 성립돼도 토지 소유자는 지료를 청구할 수 있습니다.">
+      <div class="mod-top">
+        <span class="mod-num">관문 2-5</span>
+        <span class="diff-badge" style="color:#E0524B; border-color:#E0524B;">고급</span>
+      </div>
+      <h3>분묘기지권 — 임야의 숨은 지뢰<span class="done-badge">✔ 클리어</span></h3>
+
+      <p class="hook-q">🤔 내 땅에 있는 남의 묘, 마음대로 옮겨도 될까?</p>
+      <p class="ox-statement">📝 OX 퀴즈 — <b>2001년 이전에 설치된 분묘는 임의로 개장(이장)해도 문제없다.</b></p>
+      <div class="ox-row">
+        <button class="ox-btn" data-val="true">⭕ 맞다</button>
+        <button class="ox-btn" data-val="false">❌ 아니다</button>
+      </div>
+      <div class="ox-feedback"></div>
+      <div class="tag-row"><span class="tag-pill">#분묘기지권</span><span class="tag-pill">#임야</span><span class="tag-pill">#장사법</span></div>
+
+      <button class="more-btn" type="button" aria-expanded="false">🔍 실전 사례·전체 해설 더보기 (심화 퀴즈 포함)</button>
+
+      <div class="deep-dive hidden">
+        <div class="lesson-box"><b>📖 핵심 가이드</b><br>임야 매입 후 가장 흔한 분쟁이 남의 묘, 즉 <b>분묘기지권</b>입니다. 2001년 1월 13일(장사법 시행) 이전에 설치된 분묘는 20년 평온·공연한 점유로 분묘기지권을 시효취득할 수 있어, 내 땅이어도 함부로 이장시킬 수 없습니다. 다만 대법원 판례 변경(2021)으로 <b>시효취득한 분묘기지권자도 토지 소유자가 청구하면 지료를 지급해야</b> 합니다. 2001년 이후 무단 설치된 분묘는 분묘기지권이 인정되지 않으며, 장사법에 따른 개장 절차(공고 후 개장허가)로 처리할 수 있습니다. 실사 시에는 겨울철(수풀이 없을 때) 현장을 직접 걷고, 위성사진·드론으로 봉분을 확인하며, 계약서에 '분묘 발견 시 매도인 책임 이장' 특약을 넣는 것이 정석입니다.</div>
+        <div class="case-box">
+          <div class="ct">📌 Case: 잔금 후 임야 안쪽에서 관리된 흔적이 있는 분묘 2기 발견</div>
+          <div class="cs">💡 해결방법: 설치 시기를 추정(항공사진 이력)해 2001년 이전이면 분묘기지권 성립 가능성이 높으므로 지료 청구로 대응하고, 이후 설치면 장사법 개장 절차를 밟습니다. 매매 특약이 있었다면 매도인에게 이장 비용을 청구합니다.</div>
+        </div>
+        <div class="trap-box"><b>💥 실무 함정:</b> 묘는 여름엔 수풀에 가려 안 보입니다. &#x27;현장 몇 번 가봤다&#x27;는 겨울 답사와 위성사진 이력 확인을 대신하지 못합니다.</div>
+        <div class="quiz-box" data-module="2-5" data-ans="1" data-exp="장사법 시행(2001.1.13) 전 설치 분묘는 20년 점유로 시효취득 가능하고, 2021년 대법원 판례로 지료 지급 의무가 인정되었습니다." data-wrong="임의 개장은 형사 문제(분묘발굴죄)가 될 수 있습니다. 설치 시기(2001.1.13 기준)로 권리 성립을 판단하고, 성립 시에도 지료 청구는 가능합니다.">
+          <p class="q">⚔️ 심화 퀴즈 2-5. 분묘기지권에 대한 설명으로 맞는 것은?</p>
+          <button class="quiz-opt" type="button">내 땅이므로 언제든 임의로 개장할 수 있다</button>
+        <button class="quiz-opt" type="button">2001.1.13 이전 설치 분묘는 시효취득이 가능하며, 성립해도 토지 소유자는 지료를 청구할 수 있다</button>
+        <button class="quiz-opt" type="button">모든 분묘는 설치 시기와 무관하게 영구히 보호된다</button>
+          <div class="quiz-feedback"></div>
+        </div>
+      </div>
+    </div>
+    <div class="ad-slot"></div>
+    <div class="stage-nav"><a class="btn ghost" href="stage1.html">← 이전 스테이지</a><a class="btn next-stage-link" href="stage3.html">다음 스테이지 →</a></div>
+  </main>
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div>
+        <a href="about.html">사이트 소개·문의</a>
+        <a href="privacy.html">개인정보처리방침</a>
+        <a href="notices.html">공고 와처</a>
+      </div>
+      <p class="disclaimer">본 사이트의 모든 콘텐츠는 일반적인 정보 제공을 목적으로 하며, 법률·세무·투자 자문이 아닙니다.
+      법령·조례·세율은 개정될 수 있고 지자체마다 기준이 다르므로, 실제 거래 전 반드시 해당 기관과 전문가(변호사·세무사·감정평가사 등)의 확인을 받으시기 바랍니다.
+      &copy; 2026 Land Master Pro</p>
+    </div>
+  </footer>
+</body>
+</html>
