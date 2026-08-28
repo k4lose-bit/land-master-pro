@@ -22,12 +22,12 @@ window.LMP_CONFIG = {
   // ---------- 커뮤니티 (Supabase) ----------
   // supabase.com에서 무료 프로젝트 생성 후 아래 두 값을 채우면
   // 회원가입/로그인/글/댓글이 자동으로 작동합니다. (README 3단계 참고)
-  SUPABASE_URL: "",
-  SUPABASE_ANON_KEY: "",
+  SUPABASE_URL: "https://birwnzwkaufeianbwtrq.supabase.co",
+  SUPABASE_ANON_KEY: "sb_publishable_t71D_lRPCye6d1n7FILKAQ_QiijSmad",
 
   // 관리자 이메일 (커뮤니티에서 관리자 표시용)
-  ADMIN_EMAILS: ["free336.adsens.2025@gmail.com"],
+  ADMIN_EMAILS: ["k4lose@naver.com"],
 
   // 문의 이메일 (소개/개인정보처리방침 페이지에 표시)
-  CONTACT_EMAIL: "free336.adsens.2025@gmail.com"
+  CONTACT_EMAIL: "k4lose@naver.com"
 };
