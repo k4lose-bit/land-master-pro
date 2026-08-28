@@ -88,15 +88,31 @@
   }
 
   function createPost() {
+    var title = $("postTitle").value.trim();
     var content = $("postContent").value.trim();
+    if (!title) return showMsg("제목을 입력하세요.", true);
+    if (title.length > 120) return showMsg("제목은 120자 이내로 작성해 주세요.", true);
     if (!content) return showMsg("내용을 입력하세요.", true);
     if (content.length > 5000) return showMsg("글은 5,000자 이내로 작성해 주세요.", true);
-    sb.from("posts").insert({ content: content, author_email: user.email }).then(function (res) {
+    sb.from("posts").insert({ title: title, content: content, author_email: user.email }).then(function (res) {
       if (res.error) return showMsg(res.error.message, true);
+      $("postTitle").value = "";
       $("postContent").value = "";
       showMsg("게시글이 등록되었습니다.");
       loadPosts();
     });
+  }
+
+  function updatePost(id, title, content) {
+    if (!title) return showMsg("제목을 입력하세요.", true);
+    if (!content) return showMsg("내용을 입력하세요.", true);
+    return sb.from("posts").update({ title: title, content: content, updated_at: new Date().toISOString() })
+      .eq("id", id).then(function (res) {
+        if (res.error) { showMsg(res.error.message, true); return false; }
+        showMsg("게시글이 수정되었습니다.");
+        loadPosts();
+        return true;
+      });
   }
 
   function loadPosts() {
@@ -132,17 +148,64 @@
       author.textContent = maskEmail(post.author_email);
       var date = document.createElement("span");
       date.className = "p-date";
-      date.textContent = (post.created_at || "").slice(0, 16).replace("T", " ");
+      date.textContent = (post.created_at || "").slice(0, 16).replace("T", " ") + (post.updated_at ? " (수정됨)" : "");
       head.appendChild(author);
       head.appendChild(date);
       el.appendChild(head);
+
+      var titleEl = document.createElement("div");
+      titleEl.className = "p-title";
+      titleEl.textContent = post.title || "(제목 없음)";
+      el.appendChild(titleEl);
 
       var body = document.createElement("div");
       body.className = "p-body";
       body.textContent = post.content; // XSS 방지: 항상 textContent
       el.appendChild(body);
 
+      var editBox = document.createElement("div");
+      editBox.className = "post-edit-box hidden";
+      var editTitle = document.createElement("input");
+      editTitle.type = "text";
+      editTitle.className = "field";
+      editTitle.maxLength = 120;
+      var editContent = document.createElement("textarea");
+      editContent.className = "field";
+      editContent.maxLength = 5000;
+      var editSave = document.createElement("button");
+      editSave.className = "btn sm";
+      editSave.textContent = "저장";
+      var editCancel = document.createElement("button");
+      editCancel.className = "btn ghost sm";
+      editCancel.textContent = "취소";
+      editBox.appendChild(editTitle);
+      editBox.appendChild(editContent);
+      editBox.appendChild(editSave);
+      editBox.appendChild(editCancel);
+      el.appendChild(editBox);
+
       if (user && user.id === post.author_id) {
+        var edit = document.createElement("button");
+        edit.className = "btn ghost sm";
+        edit.textContent = "수정";
+        edit.addEventListener("click", function () {
+          editTitle.value = post.title || "";
+          editContent.value = post.content;
+          titleEl.classList.add("hidden");
+          body.classList.add("hidden");
+          editBox.classList.remove("hidden");
+        });
+        el.appendChild(edit);
+
+        editCancel.addEventListener("click", function () {
+          editBox.classList.add("hidden");
+          titleEl.classList.remove("hidden");
+          body.classList.remove("hidden");
+        });
+        editSave.addEventListener("click", function () {
+          updatePost(post.id, editTitle.value.trim(), editContent.value.trim());
+        });
+
         var del = document.createElement("button");
         del.className = "btn danger sm";
         del.textContent = "삭제";
