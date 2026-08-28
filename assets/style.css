@@ -305,9 +305,41 @@ input.field, textarea.field {
 .post .p-author { color: var(--primary); font-weight: 800; }
 .post .p-date { color: var(--muted); }
 .post .p-title { font-size: 1.12em; font-weight: 800; margin-bottom: 8px; }
-.post .p-body { white-space: pre-wrap; word-break: break-word; font-size: 1em; margin-bottom: 9px; }
+.post .p-body { word-break: break-word; font-size: 1em; margin-bottom: 9px; line-height: 1.6; }
+.post .p-body img { max-width: 100%; height: auto; border-radius: 8px; }
+.post .p-body p { margin: 0 0 10px; }
+.post .p-body p:last-child { margin-bottom: 0; }
 .post-edit-box { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
-.post-edit-box textarea.field { min-height: 120px; resize: vertical; }
+
+/* 리치 텍스트 에디터 (Quill) — 민트 테마 맞춤 */
+.editor-wrap, .edit-editor-wrap { margin-bottom: 10px; border: 2px solid #A78BFA; border-radius: 8px; overflow: hidden; background: var(--card2); }
+.editor-wrap .ql-toolbar.ql-snow, .edit-editor-wrap .ql-toolbar.ql-snow {
+  background: var(--card); border: none; border-bottom: 2px solid #A78BFA; padding: 8px 10px;
+}
+.editor-wrap .ql-container.ql-snow, .edit-editor-wrap .ql-container.ql-snow {
+  border: none; font-family: inherit; font-size: 0.98em; background: var(--card2);
+}
+.editor-wrap .ql-editor, .edit-editor-wrap .ql-editor {
+  min-height: 160px; color: var(--text); padding: 14px 16px;
+}
+.editor-wrap .ql-editor.ql-blank::before, .edit-editor-wrap .ql-editor.ql-blank::before {
+  color: var(--muted); font-style: normal; font-family: inherit; left: 16px; right: 16px;
+}
+.editor-wrap .ql-snow .ql-stroke, .edit-editor-wrap .ql-snow .ql-stroke { stroke: var(--muted); }
+.editor-wrap .ql-snow .ql-fill, .edit-editor-wrap .ql-snow .ql-fill { fill: var(--muted); }
+.editor-wrap .ql-snow .ql-picker, .edit-editor-wrap .ql-snow .ql-picker { color: var(--muted); }
+.editor-wrap .ql-toolbar.ql-snow .ql-picker-options, .edit-editor-wrap .ql-toolbar.ql-snow .ql-picker-options {
+  background: var(--card); border-color: #A78BFA;
+}
+.editor-wrap .ql-snow.ql-toolbar button:hover .ql-stroke,
+.editor-wrap .ql-snow.ql-toolbar button.ql-active .ql-stroke,
+.edit-editor-wrap .ql-snow.ql-toolbar button:hover .ql-stroke,
+.edit-editor-wrap .ql-snow.ql-toolbar button.ql-active .ql-stroke { stroke: var(--primary); }
+.editor-wrap .ql-snow.ql-toolbar button:hover .ql-fill,
+.editor-wrap .ql-snow.ql-toolbar button.ql-active .ql-fill,
+.edit-editor-wrap .ql-snow.ql-toolbar button:hover .ql-fill,
+.edit-editor-wrap .ql-snow.ql-toolbar button.ql-active .ql-fill { fill: var(--primary); }
+.editor-wrap .ql-editor img, .edit-editor-wrap .ql-editor img { max-width: 100%; border-radius: 6px; }
 .comment { background: var(--bg); border-radius: 8px; padding: 10px 14px; margin-top: 8px; font-size: 0.92em; }
 .comment .c-author { color: var(--primary); font-weight: 800; margin-right: 8px; }
 .comment-row { display: flex; gap: 8px; margin-top: 10px; }
