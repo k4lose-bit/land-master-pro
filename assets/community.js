@@ -1,6 +1,8 @@
-/* 커뮤니티 — Supabase 회원제 게시판.
+/* 커뮤니티 — Supabase 회원제 게시판 + 리치 에디터(글자 크기/색상/이미지 첨부).
    assets/config.js 의 SUPABASE_URL / SUPABASE_ANON_KEY 를 채우면 자동 활성화됩니다.
-   서버 쪽 테이블·보안 규칙은 supabase_schema.sql 참고. */
+   서버 쪽 테이블·보안 규칙은 supabase_schema.sql + supabase_migration_*.sql 참고.
+   에디터: Quill (CDN) + quill-blot-formatter(이미지 리사이즈/정렬, 로드 실패해도 에디터 자체는 정상 동작).
+   렌더링 시 DOMPurify로 정화한 뒤 innerHTML로 표시 (이미지·서식 태그를 살리면서 스크립트 등은 제거). */
 (function () {
   "use strict";
   var CFG = window.LMP_CONFIG || {};
@@ -14,6 +16,32 @@
     return; // 설정 전에는 게시판 비활성 (가짜 데이터를 보여주지 않음)
   }
 
+  var CONTENT_MAX = 20000;
+  var IMAGE_BUCKET = "post-images";
+  var IMAGE_MAX_BYTES = 5 * 1024 * 1024;
+
+  var TOOLBAR_OPTS = [
+    [{ size: ["small", false, "large", "huge"] }],
+    ["bold", "italic", "underline"],
+    [{ color: [] }, { background: [] }],
+    [{ align: [] }],
+    ["image"],
+    ["clean"]
+  ];
+
+  var SANITIZE_CFG = {
+    ALLOWED_TAGS: ["p", "br", "b", "strong", "i", "em", "u", "s", "span", "img", "ol", "ul", "li", "a", "blockquote"],
+    ALLOWED_ATTR: ["style", "class", "src", "alt", "width", "height", "href", "target", "rel"]
+  };
+
+  var HAS_BLOT_FORMATTER = false;
+  if (window.Quill && window.QuillBlotFormatter) {
+    try {
+      window.Quill.register("modules/blotFormatter", window.QuillBlotFormatter.default || window.QuillBlotFormatter);
+      HAS_BLOT_FORMATTER = true;
+    } catch (e) { /* 실패해도 에디터 자체는 정상 동작 (리사이즈 핸들만 빠짐) */ }
+  }
+
   // Supabase SDK 동적 로드
   var sdk = document.createElement("script");
   sdk.src = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js";
@@ -25,6 +53,7 @@
 
   var sb = null;
   var user = null;
+  var writeQuill = null;
 
   function maskEmail(email) {
     if (!email) return "익명";
@@ -39,7 +68,7 @@
     if (!m) return;
     m.textContent = text;
     m.className = "msg " + (isErr ? "err" : "ok");
-    if (text) setTimeout(function () { m.textContent = ""; }, 6000);
+    if (text) setTimeout(function () { if (m.textContent === text) m.textContent = ""; }, 6000);
   }
 
   function init() {
@@ -84,34 +113,85 @@
     $("authForms").classList.toggle("hidden", loggedIn);
     $("authInfo").classList.toggle("hidden", !loggedIn);
     $("writeBox").classList.toggle("hidden", !loggedIn);
-    if (loggedIn) $("whoAmI").textContent = "접속: " + maskEmail(user.email);
+    if (loggedIn) {
+      $("whoAmI").textContent = "접속: " + maskEmail(user.email);
+      if (!writeQuill && window.Quill) writeQuill = createEditor($("postEditor"), function () { return writeQuill; });
+    }
+  }
+
+  // ---------- 이미지 업로드 (Supabase Storage) ----------
+  function makeImageHandler(getQuill) {
+    return function () {
+      var quill = getQuill();
+      if (!quill || !user) return;
+      var input = document.createElement("input");
+      input.setAttribute("type", "file");
+      input.setAttribute("accept", "image/png,image/jpeg,image/gif,image/webp");
+      input.onchange = function () {
+        var file = input.files && input.files[0];
+        if (!file) return;
+        if (file.size > IMAGE_MAX_BYTES) return showMsg("이미지는 5MB 이하로 올려주세요.", true);
+        var safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+        var path = user.id + "/" + Date.now() + "-" + safeName;
+        showMsg("이미지 업로드 중…");
+        sb.storage.from(IMAGE_BUCKET).upload(path, file).then(function (res) {
+          if (res.error) return showMsg("이미지 업로드 실패: " + res.error.message, true);
+          var pub = sb.storage.from(IMAGE_BUCKET).getPublicUrl(path);
+          var url = pub.data && pub.data.publicUrl;
+          if (!url) return showMsg("이미지 URL을 가져오지 못했습니다.", true);
+          var range = quill.getSelection(true);
+          quill.insertEmbed(range ? range.index : quill.getLength(), "image", url, "user");
+          quill.setSelection((range ? range.index : quill.getLength()) + 1);
+          showMsg("이미지가 삽입되었습니다.");
+        });
+      };
+      input.click();
+    };
+  }
+
+  function createEditor(container, getQuillRef) {
+    if (!container || !window.Quill) return null;
+    var modules = {
+      toolbar: { container: TOOLBAR_OPTS, handlers: { image: makeImageHandler(getQuillRef) } }
+    };
+    if (HAS_BLOT_FORMATTER) modules.blotFormatter = {};
+    return new window.Quill(container, {
+      theme: "snow",
+      placeholder: container.getAttribute("data-placeholder") || "",
+      modules: modules
+    });
+  }
+
+  function quillHasContent(quill) {
+    if (!quill) return false;
+    if (quill.getText().trim().length > 0) return true;
+    return /<img[\s>]/i.test(quill.root.innerHTML);
   }
 
   function createPost() {
     var title = $("postTitle").value.trim();
-    var content = $("postContent").value.trim();
     if (!title) return showMsg("제목을 입력하세요.", true);
     if (title.length > 120) return showMsg("제목은 120자 이내로 작성해 주세요.", true);
-    if (!content) return showMsg("내용을 입력하세요.", true);
-    if (content.length > 5000) return showMsg("글은 5,000자 이내로 작성해 주세요.", true);
+    if (!quillHasContent(writeQuill)) return showMsg("내용을 입력하세요.", true);
+    var content = writeQuill.root.innerHTML;
+    if (content.length > CONTENT_MAX) return showMsg("글 내용이 너무 깁니다. 이미지를 줄이거나 글을 나눠 주세요.", true);
     sb.from("posts").insert({ title: title, content: content, author_email: user.email }).then(function (res) {
       if (res.error) return showMsg(res.error.message, true);
       $("postTitle").value = "";
-      $("postContent").value = "";
+      writeQuill.setText("");
       showMsg("게시글이 등록되었습니다.");
       loadPosts();
     });
   }
 
-  function updatePost(id, title, content) {
+  function updatePost(id, title, contentHtml) {
     if (!title) return showMsg("제목을 입력하세요.", true);
-    if (!content) return showMsg("내용을 입력하세요.", true);
-    return sb.from("posts").update({ title: title, content: content, updated_at: new Date().toISOString() })
+    if (contentHtml.length > CONTENT_MAX) return showMsg("글 내용이 너무 깁니다.", true);
+    sb.from("posts").update({ title: title, content: contentHtml, updated_at: new Date().toISOString() })
       .eq("id", id).then(function (res) {
-        if (res.error) { showMsg(res.error.message, true); return false; }
+        if (res.error) return showMsg(res.error.message, true);
         showMsg("게시글이 수정되었습니다.");
         loadPosts();
-        return true;
       });
   }
 
@@ -125,6 +205,14 @@
         sb.from("comments").select("*").in("post_id", ids).order("created_at", { ascending: true })
           .then(function (cres) { renderPosts(posts, cres.data || []); });
       });
+  }
+
+  function sanitize(html) {
+    if (window.DOMPurify) return window.DOMPurify.sanitize(html, SANITIZE_CFG);
+    // DOMPurify 로드 실패 시 안전하게 텍스트만 표시 (서식·이미지는 생략)
+    var tmp = document.createElement("div");
+    tmp.textContent = html;
+    return tmp.innerHTML;
   }
 
   function renderPosts(posts, comments) {
@@ -160,7 +248,7 @@
 
       var body = document.createElement("div");
       body.className = "p-body";
-      body.textContent = post.content; // XSS 방지: 항상 textContent
+      body.innerHTML = sanitize(post.content || "");
       el.appendChild(body);
 
       var editBox = document.createElement("div");
@@ -169,20 +257,26 @@
       editTitle.type = "text";
       editTitle.className = "field";
       editTitle.maxLength = 120;
-      var editContent = document.createElement("textarea");
-      editContent.className = "field";
-      editContent.maxLength = 5000;
+      var editEditorWrap = document.createElement("div");
+      editEditorWrap.className = "editor-wrap";
+      var editEditorDiv = document.createElement("div");
+      editEditorWrap.appendChild(editEditorDiv);
       var editSave = document.createElement("button");
       editSave.className = "btn sm";
       editSave.textContent = "저장";
+      editSave.style.marginTop = "8px";
       var editCancel = document.createElement("button");
       editCancel.className = "btn ghost sm";
       editCancel.textContent = "취소";
+      editCancel.style.marginTop = "8px";
+      editCancel.style.marginLeft = "8px";
       editBox.appendChild(editTitle);
-      editBox.appendChild(editContent);
+      editBox.appendChild(editEditorWrap);
       editBox.appendChild(editSave);
       editBox.appendChild(editCancel);
       el.appendChild(editBox);
+
+      var editQuill = null;
 
       if (user && user.id === post.author_id) {
         var edit = document.createElement("button");
@@ -190,10 +284,11 @@
         edit.textContent = "수정";
         edit.addEventListener("click", function () {
           editTitle.value = post.title || "";
-          editContent.value = post.content;
           titleEl.classList.add("hidden");
           body.classList.add("hidden");
           editBox.classList.remove("hidden");
+          if (!editQuill) editQuill = createEditor(editEditorDiv, function () { return editQuill; });
+          if (editQuill) editQuill.root.innerHTML = post.content || "";
         });
         el.appendChild(edit);
 
@@ -203,7 +298,8 @@
           body.classList.remove("hidden");
         });
         editSave.addEventListener("click", function () {
-          updatePost(post.id, editTitle.value.trim(), editContent.value.trim());
+          if (!quillHasContent(editQuill)) return showMsg("내용을 입력하세요.", true);
+          updatePost(post.id, editTitle.value.trim(), editQuill.root.innerHTML);
         });
 
         var del = document.createElement("button");
