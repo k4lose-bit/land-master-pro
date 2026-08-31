@@ -19,38 +19,42 @@
   <script src="assets/app.js" defer></script>
 </head>
 <body>
-  <header class="site-header">
-    <div class="header-inner">
+  <div class="app-shell">
+    <aside class="site-sidebar">
       <a class="brand" href="index.html"><span aria-hidden="true">🧭</span><b>Land Master Pro</b><span>경기북부 토지 탐사대</span></a>
-      <div class="header-tools">
-        <input type="text" id="headerSearch" class="search-input" placeholder="🧭 현장 검색">
-        <span class="streak-chip" id="streakChip">🔥 1일 연속</span>
-        <span class="xp-chip" id="xpChip">Lv.1 토지 견습생 · 0 XP</span>
+      <nav class="site-nav">
+        <a href="index.html">🏠 홈</a>
+        <a href="stage1.html">S1. 맹지·도로</a>
+        <a href="stage2.html">S2. 임야·농지</a>
+        <a href="stage3.html">S3. 용도지역</a>
+        <a href="stage4.html">S4. 권리·계약</a>
+        <a href="stage5.html">S5. 토지보상</a>
+        <a href="notices.html">📡 공고 와처</a>
+        <a href="guide.html">🌐 토지이음 가이드</a>
+        <a href="community.html">💬 커뮤니티</a>
+      </nav>
+    </aside>
+    <div class="site-col">
+      <header class="site-header">
+        <div class="header-inner">
+          <div class="header-tools">
+            <input type="text" id="headerSearch" class="search-input" placeholder="🧭 현장 검색">
+            <span class="streak-chip" id="streakChip">🔥 1일 연속</span>
+            <span class="xp-chip" id="xpChip">Lv.1 토지 견습생 · 0 XP</span>
+          </div>
+        </div>
+      </header>
+      <div class="search-overlay" id="searchOverlay">
+        <div class="search-panel" id="searchResults"></div>
       </div>
-    </div>
-    <nav class="site-nav">
-      <a href="index.html">🏠 홈</a>
-      <a href="stage1.html">S1. 맹지·도로</a>
-      <a href="stage2.html">S2. 임야·농지</a>
-      <a href="stage3.html">S3. 용도지역</a>
-      <a href="stage4.html">S4. 권리·계약</a>
-      <a href="stage5.html">S5. 토지보상</a>
-      <a href="notices.html">📡 공고 와처</a>
-      <a href="guide.html">🌐 토지이음 가이드</a>
-      <a href="community.html">💬 커뮤니티</a>
-    </nav>
-  </header>
-  <div class="search-overlay" id="searchOverlay">
-    <div class="search-panel" id="searchResults"></div>
-  </div>
-  <div class="ad-interstitial hidden" id="adInterstitial">
-    <div class="ad-slot-card">
-      <div class="ad-slot-label">광고 (준비 중 — AD_INTERSTITIAL_ENABLED=false)</div>
-      <div class="ad-slot-box" id="adSlotBox">여기에 실제 애드센스 전면광고 코드가 들어갈 자리입니다.</div>
-      <button class="btn ghost sm" id="adSlotClose" type="button">닫고 계속하기 →</button>
-    </div>
-  </div>
-  <main>
+      <div class="ad-interstitial hidden" id="adInterstitial">
+        <div class="ad-slot-card">
+          <div class="ad-slot-label">광고 (준비 중 — AD_INTERSTITIAL_ENABLED=false)</div>
+          <div class="ad-slot-box" id="adSlotBox">여기에 실제 애드센스 전면광고 코드가 들어갈 자리입니다.</div>
+          <button class="btn ghost sm" id="adSlotClose" type="button">닫고 계속하기 →</button>
+        </div>
+      </div>
+      <main>
 
     <div class="page-head">
       <h1>개인정보처리방침</h1>
@@ -80,18 +84,20 @@
       <p>개인정보 관련 문의: <a href="mailto:free336.adsens.2025@gmail.com">free336.adsens.2025@gmail.com</a></p>
       <p style="color:var(--muted); font-size:0.85em;">본 방침은 법령·서비스 변경에 따라 개정될 수 있으며, 개정 시 본 페이지에 게시합니다.</p>
     </div>
-  </main>
-  <footer class="site-footer">
-    <div class="footer-inner">
-      <div>
-        <a href="about.html">사이트 소개·문의</a>
-        <a href="privacy.html">개인정보처리방침</a>
-        <a href="notices.html">공고 와처</a>
-      </div>
-      <p class="disclaimer">본 사이트의 모든 콘텐츠는 일반적인 정보 제공을 목적으로 하며, 법률·세무·투자 자문이 아닙니다.
-      법령·조례·세율은 개정될 수 있고 지자체마다 기준이 다르므로, 실제 거래 전 반드시 해당 기관과 전문가(변호사·세무사·감정평가사 등)의 확인을 받으시기 바랍니다.
-      &copy; 2026 Land Master Pro</p>
+      </main>
+      <footer class="site-footer">
+        <div class="footer-inner">
+          <div>
+            <a href="about.html">사이트 소개·문의</a>
+            <a href="privacy.html">개인정보처리방침</a>
+            <a href="notices.html">공고 와처</a>
+          </div>
+          <p class="disclaimer">본 사이트의 모든 콘텐츠는 일반적인 정보 제공을 목적으로 하며, 법률·세무·투자 자문이 아닙니다.
+          법령·조례·세율은 개정될 수 있고 지자체마다 기준이 다르므로, 실제 거래 전 반드시 해당 기관과 전문가(변호사·세무사·감정평가사 등)의 확인을 받으시기 바랍니다.
+          &copy; 2026 Land Master Pro</p>
+        </div>
+      </footer>
     </div>
-  </footer>
+  </div>
 </body>
 </html>
