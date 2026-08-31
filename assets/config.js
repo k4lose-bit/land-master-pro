@@ -11,7 +11,8 @@ window.LMP_CONFIG = {
   ADSENSE_CLIENT: "ca-pub-9999663397461979",
   // 광고 켜기: 콘텐츠가 충분히 채워지고 실제 도메인으로 배포된 뒤 true로 변경.
   // 로컬 파일(file://)이나 빈 페이지 상태에서 광고를 켜면 정책 위반 위험이 있음.
-  ADSENSE_ENABLED: false,
+  // 2026-08-31: 도메인 배포 완료 + AdSense 승인 상태(free336.com 하위 서브도메인 자동 커버) 확인되어 활성화.
+  ADSENSE_ENABLED: true,
 
   // ---------- 전면광고(인터스티셜) 임시 슬롯 ----------
   // 스테이지 이동 시 뜨는 전면광고 자리. 실제 애드센스 전면광고 코드가 준비되면
@@ -26,8 +27,8 @@ window.LMP_CONFIG = {
   SUPABASE_ANON_KEY: "sb_publishable_t71D_lRPCye6d1n7FILKAQ_QiijSmad",
 
   // 관리자 이메일 (커뮤니티에서 관리자 표시용)
-  ADMIN_EMAILS: ["k4lose@naver.com"],
+  ADMIN_EMAILS: ["free336.adsens.2025@gmail.com"],
 
   // 문의 이메일 (소개/개인정보처리방침 페이지에 표시)
-  CONTACT_EMAIL: "k4lose@naver.com"
+  CONTACT_EMAIL: "free336.adsens.2025@gmail.com"
 };
