@@ -235,6 +235,11 @@ textarea.field { min-height: 110px; resize: vertical; }
 .ox-feedback { display: none; margin-bottom: 6px; padding: 14px 16px; border-radius: 8px; font-size: 0.98em; }
 .ox-feedback.ok { display: block; background: #E8F9F1; color: #0B8A5F; }
 .ox-feedback.no { display: block; background: #FDEDEB; color: #B23A2E; }
+.ox-retry-btn {
+  background: var(--card2); color: var(--text); border: 2px solid #A78BFA; border-radius: 8px;
+  padding: 9px 18px; font-size: 0.9em; font-weight: 700; cursor: pointer; margin-bottom: 6px;
+}
+.ox-retry-btn:hover { background: var(--bg); border-color: var(--primary); color: var(--primary); }
 .more-btn { width: 100%; background: #EAF6F0; color: var(--primary); border: 1px solid #B9E5D2; padding: 12px;
   border-radius: 8px; cursor: pointer; font-size: 0.95em; font-weight: 700; font-family: inherit; margin-top: 8px; }
 .more-btn:hover { background: #DCF3E9; }

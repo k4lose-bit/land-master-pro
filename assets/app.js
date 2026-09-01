@@ -195,6 +195,7 @@
       if (!row) return;
       var answer = card.getAttribute("data-ox-answer") === "true";
       var buttons = row.querySelectorAll(".ox-btn");
+      var retryBtn = card.querySelector(".ox-retry-btn");
       buttons.forEach(function (btn) {
         btn.addEventListener("click", function () {
           var val = btn.getAttribute("data-val") === "true";
@@ -207,10 +208,22 @@
             buttons.forEach(function (b) { if (b.getAttribute("data-val") === String(answer)) b.classList.add("correct"); });
           }
           fb.className = "ox-feedback " + (val === answer ? "ok" : "no");
-          fb.innerHTML = (val === answer ? "🎯 <b>맞혔습니다!</b> " : "💡 <b>정답은 반대!</b> ") + card.getAttribute("data-snap");
+          fb.innerHTML = (val === answer
+            ? "🎉 <b>정답이에요!</b> "
+            : "😅 <b>아쉬워요, 틀렸어요!</b> 정답은 <b>'" + (answer ? "맞다" : "아니다") + "'</b>입니다. "
+          ) + card.getAttribute("data-snap");
+          if (retryBtn) retryBtn.classList.remove("hidden");
           markSeen(sub);
         });
       });
+      if (retryBtn) {
+        retryBtn.addEventListener("click", function () {
+          buttons.forEach(function (b) { b.disabled = false; b.classList.remove("correct", "wrong"); });
+          fb.className = "ox-feedback";
+          fb.innerHTML = "";
+          retryBtn.classList.add("hidden");
+        });
+      }
       var more = card.querySelector(".more-btn");
       var deep = card.querySelector(".deep-dive");
       if (more && deep) {
@@ -251,7 +264,10 @@
     if (correct) celebrate(clickedBtn);
     var box = document.getElementById("fhFeedback");
     box.className = "fh-feedback " + (correct ? "ok" : "no");
-    box.innerHTML = (correct ? "🎯 <b>맞혔습니다!</b> " : "💡 <b>정답은 반대!</b> ") + f.snap +
+    box.innerHTML = (correct
+      ? "🎉 <b>정답이에요!</b> "
+      : "😅 <b>아쉬워요, 틀렸어요!</b> 정답은 <b>'" + (f.answer ? "맞다" : "아니다") + "'</b>입니다. "
+    ) + f.snap +
       '<br><br><a class="btn sm" href="stage' + f.stage + '.html#mod-' + f.sub + '" style="margin-top:4px;">📖 이 관문 전체 학습 보러가기 →</a>';
     markSeen(f.sub);
   }
