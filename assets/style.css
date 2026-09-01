@@ -415,6 +415,39 @@ input.field, textarea.field {
 .book-cover { transition: box-shadow .15s, transform .15s; }
 .book-note { margin: 18px 0 0; font-size: 0.8em; color: var(--muted); }
 
+/* 용어사전 */
+.glossary-group { margin: 30px 0; }
+.glossary-group h3 {
+  display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 8px;
+  color: var(--primary); font-size: 1.1em; font-weight: 800;
+  border-bottom: 2px solid #A78BFA; padding-bottom: 8px; margin: 0 0 14px;
+}
+.glossary-group-link { font-size: 0.7em; font-weight: 700; color: var(--muted); text-decoration: none; }
+.glossary-group-link:hover { color: var(--primary); }
+.glossary-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+.glossary-card {
+  display: block; background: var(--card); border: 2px solid var(--line); border-radius: 12px;
+  padding: 14px 16px; text-decoration: none; transition: border-color .15s, transform .15s;
+}
+.glossary-card:hover { border-color: #A78BFA; transform: translateY(-2px); }
+.glossary-card b { display: block; color: var(--text); font-size: 1.03em; margin-bottom: 4px; }
+.glossary-card span { display: block; color: var(--muted); font-size: 0.85em; line-height: 1.4; }
+.term-badge {
+  display: inline-block; background: var(--card2); border: 1px solid #A78BFA; border-radius: 20px;
+  padding: 3px 12px; font-size: 0.78em; font-weight: 700; color: var(--primary); margin-bottom: 10px;
+}
+.term-related { margin-top: 30px; }
+.term-related h4 { font-size: 0.95em; color: var(--muted); font-weight: 700; margin: 0 0 10px; }
+.term-related-links { display: flex; flex-wrap: wrap; gap: 8px; }
+.term-related-links a {
+  display: inline-block; background: var(--card2); border: 1px solid var(--line); border-radius: 20px;
+  padding: 5px 14px; font-size: 0.86em; color: var(--text); text-decoration: none;
+}
+.term-related-links a:hover { border-color: #A78BFA; color: var(--primary); }
+.doc-back { margin-top: 18px; }
+.doc-back a { color: var(--muted); font-size: 0.9em; text-decoration: none; }
+.doc-back a:hover { color: var(--primary); }
+
 /* 전면광고 임시 슬롯 (기본 숨김, 준비만 된 상태) */
 .ad-slot { margin: 26px 0; text-align: center; min-height: 0; }
 .ad-interstitial { position: fixed; inset: 0; background: rgba(20,26,33,0.6); z-index: 300; display: flex;
