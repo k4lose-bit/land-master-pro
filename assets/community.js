@@ -54,6 +54,8 @@
   var sb = null;
   var user = null;
   var writeQuill = null;
+  var lastPosts = [];
+  var lastComments = [];
 
   function maskEmail(email) {
     if (!email) return "익명";
@@ -81,6 +83,7 @@
       sb.auth.signOut().then(function () { user = null; refreshAuthUI(); loadPosts(); });
     });
     $("btnPost").addEventListener("click", createPost);
+    window.addEventListener("hashchange", render);
 
     sb.auth.getSession().then(function (res) {
       user = res.data.session ? res.data.session.user : null;
@@ -103,7 +106,7 @@
       }
       user = res.data.session ? res.data.session.user : null;
       refreshAuthUI();
-      loadPosts();
+      render();
       showMsg(mode === "signup" ? "가입 완료!" : "로그인 되었습니다.");
     });
   }
@@ -112,7 +115,6 @@
     var loggedIn = !!user;
     $("authForms").classList.toggle("hidden", loggedIn);
     $("authInfo").classList.toggle("hidden", !loggedIn);
-    $("writeBox").classList.toggle("hidden", !loggedIn);
     if (loggedIn) {
       $("whoAmI").textContent = "접속: " + maskEmail(user.email);
       if (!writeQuill && window.Quill) writeQuill = createEditor($("postEditor"), function () { return writeQuill; });
@@ -195,15 +197,24 @@
       });
   }
 
-  function loadPosts() {
+  function loadPosts(cb) {
     sb.from("posts").select("*").order("created_at", { ascending: false }).limit(50)
       .then(function (res) {
-        if (res.error) return showMsg(res.error.message, true);
-        var posts = res.data || [];
-        var ids = posts.map(function (p) { return p.id; });
-        if (!ids.length) return renderPosts(posts, []);
+        if (res.error) { showMsg(res.error.message, true); if (cb) cb(); return; }
+        lastPosts = res.data || [];
+        var ids = lastPosts.map(function (p) { return p.id; });
+        if (!ids.length) {
+          lastComments = [];
+          render();
+          if (cb) cb();
+          return;
+        }
         sb.from("comments").select("*").in("post_id", ids).order("created_at", { ascending: true })
-          .then(function (cres) { renderPosts(posts, cres.data || []); });
+          .then(function (cres) {
+            lastComments = cres.data || [];
+            render();
+            if (cb) cb();
+          });
       });
   }
 
@@ -215,7 +226,56 @@
     return tmp.innerHTML;
   }
 
-  function renderPosts(posts, comments) {
+  function excerpt(html) {
+    var tmp = document.createElement("div");
+    tmp.innerHTML = sanitize(html || "");
+    var text = (tmp.textContent || tmp.innerText || "").replace(/\s+/g, " ").trim();
+    return text.length > 74 ? text.slice(0, 74) + "…" : text;
+  }
+
+  function commentsFor(postId) {
+    return lastComments.filter(function (c) { return c.post_id === postId; });
+  }
+
+  function getRouteId() {
+    var m = location.hash.match(/^#post-(.+)$/);
+    return m ? decodeURIComponent(m[1]) : null;
+  }
+
+  /* ---------- 라우팅: 목록 ↔ 글 상세 ---------- */
+  function render() {
+    var writeBox = $("writeBox");
+    var id = getRouteId();
+    if (!id) {
+      if (writeBox) writeBox.classList.toggle("hidden", !user);
+      renderList(lastPosts);
+      return;
+    }
+    if (writeBox) writeBox.classList.add("hidden");
+    var post = lastPosts.filter(function (p) { return String(p.id) === id; })[0];
+    if (post) {
+      renderDetail(post, commentsFor(post.id));
+    } else {
+      renderNotFound();
+    }
+  }
+
+  function renderNotFound() {
+    var wrap = $("postList");
+    wrap.innerHTML = "";
+    var back = document.createElement("a");
+    back.className = "post-back";
+    back.href = "#";
+    back.textContent = "← 목록으로";
+    wrap.appendChild(back);
+    var p = document.createElement("p");
+    p.className = "msg";
+    p.textContent = "글을 찾을 수 없습니다. 삭제되었거나 잘못된 링크입니다.";
+    wrap.appendChild(p);
+  }
+
+  /* ---------- 목록 화면 ---------- */
+  function renderList(posts) {
     var wrap = $("postList");
     wrap.innerHTML = "";
     if (!posts.length) {
@@ -225,9 +285,59 @@
       wrap.appendChild(p);
       return;
     }
+    var list = document.createElement("div");
+    list.className = "post-list";
     posts.forEach(function (post) {
-      var el = document.createElement("div");
-      el.className = "post";
+      var row = document.createElement("a");
+      row.className = "post-row";
+      row.href = "#post-" + encodeURIComponent(post.id);
+
+      var titleEl = document.createElement("div");
+      titleEl.className = "pr-title";
+      titleEl.textContent = post.title || "(제목 없음)";
+      row.appendChild(titleEl);
+
+      var exc = excerpt(post.content);
+      if (exc) {
+        var excEl = document.createElement("div");
+        excEl.className = "pr-excerpt";
+        excEl.textContent = exc;
+        row.appendChild(excEl);
+      }
+
+      var meta = document.createElement("div");
+      meta.className = "pr-meta";
+      var cCount = commentsFor(post.id).length;
+      meta.innerHTML =
+        '<span class="pr-author">' + escText(maskEmail(post.author_email)) + "</span>" +
+        '<span class="pr-date">' + escText((post.created_at || "").slice(0, 16).replace("T", " ")) + "</span>" +
+        '<span class="pr-comments">💬 ' + cCount + "</span>";
+      row.appendChild(meta);
+
+      list.appendChild(row);
+    });
+    wrap.appendChild(list);
+  }
+
+  function escText(s) {
+    var d = document.createElement("div");
+    d.textContent = s == null ? "" : String(s);
+    return d.innerHTML;
+  }
+
+  /* ---------- 글 상세 화면 (읽기 + 댓글) ---------- */
+  function renderDetail(post, comments) {
+    var wrap = $("postList");
+    wrap.innerHTML = "";
+
+    var back = document.createElement("a");
+    back.className = "post-back";
+    back.href = "#";
+    back.textContent = "← 목록으로";
+    wrap.appendChild(back);
+
+    var el = document.createElement("div");
+    el.className = "post";
 
       var head = document.createElement("div");
       head.className = "p-head";
@@ -307,14 +417,17 @@
         del.textContent = "삭제";
         del.addEventListener("click", function () {
           if (!confirm("이 글을 삭제할까요?")) return;
-          sb.from("posts").delete().eq("id", post.id).then(loadPosts);
+          sb.from("posts").delete().eq("id", post.id).then(function () {
+            location.hash = "";
+            loadPosts();
+          });
         });
         el.appendChild(del);
       }
 
       // 댓글
       var cwrap = document.createElement("div");
-      comments.filter(function (c) { return c.post_id === post.id; }).forEach(function (c) {
+      comments.forEach(function (c) {
         var cel = document.createElement("div");
         cel.className = "comment";
         var ca = document.createElement("span");
@@ -361,6 +474,5 @@
       }
 
       wrap.appendChild(el);
-    });
   }
 })();

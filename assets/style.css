@@ -328,6 +328,21 @@ input.field, textarea.field {
 .btn.danger { background: #FDEDEB; color: #B23A2E; }
 .btn.sm { padding: 8px 15px; font-size: 0.88em; }
 .btn:disabled { opacity: 0.55; cursor: not-allowed; }
+.post-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 14px; }
+.post-row {
+  display: block; background: var(--card); border: 2px solid var(--line); border-radius: 10px;
+  padding: 14px 18px; text-decoration: none; transition: border-color .15s, transform .15s;
+}
+.post-row:hover { border-color: #A78BFA; transform: translateY(-1px); }
+.pr-title { font-size: 1.05em; font-weight: 800; color: var(--text); margin-bottom: 5px; }
+.pr-excerpt { font-size: 0.9em; color: var(--muted); margin-bottom: 8px; line-height: 1.5; }
+.pr-meta { display: flex; gap: 12px; font-size: 0.82em; color: var(--muted); }
+.pr-meta .pr-author { color: var(--primary); font-weight: 700; }
+.post-back {
+  display: inline-block; margin-bottom: 14px; color: var(--muted); font-size: 0.9em;
+  text-decoration: none; font-weight: 700;
+}
+.post-back:hover { color: var(--primary); }
 .post { background: var(--card); border: 2px solid #A78BFA; border-radius: 10px; padding: 18px 20px; margin-bottom: 14px; }
 .post .p-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 9px; font-size: 0.9em; }
 .post .p-author { color: var(--primary); font-weight: 800; }
@@ -452,6 +467,17 @@ input.field, textarea.field {
 .doc-back { margin-top: 18px; }
 .doc-back a { color: var(--muted); font-size: 0.9em; text-decoration: none; }
 .doc-back a:hover { color: var(--primary); }
+
+/* 커뮤니티 이용 넛지 (은근한 안내, 광고 아님) */
+.community-nudge {
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  background: var(--card2); border: 1px dashed var(--line); border-radius: 10px;
+  padding: 14px 18px; margin: 22px 0;
+}
+.community-nudge .cn-icon { font-size: 1.4em; flex-shrink: 0; }
+.community-nudge .cn-text { flex: 1; min-width: 180px; }
+.community-nudge .cn-text p { margin: 0; font-size: 0.92em; color: var(--muted); }
+.community-nudge .btn { flex-shrink: 0; }
 
 /* 전면광고 임시 슬롯 (기본 숨김, 준비만 된 상태) */
 .ad-slot { margin: 26px 0; text-align: center; min-height: 0; }
