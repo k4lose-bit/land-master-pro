@@ -182,6 +182,7 @@
       $("postTitle").value = "";
       writeQuill.setText("");
       showMsg("게시글이 등록되었습니다.");
+      location.hash = "";
       loadPosts();
     });
   }
@@ -242,16 +243,28 @@
     return m ? decodeURIComponent(m[1]) : null;
   }
 
-  /* ---------- 라우팅: 목록 ↔ 글 상세 ---------- */
+  /* ---------- 라우팅: 목록 ↔ 글쓰기 ↔ 글 상세 ---------- */
   function render() {
     var writeBox = $("writeBox");
-    var id = getRouteId();
-    if (!id) {
-      if (writeBox) writeBox.classList.toggle("hidden", !user);
-      renderList(lastPosts);
+    var composeBar = $("composeBar");
+    var postList = $("postList");
+
+    if (location.hash === "#write") {
+      if (!user) { location.hash = ""; return; }
+      if (writeBox) writeBox.classList.remove("hidden");
+      if (composeBar) composeBar.classList.add("hidden");
+      if (postList) postList.innerHTML = "";
       return;
     }
     if (writeBox) writeBox.classList.add("hidden");
+
+    var id = getRouteId();
+    if (!id) {
+      if (composeBar) composeBar.classList.toggle("hidden", !user);
+      renderList(lastPosts);
+      return;
+    }
+    if (composeBar) composeBar.classList.add("hidden");
     var post = lastPosts.filter(function (p) { return String(p.id) === id; })[0];
     if (post) {
       renderDetail(post, commentsFor(post.id));
