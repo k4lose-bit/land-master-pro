@@ -644,9 +644,9 @@
   function build() {
     fab = el("button", "lmp-chat-fab");
     fab.type = "button";
-    fab.setAttribute("aria-label", "AI 학습 도우미 열기");
+    fab.setAttribute("aria-label", "용어챗봇 열기");
     fab.appendChild(el("span", "fab-ico", "🧭"));
-    fab.appendChild(el("span", null, "용어 물어보기"));
+    fab.appendChild(el("span", null, "용어챗봇"));
     fab.addEventListener("click", open);
 
     panel = el("div", "lmp-chat-panel");
