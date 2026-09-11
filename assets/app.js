@@ -451,3 +451,262 @@
   // 다른 스크립트에서 쓸 수 있게 공개
   window.LMP = { state: state, refreshWidgets: refreshWidgets, levelName: levelName };
 })();
+
+/* ============================================================
+   Land Master Pro — AI 학습 도우미 (챗봇 위젯)
+   config.js의 CHAT_ENABLED + CHAT_API_URL이 모두 채워져야 동작한다.
+   페이지 HTML을 수정하지 않도록 DOM을 여기서 직접 만든다.
+   ============================================================ */
+(function () {
+  "use strict";
+  var CFG = window.LMP_CONFIG || {};
+  if (!CFG.CHAT_ENABLED || !CFG.CHAT_API_URL) return;
+
+  var MAX_LEN = 200;
+  var MAX_TURNS = 8;           // api/land.js의 MAX_HISTORY와 같은 값
+  var STORE_KEY = "lmp_chat_seen_v1";
+
+  // 페이지 성격에 맞는 추천 질문
+  var SUGGEST_BY_PAGE = {
+    "stage1.html": ["맹지가 정확히 뭐예요?", "현황도로로도 건축허가가 나나요?", "구거가 끼어 있으면 어떻게 하나요?"],
+    "stage2.html": ["보전산지와 준보전산지 차이는?", "농취증은 도시 사람도 받을 수 있나요?", "산을 대지로 바꾸려면 뭐가 드나요?"],
+    "stage3.html": ["건폐율과 용적률이 어떻게 다른가요?", "계획관리지역이 왜 인기가 많나요?", "개발행위허가가 뭔가요?"],
+    "stage4.html": ["등기부등본 갑구와 을구 차이는?", "기획부동산은 어떻게 알아보나요?", "토지 계약 특약에 뭘 넣어야 하나요?"],
+    "stage5.html": ["수용재결이 뭔가요?", "보상금이 시세보다 낮은 이유는?", "대토보상은 아무나 받나요?"]
+  };
+  var SUGGEST_DEFAULT = ["토지 투자, 뭐부터 봐야 하나요?", "맹지가 뭔가요?", "용도지역이 왜 중요한가요?"];
+
+  var msgs = [];               // [{role, content}]
+  var busy = false;
+  var panel, log, ta, sendBtn, fab;
+
+  function el(tag, cls, txt) {
+    var n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (txt != null) n.textContent = txt;
+    return n;
+  }
+
+  function pageKey() {
+    var p = location.pathname.split("/").pop() || "index.html";
+    return p;
+  }
+
+  function suggestions() {
+    return SUGGEST_BY_PAGE[pageKey()] || SUGGEST_DEFAULT;
+  }
+
+  /* 링크 허용 목록: 같은 사이트의 .html 파일명만 앵커로 바꾼다.
+     [보여줄 글자](파일명.html) 형태만 인식하고, 그 외 텍스트는 그대로 둔다. */
+  var LINK_RE = /\[([^\]\n]{1,40})\]\(([a-z0-9-]{1,60}\.html)\)/g;
+
+  function renderText(node, text) {
+    node.textContent = "";
+    var last = 0, m;
+    LINK_RE.lastIndex = 0;
+    while ((m = LINK_RE.exec(text)) !== null) {
+      if (m.index > last) node.appendChild(document.createTextNode(text.slice(last, m.index)));
+      var a = document.createElement("a");
+      a.href = m[2];
+      a.textContent = m[1];
+      node.appendChild(a);
+      last = m.index + m[0].length;
+    }
+    if (last < text.length) node.appendChild(document.createTextNode(text.slice(last)));
+  }
+
+  function addMsg(kind, text) {
+    var d = el("div", "lmp-msg " + kind);
+    if (kind === "bot") renderText(d, text); else d.textContent = text;
+    log.appendChild(d);
+    log.scrollTop = log.scrollHeight;
+    return d;
+  }
+
+  function addIntro() {
+    var wrap = el("div", "lmp-chat-intro");
+    var p = el("div");
+    p.innerHTML = "<b>토지 용어가 막힐 때 물어보세요.</b><br>이 사이트의 용어사전 28개와 퀴즈 25개를 근거로 답합니다.";
+    wrap.appendChild(p);
+    var sg = el("div", "lmp-sugg");
+    suggestions().forEach(function (q) {
+      var b = el("button", null, q);
+      b.type = "button";
+      b.addEventListener("click", function () { ask(q); });
+      sg.appendChild(b);
+    });
+    wrap.appendChild(sg);
+    log.appendChild(wrap);
+  }
+
+  function setBusy(v) {
+    busy = v;
+    sendBtn.disabled = v;
+    ta.disabled = v;
+  }
+
+  function ask(text) {
+    if (busy) return;
+    text = (text || "").trim().slice(0, MAX_LEN);
+    if (!text) return;
+
+    var intro = log.querySelector(".lmp-chat-intro");
+    if (intro) intro.remove();
+
+    addMsg("me", text);
+    msgs.push({ role: "user", content: text });
+    while (msgs.length > MAX_TURNS) msgs.shift();
+    ta.value = "";
+    ta.style.height = "";
+    setBusy(true);
+
+    var bubble = addMsg("bot", "");
+    var dots = el("span", "lmp-typing");
+    dots.appendChild(el("i")); dots.appendChild(el("i")); dots.appendChild(el("i"));
+    bubble.appendChild(dots);
+
+    stream(bubble);
+  }
+
+  function stream(bubble) {
+    var acc = "";
+    var failed = false;
+
+    fetch(CFG.CHAT_API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ messages: msgs })
+    }).then(function (res) {
+      if (!res.ok) {
+        return res.json().catch(function () { return {}; }).then(function (j) {
+          throw new Error(j.error || "일시적인 문제가 생겼어요. 잠시 후 다시 시도해 주세요.");
+        });
+      }
+      if (!res.body || !res.body.getReader) throw new Error("이 브라우저에서는 지원되지 않아요.");
+
+      var reader = res.body.getReader();
+      var dec = new TextDecoder();
+      var buf = "";
+
+      function pump() {
+        return reader.read().then(function (r) {
+          if (r.done) return;
+          buf += dec.decode(r.value, { stream: true });
+          var parts = buf.split("\n");
+          buf = parts.pop() || "";
+          for (var i = 0; i < parts.length; i++) {
+            var line = parts[i];
+            if (line.indexOf("data: ") !== 0) continue;
+            var data = line.slice(6).trim();
+            if (!data || data === "[DONE]") continue;
+            try {
+              var p = JSON.parse(data);
+              if (p.error) { failed = true; acc = p.error; }
+              else if (p.text) { acc += p.text; }
+              renderText(bubble, acc);
+              log.scrollTop = log.scrollHeight;
+            } catch (e) { /* 부분 청크는 무시 */ }
+          }
+          return pump();
+        });
+      }
+      return pump();
+    }).then(function () {
+      if (!acc) { bubble.className = "lmp-msg err"; bubble.textContent = "답변을 받지 못했어요. 다시 시도해 주세요."; }
+      else if (failed) { bubble.className = "lmp-msg err"; bubble.textContent = acc; }
+      else { msgs.push({ role: "assistant", content: acc }); }
+    }).catch(function (err) {
+      bubble.className = "lmp-msg err";
+      bubble.textContent = err && err.message ? err.message : "연결에 실패했어요.";
+      msgs.pop(); // 실패한 질문은 히스토리에서 뺀다
+    }).then(function () {
+      setBusy(false);
+      log.scrollTop = log.scrollHeight;
+      if (panel.classList.contains("open")) ta.focus();
+    });
+  }
+
+  function open() {
+    panel.classList.add("open");
+    fab.hidden = true;
+    if (!log.children.length) addIntro();
+    try { localStorage.setItem(STORE_KEY, "1"); } catch (e) {}
+    setTimeout(function () { ta.focus(); }, 40);
+    if (window.gtag) window.gtag("event", "chat_open", { page: pageKey() });
+  }
+
+  function close() {
+    panel.classList.remove("open");
+    fab.hidden = false;
+    fab.focus();
+  }
+
+  function build() {
+    fab = el("button", "lmp-chat-fab");
+    fab.type = "button";
+    fab.setAttribute("aria-label", "AI 학습 도우미 열기");
+    fab.appendChild(el("span", "fab-ico", "🧭"));
+    fab.appendChild(el("span", null, "용어 물어보기"));
+    fab.addEventListener("click", open);
+
+    panel = el("div", "lmp-chat-panel");
+    panel.setAttribute("role", "dialog");
+    panel.setAttribute("aria-label", "AI 학습 도우미");
+
+    var head = el("div", "lmp-chat-head");
+    head.appendChild(el("div", "ch-ico", "🧭"));
+    var ht = el("div", "ch-t");
+    ht.appendChild(el("div", "ch-name", "탐사 도우미"));
+    ht.appendChild(el("div", "ch-sub", "이 사이트 내용을 근거로 답합니다"));
+    head.appendChild(ht);
+    var x = el("button", "lmp-chat-close", "✕");
+    x.type = "button";
+    x.setAttribute("aria-label", "닫기");
+    x.addEventListener("click", close);
+    head.appendChild(x);
+
+    log = el("div", "lmp-chat-log");
+    log.setAttribute("aria-live", "polite");
+
+    var form = el("form", "lmp-chat-form");
+    ta = el("textarea");
+    ta.rows = 1;
+    ta.maxLength = MAX_LEN;
+    ta.placeholder = "궁금한 토지 용어를 적어보세요";
+    ta.setAttribute("aria-label", "질문 입력");
+    ta.addEventListener("input", function () {
+      ta.style.height = "auto";
+      ta.style.height = Math.min(ta.scrollHeight, 88) + "px";
+    });
+    ta.addEventListener("keydown", function (e) {
+      if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); ask(ta.value); }
+    });
+    sendBtn = el("button", "lmp-chat-send", "➤");
+    sendBtn.type = "submit";
+    sendBtn.setAttribute("aria-label", "보내기");
+    form.appendChild(ta);
+    form.appendChild(sendBtn);
+    form.addEventListener("submit", function (e) { e.preventDefault(); ask(ta.value); });
+
+    var foot = el("div", "lmp-chat-foot",
+      "AI가 생성한 답변입니다. 법률·세무·투자 자문이 아니며, 실제 거래 전 반드시 해당 기관과 전문가의 확인을 받으세요.");
+
+    panel.appendChild(head);
+    panel.appendChild(log);
+    panel.appendChild(form);
+    panel.appendChild(foot);
+
+    document.body.appendChild(fab);
+    document.body.appendChild(panel);
+
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && panel.classList.contains("open")) close();
+    });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", build);
+  } else {
+    build();
+  }
+})();
