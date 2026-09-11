@@ -9,8 +9,10 @@ create table if not exists public.posts (
   id uuid primary key default gen_random_uuid(),
   author_id uuid not null default auth.uid() references auth.users (id) on delete cascade,
   author_email text not null,
-  content text not null check (char_length(content) between 1 and 5000),
-  created_at timestamptz not null default now()
+  title text not null default '' check (char_length(title) <= 120),
+  content text not null check (char_length(content) between 1 and 20000),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz
 );
 
 -- 댓글
@@ -38,6 +40,10 @@ drop policy if exists "delete own posts" on public.posts;
 create policy "delete own posts" on public.posts
   for delete to authenticated using (auth.uid() = author_id);
 
+drop policy if exists "update own posts" on public.posts;
+create policy "update own posts" on public.posts
+  for update to authenticated using (auth.uid() = author_id) with check (auth.uid() = author_id);
+
 drop policy if exists "read comments" on public.comments;
 create policy "read comments" on public.comments for select using (true);
 
@@ -55,3 +61,20 @@ create index if not exists idx_comments_post on public.comments (post_id, create
 
 -- 참고: 운영자가 임의 글을 삭제하려면 Supabase 대시보드(Table Editor)에서
 -- 직접 삭제하면 됩니다. RLS는 사이트 이용자에게만 적용됩니다.
+
+-- 이미지 업로드용 Storage 버킷 (공개 읽기, 로그인 회원만 업로드, 본인 파일만 삭제)
+insert into storage.buckets (id, name, public)
+values ('post-images', 'post-images', true)
+on conflict (id) do nothing;
+
+drop policy if exists "public read post-images" on storage.objects;
+create policy "public read post-images" on storage.objects
+  for select using (bucket_id = 'post-images');
+
+drop policy if exists "authenticated upload post-images" on storage.objects;
+create policy "authenticated upload post-images" on storage.objects
+  for insert to authenticated with check (bucket_id = 'post-images');
+
+drop policy if exists "own delete post-images" on storage.objects;
+create policy "own delete post-images" on storage.objects
+  for delete to authenticated using (bucket_id = 'post-images' and owner = auth.uid());

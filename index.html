@@ -13,7 +13,8 @@
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧭</text></svg>">
   <meta name="naver-site-verification" content="4600038de4f3bc5274fce5f172ce95ba03cbd8f3">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/style.css">
   <script src="assets/config.js"></script>
   <script>
@@ -82,12 +83,31 @@
         <div><span class="dash">—</span> Land Master Pro <b>OX 5분 학습 사이클</b></div>
       </div>
       <a class="sh-cta" href="stage1.html">🧭 5분 학습 시작하기</a>
+      <div class="sh-stats">
+        <div class="stat"><b>5</b><span>스테이지</span></div>
+        <div class="stat"><b>25</b><span>실전 관문</span></div>
+        <div class="stat"><b>28</b><span>용어사전</span></div>
+      </div>
       <svg class="sh-parcel" viewBox="0 0 640 480" preserveAspectRatio="xMidYMid meet">
-        <polygon points="330,60 560,140 520,360 300,420 250,220" fill="none" stroke="#0EA672" stroke-width="2" stroke-dasharray="7 6"/>
+        <defs>
+          <linearGradient id="terrainFade" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#0EA672" stop-opacity="0.10"/>
+            <stop offset="100%" stop-color="#0EA672" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+        <path d="M0,300 Q120,260 240,290 T480,270 T640,300 L640,480 L0,480 Z" fill="url(#terrainFade)"/>
+        <path d="M-10,340 Q140,300 300,335 T640,320" fill="none" stroke="#0EA672" stroke-width="1" stroke-opacity="0.22"/>
+        <path d="M-10,395 Q160,360 320,390 T640,375" fill="none" stroke="#0EA672" stroke-width="1" stroke-opacity="0.16"/>
+        <polygon points="330,60 560,140 520,360 300,420 250,220" fill="rgba(14,166,114,0.05)" stroke="#0EA672" stroke-width="2" stroke-dasharray="7 6"/>
         <circle cx="330" cy="60" r="5" fill="#2EE6A8"/><circle cx="560" cy="140" r="5" fill="#2EE6A8"/>
         <circle cx="520" cy="360" r="5" fill="#2EE6A8"/><circle cx="300" cy="420" r="5" fill="#2EE6A8"/><circle cx="250" cy="220" r="5" fill="#2EE6A8"/>
         <text x="560" y="130" font-size="12" font-weight="700" fill="#6B7B72">N37.74</text>
         <text x="250" y="210" font-size="12" font-weight="700" fill="#6B7B72">E127.05</text>
+        <g transform="translate(555,395)" opacity="0.55">
+          <circle r="19" fill="none" stroke="#0EA672" stroke-width="1.5"/>
+          <path d="M0,-15 L4,0 L0,15 L-4,0 Z" fill="#0EA672"/>
+          <text x="0" y="-24" font-size="10" font-weight="800" fill="#6B7B72" text-anchor="middle">N</text>
+        </g>
       </svg>
     </div>
 
