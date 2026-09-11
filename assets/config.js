@@ -25,6 +25,14 @@ window.LMP_CONFIG = {
   // 꺼진 상태에서는 사용자에게 전혀 노출되지 않는다 (자리만 미리 잡아둔 상태).
   AD_INTERSTITIAL_ENABLED: false,
 
+  // ---------- AI 학습 도우미 (챗봇) ----------
+  // 우측 하단 "용어 물어보기" 버튼. 아래 두 값이 모두 채워져야 화면에 나타납니다.
+  // CHAT_API_URL은 Vercel에 배포한 api/land.js의 주소입니다.
+  // 예: "https://moa-demo-xxxx.vercel.app/api/land"
+  // 비워두면 버튼 자체가 렌더링되지 않습니다(아무 코드도 로드되지 않음).
+  CHAT_ENABLED: true,
+  CHAT_API_URL: "https://moa-demo.vercel.app/api/land",
+
   // ---------- 커뮤니티 (Supabase) ----------
   // supabase.com에서 무료 프로젝트 생성 후 아래 두 값을 채우면
   // 회원가입/로그인/글/댓글이 자동으로 작동합니다. (README 3단계 참고)
