@@ -114,13 +114,12 @@ def archive_html(entries):
     body = """
     <div class="page-head">
       <h1>🗂 커뮤니티 지난 글</h1>
-      <p>회원들이 커뮤니티에 남긴 글 중 검색 노출용으로 정리된 %(count)d건입니다</p>
     </div>
     <div class="glossary-grid">
       %(rows)s
     </div>
     <p><a class="btn ghost sm" href="community.html">💬 커뮤니티에서 직접 글쓰기 →</a></p>""" % {
-        "count": len(entries), "rows": rows or "<p>아직 정리된 글이 없습니다.</p>",
+        "rows": rows or "<p>아직 정리된 글이 없습니다.</p>",
     }
     return shell("community-archive.html", "커뮤니티 지난 글 | Land Master Pro",
                  "Land Master Pro 커뮤니티 회원들이 남긴 글 모음.", body)
