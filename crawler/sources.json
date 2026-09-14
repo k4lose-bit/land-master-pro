@@ -1,0 +1,74 @@
+[
+  {
+    "region": "남양주시",
+    "type": "html",
+    "url": "https://www.nyj.go.kr/www/selectGosiList.do?key=277",
+    "base": "https://www.nyj.go.kr",
+    "row": "table tbody tr",
+    "title": "td a",
+    "date": "td:nth-last-child(2)",
+    "limit": 15,
+    "_주의": "지자체 홈페이지 개편 시 url/selector 수정 필요. 실제 게시판 주소는 각 시청 홈페이지 '고시공고' 메뉴에서 확인 후 이 파일만 고치면 됩니다."
+  },
+  {
+    "region": "의정부시",
+    "type": "html",
+    "url": "https://www.ui4u.go.kr/portal/saeol/gosiList.do?key=1291",
+    "base": "https://www.ui4u.go.kr",
+    "row": "table tbody tr",
+    "title": "td a",
+    "date": "td:nth-last-child(2)",
+    "limit": 15
+  },
+  {
+    "region": "양주시",
+    "type": "html",
+    "url": "https://www.yangju.go.kr/www/selectBbsNttList.do?bbsNo=55&key=254",
+    "base": "https://www.yangju.go.kr",
+    "row": "table tbody tr",
+    "title": "td a",
+    "date": "td:nth-last-child(2)",
+    "limit": 15
+  },
+  {
+    "region": "동두천시",
+    "type": "html",
+    "url": "https://www.ddc21.net/www/selectGosiList.do?key=290",
+    "base": "https://www.ddc21.net",
+    "row": "table tbody tr",
+    "title": "td a",
+    "date": "td:nth-last-child(2)",
+    "limit": 15
+  },
+  {
+    "region": "포천시",
+    "type": "html",
+    "url": "https://www.pocheon.go.kr/www/selectGosiList.do?key=1035",
+    "base": "https://www.pocheon.go.kr",
+    "row": "table tbody tr",
+    "title": "td a",
+    "date": "td:nth-last-child(2)",
+    "limit": 15
+  },
+  {
+    "region": "연천군",
+    "type": "html",
+    "url": "https://www.yeoncheon.go.kr/www/selectGosiList.do?key=709",
+    "base": "https://www.yeoncheon.go.kr",
+    "row": "table tbody tr",
+    "title": "td a",
+    "date": "td:nth-last-child(2)",
+    "limit": 15
+  },
+  {
+    "region": "LH",
+    "type": "html",
+    "category": "토지보상·택지",
+    "url": "https://apply.lh.or.kr/lhapply/apply/wt/wrtanc/selectWrtancList.do?mi=1026",
+    "base": "https://apply.lh.or.kr",
+    "row": "table tbody tr",
+    "title": "td a",
+    "date": "td:nth-last-child(1)",
+    "limit": 15
+  }
+]

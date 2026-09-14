@@ -35,6 +35,7 @@ NAV = [
     ("notices.html", "📡 공고 와처"),
     ("guide.html", "🌐 토지이음 가이드"),
     ("community.html", "💬 커뮤니티"),
+    ("community-archive.html", "🗂 커뮤니티 지난 글"),
 ]
 
 FAVICON = ("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'>"
@@ -810,6 +811,7 @@ def build_community():
         지번·연락처 등 개인정보, 특정 매물의 광고·알선, 근거 없는 개발 소문 유포는 예고 없이 삭제됩니다.
         본 커뮤니티의 게시글은 회원 개인의 의견이며 사이트의 공식 견해가 아닙니다.
       </p>
+      <p><a class="btn ghost sm" href="community-archive.html">🗂 지난 글 검색용 목록 보기 →</a></p>
     </div>"""
     write("community.html", shell(
         "community.html", "토지 마스터 라운지 (커뮤니티) | Land Master Pro",
@@ -822,6 +824,24 @@ def build_community():
             '  <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.6/purify.min.js"></script>\n'
             '  <script src="assets/community.js" defer></script>\n'
         )))
+
+
+# ---------------------------------------------------------------- 커뮤니티 지난 글 (초기 자리표시자)
+def build_community_archive_placeholder():
+    """crawler/collect_community_posts.py가 실제 내용으로 덮어쓰기 전까지의 자리표시자.
+    이 함수로 만든 파일이 배포된 뒤 자동 수집기가 첫 실행되면 실제 글 목록으로 교체된다."""
+    body = """
+    <div class="page-head">
+      <h1>🗂 커뮤니티 지난 글</h1>
+      <p>회원들이 커뮤니티에 남긴 글 중 검색 노출용으로 정리된 목록입니다</p>
+    </div>
+    <div class="card">
+      <p>자동 수집기가 아직 실행되지 않았습니다. 곧(몇 시간 내) 커뮤니티에 등록된 글들이 여기에 자동으로 정리됩니다.</p>
+      <p><a class="btn ghost sm" href="community.html">💬 커뮤니티에서 직접 확인하기 →</a></p>
+    </div>"""
+    write("community-archive.html", shell(
+        "community-archive.html", "커뮤니티 지난 글 | Land Master Pro",
+        "Land Master Pro 커뮤니티 회원들이 남긴 글 모음.", body))
 
 
 # ---------------------------------------------------------------- 소개 / 개인정보
@@ -896,12 +916,22 @@ def build_privacy():
 
 
 # ---------------------------------------------------------------- 부속 파일
-def build_misc():
+def static_pages():
+    """빌드 시점에 항상 존재하는 고정 페이지 목록 (사이트맵의 기반).
+    커뮤니티 글처럼 런타임에 생기는 페이지는 crawler/collect_community_posts.py가
+    이 목록 위에 자기 몫을 더해서 sitemap.xml을 다시 쓴다(6시간 주기 자동 실행) —
+    그래서 이 함수를 수동으로 다시 실행해도(=build_site.py 재실행) 커뮤니티 글 항목은
+    다음 자동 실행 때 스스로 복구된다."""
     pages = ["index.html", "stage1.html", "stage2.html", "stage3.html", "stage4.html",
              "stage5.html", "glossary.html", "notices.html", "guide.html", "community.html",
-             "about.html", "privacy.html"]
+             "community-archive.html", "about.html", "privacy.html"]
     pages += ["glossary-%s.html" % t["slug"] for t in GLOSSARY]
     pages += ["cases.html"] + ["case-%s.html" % c["slug"] for c in CASES]
+    return pages
+
+
+def build_misc():
+    pages = static_pages()
     sm = ['<?xml version="1.0" encoding="UTF-8"?>',
           '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
     for p in pages:
@@ -931,6 +961,7 @@ if __name__ == "__main__":
     build_notices()
     build_guide()
     build_community()
+    build_community_archive_placeholder()
     build_about()
     build_privacy()
     build_misc()
