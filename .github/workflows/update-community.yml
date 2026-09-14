@@ -1,0 +1,35 @@
+# 6시간마다 커뮤니티 글을 정적 페이지로 변환해 검색엔진에 노출시킵니다.
+# GitHub 저장소에 이 폴더(site/ 내용)를 올리면 자동으로 작동합니다.
+name: update-community
+
+on:
+  schedule:
+    - cron: "0 0,6,12,18 * * *"   # UTC 00/06/12/18 = KST 09/15/21/03
+  workflow_dispatch: {}            # Actions 탭에서 수동 실행 버튼
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install deps
+        run: pip install requests beautifulsoup4
+
+      - name: Collect community posts
+        run: python crawler/collect_community_posts.py
+
+      - name: Commit if changed
+        run: |
+          git config user.name "community-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add "community-post-*.html" community-archive.html sitemap.xml data/community_posts.json
+          git diff --cached --quiet && echo "변경 없음" || git commit -m "chore: 커뮤니티 정적 페이지 자동 갱신 $(date +'%Y-%m-%d %H:%M')"
+          git push
