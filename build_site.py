@@ -11,6 +11,7 @@ from content_stage12 import STAGE1, STAGE2
 from content_stage345 import STAGE3, STAGE4, STAGE5
 from content_facts import FACTS, DIFFICULTY_COLOR
 from content_glossary import GLOSSARY, GROUPS, slugify_check
+from content_cases import CASES, slugify_check as cases_slugify_check
 
 STAGES = [STAGE1, STAGE2, STAGE3, STAGE4, STAGE5]
 OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "site")
@@ -30,6 +31,7 @@ NAV = [
     ("stage4.html", "S4. 권리·계약"),
     ("stage5.html", "S5. 토지보상"),
     ("glossary.html", "📖 용어사전"),
+    ("cases.html", "📂 실전 사례"),
     ("notices.html", "📡 공고 와처"),
     ("guide.html", "🌐 토지이음 가이드"),
     ("community.html", "💬 커뮤니티"),
@@ -413,6 +415,12 @@ def build_index():
     <div class="trail-map">%(cards)s</div>
 
     <div class="grid">
+      <a class="stage-card plain" href="cases.html">
+        <span class="s-num" style="color:var(--amber);">CASES</span>
+        <h3>📂 실전 사례 모음</h3>
+        <p>현황도로, 관리지역 세분, 경매 도로 수용 여부 등 실제 사례를 기준으로 확인 순서와 근거 법령을 정리했습니다.</p>
+        <div class="mini-label">바로가기 →</div>
+      </a>
       <a class="stage-card plain" href="notices.html">
         <span class="s-num" style="color:var(--red);">WATCHER</span>
         <h3>📡 공공 개발 고시·공고 와처</h3>
@@ -560,6 +568,86 @@ def build_glossary():
         write("glossary-%s.html" % t["slug"], shell(
             "glossary-%s.html" % t["slug"], "%s이란? 뜻과 실무 포인트 | Land Master Pro" % t["term"],
             t["tagline"], body_t))
+
+
+# ---------------------------------------------------------------- 실전 사례
+def build_cases():
+    cases_slugify_check()
+    group_meta = {g[0]: g for g in GROUPS}
+
+    # ---- 색인 페이지 (cases.html) ----
+    sections = []
+    for gkey, glabel, glink, gnavlabel in GROUPS:
+        items = [c for c in CASES if c["group"] == gkey]
+        if not items:
+            continue
+        cards = "\n      ".join(
+            '<a class="glossary-card" href="case-%s.html"><b>%s</b><span>%s</span></a>'
+            % (c["slug"], esc(c["title"]), esc(c["tagline"]))
+            for c in items
+        )
+        sections.append(
+            '<div class="glossary-group">\n'
+            '      <h3>%s <a class="glossary-group-link" href="%s">%s 자세히 보기 →</a></h3>\n'
+            '      <div class="glossary-grid">\n      %s\n      </div>\n    </div>'
+            % (esc(glabel), glink, esc(gnavlabel), cards)
+        )
+    body = """
+    <div class="page-head">
+      <h1>📂 실전 사례 모음</h1>
+      <p>실제 등기·지적·법령 근거를 바탕으로 정리한 사례형 콘텐츠입니다 (%(count)d건)</p>
+    </div>
+    <div class="intro-box">
+      토지 투자에서 막히는 순간은 대부분 "이론은 아는데 실제 이 필지는 어떻게 되는 거지?" 하는 지점입니다.
+      실제 매물·경매 사례를 기준으로, 확인 순서와 근거 법령까지 짚어서 정리했습니다.
+    </div>
+    %(sections)s
+    <div class="ad-slot"></div>""" % {
+        "count": len(CASES), "sections": "\n    ".join(sections),
+    }
+    write("cases.html", shell(
+        "cases.html", "실전 사례 모음 | Land Master Pro",
+        "현황도로·관리지역 세분·경매 도로 수용 여부 등 실제 사례를 기준으로 확인 순서와 근거 법령을 정리.",
+        body))
+
+    # ---- 개별 사례 페이지 (case-<slug>.html) ----
+    for c in CASES:
+        gkey, glabel, glink, gnavlabel = group_meta[c["group"]]
+        same_group = [x for x in CASES if x["group"] == c["group"] and x["slug"] != c["slug"]]
+        related_html = ""
+        if same_group:
+            related_items = "\n        ".join(
+                '<a href="case-%s.html">%s</a>' % (x["slug"], esc(x["title"]))
+                for x in same_group[:6]
+            )
+            related_html = (
+                '\n    <div class="term-related">\n      <h4>%s 관련 다른 사례</h4>\n      <div class="term-related-links">\n        %s\n      </div>\n    </div>'
+                % (esc(glabel), related_items)
+            )
+        body_c = """
+    <div class="page-head">
+      <span class="term-badge">%(group)s</span>
+      <h1>%(title)s</h1>
+      <p>%(tagline)s</p>
+    </div>
+    <div class="doc">
+      %(body)s
+      <div class="trap-box"><b>💡 핵심 정리:</b> %(point)s</div>
+      <p><a class="btn ghost sm" href="%(glink)s">%(gnavlabel)s 스테이지에서 실전 퀴즈로 이어서 보기 →</a></p>
+    </div>%(related)s
+    %(nudge)s
+    <div class="ad-slot"></div>
+    <p class="doc-back"><a href="cases.html">← 실전 사례 전체 목록</a></p>""" % {
+            "group": esc(glabel), "title": esc(c["title"]), "tagline": esc(c["tagline"]),
+            "body": c["body_html"], "point": c["point"], "glink": glink, "gnavlabel": esc(gnavlabel),
+            "related": related_html,
+            "nudge": community_nudge_html(
+                "이 사례처럼 궁금한 필지가 있다면, 커뮤니티에 올려서 다른 학습자들과 같이 확인해보세요."
+            ),
+        }
+        write("case-%s.html" % c["slug"], shell(
+            "case-%s.html" % c["slug"], "%s | Land Master Pro" % c["title"],
+            c["tagline"], body_c))
 
 
 def build_notices():
@@ -813,6 +901,7 @@ def build_misc():
              "stage5.html", "glossary.html", "notices.html", "guide.html", "community.html",
              "about.html", "privacy.html"]
     pages += ["glossary-%s.html" % t["slug"] for t in GLOSSARY]
+    pages += ["cases.html"] + ["case-%s.html" % c["slug"] for c in CASES]
     sm = ['<?xml version="1.0" encoding="UTF-8"?>',
           '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
     for p in pages:
@@ -838,6 +927,7 @@ if __name__ == "__main__":
     for s in STAGES:
         build_stage(s)
     build_glossary()
+    build_cases()
     build_notices()
     build_guide()
     build_community()
