@@ -4,7 +4,7 @@
 window.LMP_CONFIG = {
 
   // 배포 주소 (free336.com의 DNS에서 서브도메인을 연결한 뒤 실제 주소로 변경)
-  SITE_URL: "https://land.free336.com",
+  SITE_URL: "https://ttangstudy.com",
 
   // ---------- 구글 애드센스 ----------
   // free336.com 승인 계정의 게시자 ID (adsense_id.txt에서 가져옴)

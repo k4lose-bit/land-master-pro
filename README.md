@@ -22,7 +22,7 @@
 3. 저장소 Settings → Pages → Branch를 `main`, 폴더를 `/ (root)`로 설정 → Save
 4. 몇 분 후 `https://<계정명>.github.io/land-master-pro/`로 접속되면 성공
 
-> `CNAME` 파일에 `land.free336.com`이 이미 들어 있어, 2단계에서 DNS만 연결하면 바로 그 주소로 열립니다.
+> `CNAME` 파일에 `ttangstudy.com`이 이미 들어 있어, 2단계에서 DNS만 연결하면 바로 그 주소로 열립니다.
 
 ## 2단계. free336.com 서브도메인 연결
 
@@ -32,7 +32,7 @@ free336.com을 등록한 곳(가비아, 카페24 등)의 DNS 관리 화면에서
 - 호스트: `land`
 - 값(대상): `<계정명>.github.io`
 
-저장 후 몇 분~몇 시간 내 `land.free336.com`으로 접속되면 완료. (GitHub Pages 대신 Cloudflare Pages를 쓴다면 그쪽이 안내하는 CNAME 대상으로 넣으면 됩니다.)
+저장 후 몇 분~몇 시간 내 `ttangstudy.com`으로 접속되면 완료. (GitHub Pages 대신 Cloudflare Pages를 쓴다면 그쪽이 안내하는 CNAME 대상으로 넣으면 됩니다.)
 
 ## 3단계. 회원제 커뮤니티 켜기 (Supabase, 무료)
 

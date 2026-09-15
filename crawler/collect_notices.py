@@ -32,7 +32,7 @@ SRC_PATH = os.path.join(HERE, "sources.json")
 KST = timezone(timedelta(hours=9))
 
 HEADERS = {
-    "User-Agent": "Mozilla/5.0 (compatible; LandMasterBot/1.0; +https://land.free336.com)",
+    "User-Agent": "Mozilla/5.0 (compatible; LandMasterBot/1.0; +https://ttangstudy.com)",
     "Accept-Language": "ko",
 }
 

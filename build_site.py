@@ -14,7 +14,7 @@ from content_glossary import GLOSSARY, GROUPS, slugify_check
 
 STAGES = [STAGE1, STAGE2, STAGE3, STAGE4, STAGE5]
 OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "site")
-SITE_URL = "https://land.free336.com"
+SITE_URL = "https://ttangstudy.com"
 SITE_NAME = "랜드 마스터 프로 | 경기북부 토지 투자 아카데미"
 # 네이버 서치어드바이저 "사이트 소유확인" HTML 태그 방식에서 content 값만 받아서 채우면 됨.
 # 예: <meta name="naver-site-verification" content="abcdef1234..."> 에서 abcdef1234... 부분.
@@ -848,7 +848,7 @@ def build_misc():
     sm.append("</urlset>")
     write("sitemap.xml", "\n".join(sm))
     write("robots.txt", "User-agent: *\nAllow: /\nSitemap: %s/sitemap.xml\n" % SITE_URL)
-    write("CNAME", "land.free336.com\n")
+    write("CNAME", "ttangstudy.com\n")
 
 
 def write(name, content):
