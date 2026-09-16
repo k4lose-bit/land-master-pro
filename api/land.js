@@ -20,6 +20,11 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    return res.status(500).json({ error: 'GEMINI_API_KEY 환경변수가 설정되지 않았습니다.' });
+  }
+
   try {
     let body = req.body;
     if (typeof body === 'string') {
@@ -27,9 +32,44 @@ export default async function handler(req, res) {
     }
     body = body || {};
 
-    // 불필요한 서두 없이 본문만 즉시 구성
-    const answer = `맹지(盲地)는 지적도상 공도(공공도로)에 직접 접하지 않은 토지를 뜻합니다.\n\n건축법상 진입도로 요건을 갖추지 못하면 원칙적으로 건축허가가 나지 않으므로, 인접 토지 소유자의 토지사용승낙서 확보나 사도 개설 가능 여부를 사전에 면밀히 확인해야 합니다.`;
+    const incomingMessages = Array.isArray(body.messages) ? body.messages : [];
 
+    // 대화 내역을 Gemini API 포맷으로 변환
+    const contents = incomingMessages.map((m) => ({
+      role: m.role === 'assistant' ? 'model' : 'user',
+      parts: [{ text: m.content || m.message || '' }]
+    })).filter(c => c.parts[0].text.trim().length > 0);
+
+    if (contents.length === 0) {
+      contents.push({ role: 'user', parts: [{ text: '토지 용어 안내' }] });
+    }
+
+    // Gemini API 스트리밍 호출
+    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:streamGenerateContent?alt=sse&key=${apiKey}`;
+
+    const response = await fetch(geminiUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: contents,
+        systemInstruction: {
+          parts: [
+            {
+              text: '당신은 대한민국 토지 실무 및 공법, 인허가 전문 AI 도우미입니다. 불필요한 인사말("안녕하세요", "~에 대해 알려드리겠습니다" 등)이나 서두를 일절 붙이지 말고, 사용자가 질문한 내용의 핵심 답변과 주의사항만 즉시 명확하고 일목요연하게 설명하세요.'
+            }
+          ]
+        },
+        generationConfig: {
+          temperature: 0.3
+        }
+      })
+    });
+
+    if (!response.ok) {
+      return res.status(500).json({ error: 'Gemini API 호출에 실패했습니다.' });
+    }
+
+    // 브라우저로 SSE 스트리밍 헤더 전송
     res.writeHead(200, {
       'Content-Type': 'text/event-stream; charset=utf-8',
       'Cache-Control': 'no-cache, no-transform',
@@ -37,12 +77,39 @@ export default async function handler(req, res) {
       'X-Accel-Buffering': 'no'
     });
 
-    res.write(`data: ${JSON.stringify({ text: answer })}\n\n`);
-    res.write(`data: [DONE]\n\n`);
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop() || '';
+
+      for (const line of lines) {
+        const trimmed = line.trim();
+        if (!trimmed || !trimmed.startsWith('data: ')) continue;
+        const jsonStr = trimmed.slice(6);
+
+        try {
+          const parsed = JSON.parse(jsonStr);
+          const chunkText = parsed.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (chunkText) {
+            // 프론트엔드가 요구하는 포맷 { text: "내용" }
+            res.write(`data: ${JSON.stringify({ text: chunkText })}\n\n`);
+          }
+        } catch (e) {}
+      }
+    }
+
+    res.write('data: [DONE]\n\n');
     res.end();
   } catch (err) {
     if (!res.headersSent) {
-      res.status(500).json({ error: '서버 오류가 발생했습니다.' });
+      res.status(500).json({ error: '서버 내부 오류가 발생했습니다.' });
     } else {
       res.end();
     }
