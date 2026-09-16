@@ -10,6 +10,7 @@ from datetime import date
 from content_stage12 import STAGE1, STAGE2
 from content_stage345 import STAGE3, STAGE4, STAGE5
 from content_facts import FACTS, DIFFICULTY_COLOR
+from content_cases import CASES, slugify_check as cases_slugify_check
 from content_glossary import GLOSSARY, GROUPS, slugify_check
 
 STAGES = [STAGE1, STAGE2, STAGE3, STAGE4, STAGE5]
@@ -32,6 +33,7 @@ NAV = [
     ("glossary.html", "📖 용어사전"),
     ("notices.html", "📡 공고 와처"),
     ("guide.html", "🌐 토지이음 가이드"),
+    ("cases.html", "📂 실전 사례"),
     ("community.html", "💬 커뮤니티"),
 ]
 
@@ -562,6 +564,86 @@ def build_glossary():
             t["tagline"], body_t))
 
 
+def build_cases():
+    cases_slugify_check()
+    group_meta = {g[0]: g for g in GROUPS}
+
+    # ---- 색인 페이지 (cases.html) ----
+    sections = []
+    for gkey, glabel, glink, gnavlabel in GROUPS:
+        items = [c for c in CASES if c["group"] == gkey]
+        if not items:
+            continue
+        cards = "\n      ".join(
+            '<a class="glossary-card" href="case-%s.html"><b>%s</b><span>%s</span></a>'
+            % (c["slug"], esc(c["title"]), esc(c["tagline"]))
+            for c in items
+        )
+        sections.append(
+            '<div class="glossary-group">\n'
+            '      <h3>%s <a class="glossary-group-link" href="%s">%s 자세히 보기 →</a></h3>\n'
+            '      <div class="glossary-grid">\n      %s\n      </div>\n    </div>'
+            % (esc(glabel), glink, esc(gnavlabel), cards)
+        )
+    body = """
+    <div class="page-head">
+      <h1>📂 실전 사례 모음</h1>
+      <p>실제로 많이 묻는 상황을 골라, 확인 순서와 근거 법령까지 정리했습니다 (%(count)d건)</p>
+    </div>
+    <div class="intro-box">
+      이론보다 사례가 빠릅니다. 각 사례는 "무엇이 문제인가 → 법령은 무엇을 요구하는가 →
+      직접 확인하는 방법" 순서로 정리했습니다. 개별 물건의 가치 판단이 아니라 확인 절차를 익히는 용도입니다.
+    </div>
+    %(sections)s
+    <div class="ad-slot"></div>""" % {
+        "count": len(CASES), "sections": "\n    ".join(sections),
+    }
+    write("cases.html", shell(
+        "cases.html", "실전 사례 모음 | Land Master Pro",
+        "현황도로·관리지역 세분·경매 도로 수용 여부 등 실제 사례를 기준으로 확인 순서와 근거 법령을 정리.",
+        body))
+
+    # ---- 개별 사례 페이지 (case-<slug>.html) ----
+    for c in CASES:
+        gkey, glabel, glink, gnavlabel = group_meta[c["group"]]
+        same_group = [x for x in CASES if x["group"] == c["group"] and x["slug"] != c["slug"]]
+        related_html = ""
+        if same_group:
+            related_items = "\n        ".join(
+                '<a href="case-%s.html">%s</a>' % (x["slug"], esc(x["title"]))
+                for x in same_group[:6]
+            )
+            related_html = (
+                '\n    <div class="term-related">\n      <h4>%s 관련 다른 사례</h4>\n      <div class="term-related-links">\n        %s\n      </div>\n    </div>'
+                % (esc(glabel), related_items)
+            )
+        body_c = """
+    <div class="page-head">
+      <span class="term-badge">%(group)s</span>
+      <h1>%(title)s</h1>
+      <p>%(tagline)s</p>
+    </div>
+    <div class="doc">
+      %(bodyhtml)s
+      <div class="trap-box"><b>💡 핵심 정리:</b> %(point)s</div>
+      <p><a class="btn ghost sm" href="%(glink)s">%(gnavlabel)s 스테이지에서 실전 퀴즈로 이어서 보기 →</a></p>
+    </div>%(related)s
+    %(nudge)s
+    <div class="ad-slot"></div>
+    <p class="doc-back"><a href="cases.html">← 실전 사례 전체 목록</a></p>""" % {
+            "group": esc(glabel), "title": esc(c["title"]), "tagline": esc(c["tagline"]),
+            "bodyhtml": c["body_html"], "point": c["point"],
+            "glink": glink, "gnavlabel": esc(gnavlabel),
+            "related": related_html,
+            "nudge": community_nudge_html(
+                "비슷한 상황을 겪고 계신가요? 커뮤니티에 사례를 남겨주시면 같이 살펴봅니다."
+            ),
+        }
+        write("case-%s.html" % c["slug"], shell(
+            "case-%s.html" % c["slug"], "%s | Land Master Pro" % c["title"],
+            c["tagline"], body_c))
+
+
 def build_notices():
     body = """
     <div class="page-head">
@@ -836,6 +918,7 @@ def static_pages():
              "stage5.html", "glossary.html", "notices.html", "guide.html", "community.html",
              "community-archive.html", "about.html", "privacy.html"]
     pages += ["glossary-%s.html" % t["slug"] for t in GLOSSARY]
+    pages += ["cases.html"] + ["case-%s.html" % c["slug"] for c in CASES]
     return pages
 
 
@@ -866,6 +949,7 @@ if __name__ == "__main__":
     for s in STAGES:
         build_stage(s)
     build_glossary()
+    build_cases()
     build_notices()
     build_guide()
     build_community()

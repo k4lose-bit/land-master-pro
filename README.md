@@ -24,9 +24,9 @@
 
 > `CNAME` 파일에 `ttangstudy.com`이 이미 들어 있어, 2단계에서 DNS만 연결하면 바로 그 주소로 열립니다.
 
-## 2단계. free336.com 서브도메인 연결
+## 2단계. ttangstudy.com 도메인 연결
 
-free336.com을 등록한 곳(가비아, 카페24 등)의 DNS 관리 화면에서:
+ttangstudy.com을 등록한 곳(가비아)의 DNS 관리 화면에서:
 
 - 레코드 타입: `CNAME`
 - 호스트: `land`
