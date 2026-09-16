@@ -6,6 +6,11 @@ window.LMP_CONFIG = {
   // 배포 주소 (free336.com의 DNS에서 서브도메인을 연결한 뒤 실제 주소로 변경)
   SITE_URL: "https://ttangstudy.com",
 
+  // ---------- AI 챗봇 설정 (추가할 부분) ----------
+  CHAT_ENABLED: true,
+  // 배포된 Vercel 챗봇 API 주소 (동일 도메인에 Vercel Serverless Function이 배포되어 있다면 "/api/land" 또는 전체 주소)
+  CHAT_API_URL: "https://ttangstudy.com/api/land",
+  
   // ---------- 구글 애드센스 ----------
   // free336.com 승인 계정의 게시자 ID (adsense_id.txt에서 가져옴)
   ADSENSE_CLIENT: "애드센스코드",
