@@ -34,7 +34,6 @@ export default async function handler(req, res) {
 
     const incomingMessages = Array.isArray(body.messages) ? body.messages : [];
 
-    // 대화 내역 포맷팅
     const contents = incomingMessages
       .map((m) => ({
         role: m.role === 'assistant' ? 'model' : 'user',
@@ -46,8 +45,8 @@ export default async function handler(req, res) {
       contents.push({ role: 'user', parts: [{ text: '토지 용어 안내' }] });
     }
 
-    // gemini-1.5-flash-latest 모델 엔드포인트 호출
-    const geminiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:streamGenerateContent?alt=sse';
+    // 최신 기본 Flash 모델 호출
+    const geminiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent?alt=sse';
 
     const response = await fetch(geminiUrl, {
       method: 'POST',
@@ -60,7 +59,7 @@ export default async function handler(req, res) {
         systemInstruction: {
           parts: [
             {
-              text: '당신은 대한민국 토지 실무, 공법, 인허가 전문 AI 어시스턴트입니다. 불필요한 서두나 인사말 없이 질문한 내용의 핵심과 실무상 주의사항만 간결하고 명확하게 답변하세요.'
+              text: '당신은 대한민국 토지 실무, 공법, 인허가 전문 AI 어시스턴트입니다. 불필요한 서두나 인사말("안녕하세요", "~에 대해 설명드리겠습니다" 등) 없이 질문한 토지 용어 및 법률, 규제의 핵심 내용과 실무상 주의사항만 간결하고 명확하게 설명하세요.'
             }
           ]
         },
