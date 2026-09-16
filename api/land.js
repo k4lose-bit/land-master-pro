@@ -46,21 +46,21 @@ export default async function handler(req, res) {
       contents.push({ role: 'user', parts: [{ text: '토지 용어 안내' }] });
     }
 
-    // URL에서 ?key= 파라미터를 제거하고 순수 엔드포인트만 호출
-    const geminiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:streamGenerateContent?alt=sse';
+    // gemini-1.5-flash-latest 모델 엔드포인트 호출
+    const geminiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:streamGenerateContent?alt=sse';
 
     const response = await fetch(geminiUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-goog-api-key': apiKey // AQ 키 인증 헤더
+        'x-goog-api-key': apiKey
       },
       body: JSON.stringify({
         contents: contents,
         systemInstruction: {
           parts: [
             {
-              text: '당신은 대한민국 토지 실무, 공법, 인허가 전문 AI 어시스턴트입니다. 불필요한 서두나 인사말 없이 질문한 내용의 핵심과 실무 주의점만 간결하고 명확하게 답변하세요.'
+              text: '당신은 대한민국 토지 실무, 공법, 인허가 전문 AI 어시스턴트입니다. 불필요한 서두나 인사말 없이 질문한 내용의 핵심과 실무상 주의사항만 간결하고 명확하게 답변하세요.'
             }
           ]
         },
