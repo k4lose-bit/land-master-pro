@@ -12,7 +12,7 @@ window.LMP_CONFIG = {
   // 광고 켜기: 콘텐츠가 충분히 채워지고 실제 도메인으로 배포된 뒤 true로 변경.
   // 로컬 파일(file://)이나 빈 페이지 상태에서 광고를 켜면 정책 위반 위험이 있음.
   // 2026-08-31: 도메인 배포 완료 + AdSense 승인 상태(free336.com 하위 서브도메인 자동 커버) 확인되어 활성화.
-  ADSENSE_ENABLED: false,
+  ADSENSE_ENABLED: true,
 
   // ---------- 구글 애널리틱스 4 (GA4) ----------
   // analytics.google.com에서 속성 생성 후 측정 ID(G-XXXXXXXXXX)를 여기에 넣으면
