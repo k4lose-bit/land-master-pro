@@ -58,13 +58,13 @@ export default async function handler(req, res) {
         systemInstruction: {
           parts: [
             {
-              text: '당신은 토지 용어 사전 도우미입니다. 긴 설명, 인사말, 목차, 구분선(---), 서식 기호(###)를 절대 쓰지 마세요. 질문한 용어의 "핵심 정의"와 "실무상 알아둘 점"만 3~4문장 이내(최대 200자 안팎)로 아주 짧고 명확하게 요약해 답변하세요.'
+              text: '당신은 토지 용어 안내 챗봇입니다. 서두 인사나 목차 기호(###, ---) 없이, 질문한 용어의 핵심 개념과 실무상 주의점을 2~3개의 완성된 문장으로 명확하게 설명하세요. 문장이 중간에 끊기지 않도록 반드시 온전한 마침표로 끝맺으세요.'
             }
           ]
         },
         generationConfig: {
           temperature: 0.2,
-          maxOutputTokens: 250
+          maxOutputTokens: 1000
         }
       })
     });
