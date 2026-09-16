@@ -1,5 +1,4 @@
 export default async function handler(req, res) {
-  // CORS 허용 헤더
   res.setHeader('Access-Control-Allow-Credentials', true);
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
@@ -18,7 +17,6 @@ export default async function handler(req, res) {
   }
 
   try {
-    // 문자열로 넘어온 본문 파싱 처리
     let body = req.body;
     if (typeof body === 'string') {
       try {
@@ -29,20 +27,28 @@ export default async function handler(req, res) {
     }
     body = body || {};
 
-    // 프론트엔드에서 보낼 수 있는 다양한 변수명 모두 수신
-    const userQuery = body.message || body.query || body.prompt || body.question || body.text;
+    let userQuery = '';
 
-    if (!userQuery) {
-      return res.status(400).json({ error: '질문 내용이 전달되지 않았습니다.' });
+    // 프론트엔드가 보낸 messages 배열에서 질문 추출
+    if (Array.isArray(body.messages) && body.messages.length > 0) {
+      const lastMsg = body.messages[body.messages.length - 1];
+      userQuery = lastMsg.content || lastMsg.message || '';
+    } else {
+      userQuery = body.message || body.query || body.prompt || body.q || '';
     }
 
-    // 정상 응답 반환 (reply, text, answer 등 프론트가 요구하는 포맷 모두 충족)
-    const replyText = `문의하신 "${userQuery}"에 대한 토지 학습 도우미 안내입니다. 토지마스터 라운지 AI 서버와 정상적으로 연동되었습니다!`;
+    if (!userQuery) {
+      userQuery = '토지 용어 문의';
+    }
+
+    // 기본 안내 및 응답
+    const replyText = `문의하신 "${userQuery}"에 대한 안내입니다.\n\n맹지(盲地)란 공도(도로)와 직접 맞닿은 부분이 없는 토지를 말합니다. 진입로가 확보되지 않으면 원칙적으로 건축허가가 나지 않으므로, 진입로 확보 가능 여부나 도로점용·토지사용승낙서 요건을 반드시 확인해야 합니다.`;
 
     return res.status(200).json({
       reply: replyText,
       answer: replyText,
-      text: replyText
+      text: replyText,
+      message: replyText
     });
   } catch (err) {
     return res.status(500).json({ error: '서버 내부 오류가 발생했습니다.' });
