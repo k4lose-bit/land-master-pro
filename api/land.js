@@ -34,7 +34,7 @@ export default async function handler(req, res) {
 
     const incomingMessages = Array.isArray(body.messages) ? body.messages : [];
 
-    // 대화 내역을 Gemini API 포맷으로 변환
+    // 대화 내역을 Gemini API 형식으로 변환
     const contents = incomingMessages.map((m) => ({
       role: m.role === 'assistant' ? 'model' : 'user',
       parts: [{ text: m.content || m.message || '' }]
@@ -44,7 +44,7 @@ export default async function handler(req, res) {
       contents.push({ role: 'user', parts: [{ text: '토지 용어 안내' }] });
     }
 
-    // Gemini API 스트리밍 호출
+    // Google Gemini API 스트리밍 엔드포인트 호출
     const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:streamGenerateContent?alt=sse&key=${apiKey}`;
 
     const response = await fetch(geminiUrl, {
@@ -55,7 +55,7 @@ export default async function handler(req, res) {
         systemInstruction: {
           parts: [
             {
-              text: '당신은 대한민국 토지 실무 및 공법, 인허가 전문 AI 도우미입니다. 불필요한 인사말("안녕하세요", "~에 대해 알려드리겠습니다" 등)이나 서두를 일절 붙이지 말고, 사용자가 질문한 내용의 핵심 답변과 주의사항만 즉시 명확하고 일목요연하게 설명하세요.'
+              text: '당신은 대한민국 토지 실무, 공법, 인허가 전문 AI 어시스턴트입니다. 불필요한 인사말("안녕하세요", "~에 대해 설명드리겠습니다" 등)은 일절 생략하고 질문한 토지 용어나 법률, 규제의 핵심 내용과 실무상 주의점을 명확하고 간결하게 설명하세요.'
             }
           ]
         },
@@ -69,7 +69,7 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: 'Gemini API 호출에 실패했습니다.' });
     }
 
-    // 브라우저로 SSE 스트리밍 헤더 전송
+    // SSE 헤더 설정
     res.writeHead(200, {
       'Content-Type': 'text/event-stream; charset=utf-8',
       'Cache-Control': 'no-cache, no-transform',
@@ -98,7 +98,7 @@ export default async function handler(req, res) {
           const parsed = JSON.parse(jsonStr);
           const chunkText = parsed.candidates?.[0]?.content?.parts?.[0]?.text;
           if (chunkText) {
-            // 프론트엔드가 요구하는 포맷 { text: "내용" }
+            // 프론트엔드가 파싱하는 포맷에 맞추어 실시간 스트리밍
             res.write(`data: ${JSON.stringify({ text: chunkText })}\n\n`);
           }
         } catch (e) {}
