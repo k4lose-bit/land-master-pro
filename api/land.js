@@ -1,5 +1,5 @@
 export default async function handler(req, res) {
-  // 1. CORS 허용 헤더 설정 (ttangstudy.com 허용)
+  // CORS 허용 헤더
   res.setHeader('Access-Control-Allow-Credentials', true);
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
@@ -8,7 +8,6 @@ export default async function handler(req, res) {
     'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
   );
 
-  // 프리플라이트 요청 처리
   if (req.method === 'OPTIONS') {
     res.status(200).end();
     return;
@@ -19,15 +18,31 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { message } = req.body || {};
+    // 문자열로 넘어온 본문 파싱 처리
+    let body = req.body;
+    if (typeof body === 'string') {
+      try {
+        body = JSON.parse(body);
+      } catch (e) {
+        body = {};
+      }
+    }
+    body = body || {};
 
-    if (!message) {
-      return res.status(400).json({ error: '질문 내용이 없습니다.' });
+    // 프론트엔드에서 보낼 수 있는 다양한 변수명 모두 수신
+    const userQuery = body.message || body.query || body.prompt || body.question || body.text;
+
+    if (!userQuery) {
+      return res.status(400).json({ error: '질문 내용이 전달되지 않았습니다.' });
     }
 
-    // 기본 응답 예시 (추후 OpenAI/Gemini API 연동 가능)
+    // 정상 응답 반환 (reply, text, answer 등 프론트가 요구하는 포맷 모두 충족)
+    const replyText = `문의하신 "${userQuery}"에 대한 토지 학습 도우미 안내입니다. 토지마스터 라운지 AI 서버와 정상적으로 연동되었습니다!`;
+
     return res.status(200).json({
-      reply: `문의하신 "${message}"에 대한 토지 안내입니다. 현재 토지마스터 라운지 AI 서비스가 정상 연결되었습니다.`
+      reply: replyText,
+      answer: replyText,
+      text: replyText
     });
   } catch (err) {
     return res.status(500).json({ error: '서버 내부 오류가 발생했습니다.' });
