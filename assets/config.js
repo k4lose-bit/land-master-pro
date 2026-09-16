@@ -9,7 +9,7 @@ window.LMP_CONFIG = {
   // ---------- AI 챗봇 설정 (추가할 부분) ----------
   CHAT_ENABLED: true,
   // 배포된 Vercel 챗봇 API 주소 (동일 도메인에 Vercel Serverless Function이 배포되어 있다면 "/api/land" 또는 전체 주소)
-  CHAT_API_URL: "https://ttangstudy.com/api/land",
+  CHAT_API_URL: "https://land-master-pro.vercel.app/api/land",
   
   // ---------- 구글 애드센스 ----------
   // free336.com 승인 계정의 게시자 ID (adsense_id.txt에서 가져옴)
