@@ -1,3 +1,7 @@
+export const config = {
+  supportsResponseStreaming: true,
+};
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Credentials', 'true');
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -29,16 +33,11 @@ export default async function handler(req, res) {
     body = body || {};
 
     const incomingMessages = Array.isArray(body.messages) ? body.messages : [];
-
-    // 가장 최근 사용자 질문 1개만 추출하여 속도 극대화
-    const lastUserMsg = incomingMessages
-      .slice()
-      .reverse()
-      .find((m) => m.role === 'user');
-
+    const lastUserMsg = incomingMessages.slice().reverse().find((m) => m.role === 'user');
     const promptText = String(lastUserMsg?.content || lastUserMsg?.message || '토지 용어 안내').trim();
 
-    const geminiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent';
+    // 0.5초 즉각 반응을 위한 스트리밍 엔드포인트
+    const geminiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:streamGenerateContent?alt=sse';
 
     const response = await fetch(geminiUrl, {
       method: 'POST',
@@ -47,25 +46,18 @@ export default async function handler(req, res) {
         'x-goog-api-key': apiKey
       },
       body: JSON.stringify({
-        contents: [
-          {
-            role: 'user',
-            parts: [{ text: promptText }]
-          }
-        ],
+        contents: [{ role: 'user', parts: [{ text: promptText }] }],
         systemInstruction: {
           parts: [
             {
-              text: '토지 용어 안내 챗봇입니다. 서두나 특수기호 없이 핵심 정의와 실무 주의점을 완결된 2~3문장으로 짧고 명료하게 마침표까지 답변하세요.'
+              text: '토지 용어 안내 챗봇입니다. 서두나 특수서식(###, ---) 없이 핵심 개념과 주의점을 2~3문장의 완결된 문장으로 마침표까지 깔끔하게 설명하세요.'
             }
           ]
         },
         generationConfig: {
           temperature: 0.1,
-          maxOutputTokens: 300,
-          thinkingConfig: {
-            thinkingBudget: 0 // 사고(생각) 시간 비활성화로 1초 컷 응답
-          }
+          maxOutputTokens: 500,
+          thinkingConfig: { thinkingBudget: 0 }
         }
       })
     });
@@ -75,19 +67,55 @@ export default async function handler(req, res) {
       return res.status(response.status).json({ error: `Gemini API 에러: ${errText}` });
     }
 
-    const data = await response.json();
-    const replyText = data.candidates?.[0]?.content?.parts?.[0]?.text || '답변을 생성하지 못했습니다.';
-
+    // 브라우저로 실시간 SSE 헤더 열기
     res.writeHead(200, {
       'Content-Type': 'text/event-stream; charset=utf-8',
       'Cache-Control': 'no-cache, no-transform',
-      'Connection': 'keep-alive'
+      'Connection': 'keep-alive',
+      'X-Accel-Buffering': 'no'
     });
 
-    res.write(`data: ${JSON.stringify({ text: replyText })}\n\n`);
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+
+    // 글자가 만들어지는 즉시 브라우저 화면으로 밀어넣기
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop() || '';
+
+      for (const line of lines) {
+        const trimmed = line.trim();
+        if (!trimmed || !trimmed.startsWith('data: ')) continue;
+        const jsonStr = trimmed.slice(6);
+
+        try {
+          const parsed = JSON.parse(jsonStr);
+          const chunkText = parsed.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (chunkText) {
+            res.write(`data: ${JSON.stringify({ text: chunkText })}\n\n`);
+          }
+        } catch (e) {}
+      }
+    }
+
+    // 잔여 버퍼 처리 및 완료 신호
+    if (buffer.trim().startsWith('data: ')) {
+      try {
+        const parsed = JSON.parse(buffer.trim().slice(6));
+        const chunkText = parsed.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (chunkText) {
+          res.write(`data: ${JSON.stringify({ text: chunkText })}\n\n`);
+        }
+      } catch (e) {}
+    }
+
     res.write('data: [DONE]\n\n');
     res.end();
-
   } catch (err) {
     if (!res.headersSent) {
       res.status(500).json({ error: `서버 내부 오류: ${err.message}` });
