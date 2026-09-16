@@ -1,7 +1,3 @@
-export const config = {
-  supportsResponseStreaming: true,
-};
-
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Credentials', 'true');
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -45,7 +41,8 @@ export default async function handler(req, res) {
       contents.push({ role: 'user', parts: [{ text: '토지 용어 안내' }] });
     }
 
-    const geminiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:streamGenerateContent?alt=sse';
+    // 끊김 없는 표준 generateContent API 호출
+    const geminiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent';
 
     const response = await fetch(geminiUrl, {
       method: 'POST',
@@ -58,12 +55,12 @@ export default async function handler(req, res) {
         systemInstruction: {
           parts: [
             {
-              text: '당신은 토지 용어 안내 챗봇입니다. 서두 인사나 목차 기호(###, ---) 없이, 질문한 용어의 핵심 개념과 실무상 주의점을 2~3개의 완성된 문장으로 명확하게 설명하세요. 문장이 중간에 끊기지 않도록 반드시 온전한 마침표로 끝맺으세요.'
+              text: '당신은 토지 실무 용어 안내 도우미입니다. 인사말이나 서두, 특수서식(###, ---) 없이, 사용자가 질문한 용어의 핵심 정의와 주의할 점을 2~3문장의 명확하고 온전한 문장단락으로 마침표까지 깔끔하게 설명하세요.'
             }
           ]
         },
         generationConfig: {
-          temperature: 0.2,
+          temperature: 0.3,
           maxOutputTokens: 1000
         }
       })
@@ -81,42 +78,20 @@ export default async function handler(req, res) {
       return res.status(response.status).json({ error: errMsg });
     }
 
+    const data = await response.json();
+    const replyText = data.candidates?.[0]?.content?.parts?.[0]?.text || '답변을 생성하지 못했습니다.';
+
+    // SSE 스트림 포맷으로 완성된 텍스트 전체를 안전하게 전송
     res.writeHead(200, {
       'Content-Type': 'text/event-stream; charset=utf-8',
       'Cache-Control': 'no-cache, no-transform',
-      'Connection': 'keep-alive',
-      'X-Accel-Buffering': 'no'
+      'Connection': 'keep-alive'
     });
 
-    const reader = response.body.getReader();
-    const decoder = new TextDecoder();
-    let buffer = '';
-
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-
-      buffer += decoder.decode(value, { stream: true });
-      const lines = buffer.split('\n');
-      buffer = lines.pop() || '';
-
-      for (const line of lines) {
-        const trimmed = line.trim();
-        if (!trimmed || !trimmed.startsWith('data: ')) continue;
-        const jsonStr = trimmed.slice(6);
-
-        try {
-          const parsed = JSON.parse(jsonStr);
-          const chunkText = parsed.candidates?.[0]?.content?.parts?.[0]?.text;
-          if (chunkText) {
-            res.write(`data: ${JSON.stringify({ text: chunkText })}\n\n`);
-          }
-        } catch (e) {}
-      }
-    }
-
+    res.write(`data: ${JSON.stringify({ text: replyText })}\n\n`);
     res.write('data: [DONE]\n\n');
     res.end();
+
   } catch (err) {
     if (!res.headersSent) {
       res.status(500).json({ error: `서버 내부 오류: ${err.message}` });
