@@ -30,18 +30,14 @@ export default async function handler(req, res) {
 
     const incomingMessages = Array.isArray(body.messages) ? body.messages : [];
 
-    const contents = incomingMessages
-      .map((m) => ({
-        role: m.role === 'assistant' ? 'model' : 'user',
-        parts: [{ text: String(m.content || m.message || '').trim() }]
-      }))
-      .filter((c) => c.parts[0].text.length > 0);
+    // 가장 최근 사용자 질문 1개만 추출하여 속도 극대화
+    const lastUserMsg = incomingMessages
+      .slice()
+      .reverse()
+      .find((m) => m.role === 'user');
 
-    if (contents.length === 0) {
-      contents.push({ role: 'user', parts: [{ text: '토지 용어 안내' }] });
-    }
+    const promptText = String(lastUserMsg?.content || lastUserMsg?.message || '토지 용어 안내').trim();
 
-    // 끊김 없는 표준 generateContent API 호출
     const geminiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent';
 
     const response = await fetch(geminiUrl, {
@@ -51,37 +47,37 @@ export default async function handler(req, res) {
         'x-goog-api-key': apiKey
       },
       body: JSON.stringify({
-        contents: contents,
+        contents: [
+          {
+            role: 'user',
+            parts: [{ text: promptText }]
+          }
+        ],
         systemInstruction: {
           parts: [
             {
-              text: '당신은 토지 실무 용어 안내 도우미입니다. 인사말이나 서두, 특수서식(###, ---) 없이, 사용자가 질문한 용어의 핵심 정의와 주의할 점을 2~3문장의 명확하고 온전한 문장단락으로 마침표까지 깔끔하게 설명하세요.'
+              text: '토지 용어 안내 챗봇입니다. 서두나 특수기호 없이 핵심 정의와 실무 주의점을 완결된 2~3문장으로 짧고 명료하게 마침표까지 답변하세요.'
             }
           ]
         },
         generationConfig: {
-          temperature: 0.3,
-          maxOutputTokens: 1000
+          temperature: 0.1,
+          maxOutputTokens: 300,
+          thinkingConfig: {
+            thinkingBudget: 0 // 사고(생각) 시간 비활성화로 1초 컷 응답
+          }
         }
       })
     });
 
     if (!response.ok) {
       const errText = await response.text();
-      let errMsg = `Gemini API 에러 (${response.status}): `;
-      try {
-        const errJson = JSON.parse(errText);
-        errMsg += errJson.error?.message || errText;
-      } catch (e) {
-        errMsg += errText;
-      }
-      return res.status(response.status).json({ error: errMsg });
+      return res.status(response.status).json({ error: `Gemini API 에러: ${errText}` });
     }
 
     const data = await response.json();
     const replyText = data.candidates?.[0]?.content?.parts?.[0]?.text || '답변을 생성하지 못했습니다.';
 
-    // SSE 스트림 포맷으로 완성된 텍스트 전체를 안전하게 전송
     res.writeHead(200, {
       'Content-Type': 'text/event-stream; charset=utf-8',
       'Cache-Control': 'no-cache, no-transform',
