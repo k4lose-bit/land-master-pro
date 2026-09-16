@@ -20,9 +20,9 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
-  const apiKey = process.env.GEMINI_API_KEY;
+  const apiKey = (process.env.GEMINI_API_KEY || '').trim();
   if (!apiKey) {
-    return res.status(500).json({ error: 'GEMINI_API_KEY 환경변수가 설정되지 않았습니다.' });
+    return res.status(500).json({ error: 'GEMINI_API_KEY 환경변수가 비어있습니다.' });
   }
 
   try {
@@ -34,17 +34,18 @@ export default async function handler(req, res) {
 
     const incomingMessages = Array.isArray(body.messages) ? body.messages : [];
 
-    // 대화 내역을 Gemini API 형식으로 변환
-    const contents = incomingMessages.map((m) => ({
-      role: m.role === 'assistant' ? 'model' : 'user',
-      parts: [{ text: m.content || m.message || '' }]
-    })).filter(c => c.parts[0].text.trim().length > 0);
+    // 대화 내역 포맷팅
+    const contents = incomingMessages
+      .map((m) => ({
+        role: m.role === 'assistant' ? 'model' : 'user',
+        parts: [{ text: String(m.content || m.message || '').trim() }]
+      }))
+      .filter((c) => c.parts[0].text.length > 0);
 
     if (contents.length === 0) {
       contents.push({ role: 'user', parts: [{ text: '토지 용어 안내' }] });
     }
 
-    // Google Gemini API 스트리밍 엔드포인트 호출
     const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:streamGenerateContent?alt=sse&key=${apiKey}`;
 
     const response = await fetch(geminiUrl, {
@@ -65,11 +66,19 @@ export default async function handler(req, res) {
       })
     });
 
+    // 구글 API가 거절한 경우 구체적인 에러 사유를 반환
     if (!response.ok) {
-      return res.status(500).json({ error: 'Gemini API 호출에 실패했습니다.' });
+      const errText = await response.text();
+      let errMsg = `Gemini API 에러 (${response.status}): `;
+      try {
+        const errJson = JSON.parse(errText);
+        errMsg += errJson.error?.message || errText;
+      } catch (e) {
+        errMsg += errText;
+      }
+      return res.status(response.status).json({ error: errMsg });
     }
 
-    // SSE 헤더 설정
     res.writeHead(200, {
       'Content-Type': 'text/event-stream; charset=utf-8',
       'Cache-Control': 'no-cache, no-transform',
@@ -98,7 +107,6 @@ export default async function handler(req, res) {
           const parsed = JSON.parse(jsonStr);
           const chunkText = parsed.candidates?.[0]?.content?.parts?.[0]?.text;
           if (chunkText) {
-            // 프론트엔드가 파싱하는 포맷에 맞추어 실시간 스트리밍
             res.write(`data: ${JSON.stringify({ text: chunkText })}\n\n`);
           }
         } catch (e) {}
@@ -109,7 +117,7 @@ export default async function handler(req, res) {
     res.end();
   } catch (err) {
     if (!res.headersSent) {
-      res.status(500).json({ error: '서버 내부 오류가 발생했습니다.' });
+      res.status(500).json({ error: `서버 내부 오류: ${err.message}` });
     } else {
       res.end();
     }
