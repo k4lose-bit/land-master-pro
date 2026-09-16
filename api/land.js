@@ -22,7 +22,7 @@ export default async function handler(req, res) {
 
   const apiKey = (process.env.GEMINI_API_KEY || '').trim();
   if (!apiKey) {
-    return res.status(500).json({ error: 'GEMINI_API_KEY 환경변수가 비어있습니다.' });
+    return res.status(500).json({ error: 'GEMINI_API_KEY 환경변수가 설정되지 않았습니다.' });
   }
 
   try {
@@ -46,17 +46,21 @@ export default async function handler(req, res) {
       contents.push({ role: 'user', parts: [{ text: '토지 용어 안내' }] });
     }
 
-    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:streamGenerateContent?alt=sse&key=${apiKey}`;
+    // URL에서 ?key= 파라미터를 제거하고 순수 엔드포인트만 호출
+    const geminiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:streamGenerateContent?alt=sse';
 
     const response = await fetch(geminiUrl, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'x-goog-api-key': apiKey // AQ 키 인증 헤더
+      },
       body: JSON.stringify({
         contents: contents,
         systemInstruction: {
           parts: [
             {
-              text: '당신은 대한민국 토지 실무, 공법, 인허가 전문 AI 어시스턴트입니다. 불필요한 인사말("안녕하세요", "~에 대해 설명드리겠습니다" 등)은 일절 생략하고 질문한 토지 용어나 법률, 규제의 핵심 내용과 실무상 주의점을 명확하고 간결하게 설명하세요.'
+              text: '당신은 대한민국 토지 실무, 공법, 인허가 전문 AI 어시스턴트입니다. 불필요한 서두나 인사말 없이 질문한 내용의 핵심과 실무 주의점만 간결하고 명확하게 답변하세요.'
             }
           ]
         },
@@ -66,7 +70,6 @@ export default async function handler(req, res) {
       })
     });
 
-    // 구글 API가 거절한 경우 구체적인 에러 사유를 반환
     if (!response.ok) {
       const errText = await response.text();
       let errMsg = `Gemini API 에러 (${response.status}): `;
