@@ -28,8 +28,6 @@ export default async function handler(req, res) {
     body = body || {};
 
     let userQuery = '';
-
-    // 프론트엔드가 보낸 messages 배열에서 질문 추출
     if (Array.isArray(body.messages) && body.messages.length > 0) {
       const lastMsg = body.messages[body.messages.length - 1];
       userQuery = lastMsg.content || lastMsg.message || '';
@@ -41,14 +39,23 @@ export default async function handler(req, res) {
       userQuery = '토지 용어 문의';
     }
 
-    // 기본 안내 및 응답
-    const replyText = `문의하신 "${userQuery}"에 대한 안내입니다.\n\n맹지(盲地)란 공도(도로)와 직접 맞닿은 부분이 없는 토지를 말합니다. 진입로가 확보되지 않으면 원칙적으로 건축허가가 나지 않으므로, 진입로 확보 가능 여부나 도로점용·토지사용승낙서 요건을 반드시 확인해야 합니다.`;
+    const answerText = `문의하신 "${userQuery}"에 대한 안내입니다.\n\n맹지(盲地)란 공도(도로)와 맞닿은 부분이 전혀 없는 토지를 뜻합니다. 건축법상 도로 접도 요건을 갖추지 못하면 건축허가가 제한되므로, 진입로 개설을 위한 사도 개설 허가나 인접 토지 사용승낙서 확보 가능 여부를 필히 점검해야 합니다.`;
 
+    // OpenAI 규격(choices), 일반 규격(content, reply, answer) 통합 반환
     return res.status(200).json({
-      reply: replyText,
-      answer: replyText,
-      text: replyText,
-      message: replyText
+      choices: [
+        {
+          message: {
+            role: 'assistant',
+            content: answerText
+          }
+        }
+      ],
+      content: answerText,
+      reply: answerText,
+      answer: answerText,
+      text: answerText,
+      message: answerText
     });
   } catch (err) {
     return res.status(500).json({ error: '서버 내부 오류가 발생했습니다.' });
