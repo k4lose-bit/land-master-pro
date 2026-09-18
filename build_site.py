@@ -1,4 +1,12 @@
 # -*- coding: utf-8 -*-
+# ---------------------------------------------------------------
+# 전면광고 슬롯(adSlotBox)과 커뮤니티 안내문(setupPanel)에서
+# 개발용 안내 문구를 뺄었습니다 (2026-09-18).
+# 애드센스 승인 후 전면광고를 다시 켜려면:
+#   1) 아래 <div class="ad-slot-box" id="adSlotBox"> 안에 실제 광고 코드를 넣고
+#   2) assets/config.js 의 AD_INTERSTITIAL_ENABLED 를 true 로 바꿔준 뒤
+#   3) python build_site.py 를 다시 실행해 전체 페이지를 갱신합니다.
+# ---------------------------------------------------------------
 """Land Master Pro 사이트 빌더.
 content_stage12.py / content_stage345.py 의 데이터로 site/ 안의 HTML을 생성한다.
 콘텐츠를 고친 뒤 `python build_site.py` 를 다시 실행하면 된다."""
@@ -156,8 +164,8 @@ def shell(page, title, desc, body, extra_scripts="", extra_head=""):
       </div>
       <div class="ad-interstitial hidden" id="adInterstitial">
         <div class="ad-slot-card">
-          <div class="ad-slot-label">광고 (준비 중 — AD_INTERSTITIAL_ENABLED=false)</div>
-          <div class="ad-slot-box" id="adSlotBox">여기에 실제 애드센스 전면광고 코드가 들어갈 자리입니다.</div>
+          <div class="ad-slot-label"></div>
+          <div class="ad-slot-box" id="adSlotBox"></div>
           <button class="btn ghost sm" id="adSlotClose" type="button">닫고 계속하기 →</button>
         </div>
       </div>
@@ -758,11 +766,7 @@ def build_community():
     </div>
 
     <div id="setupPanel" class="setup-note hidden">
-      <b>🔧 커뮤니티 준비 중입니다.</b><br>
-      회원제 게시판은 운영자가 데이터베이스(Supabase) 연결을 완료하면 활성화됩니다.
-      그때까지는 학습 스테이지와 공고 와처를 이용해 주세요.
-      <span style="color:var(--muted);">(운영자: README의 3단계 — Supabase 프로젝트 생성 후
-      assets/config.js에 URL과 KEY를 입력하면 즉시 열립니다.)</span>
+      게시판을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.
     </div>
 
     <div id="communityApp" class="hidden">
