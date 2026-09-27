@@ -1,3 +1,21 @@
+
+
+/* ---------- 용어사전 단일 페이지 (2026-09-27) ---------- */
+.term-toc{margin:18px 0 26px;padding:16px 18px;border:1px solid var(--line);border-radius:12px;background:var(--card)}
+.term-toc .toc-group{padding:7px 0;border-bottom:1px dashed var(--line)}
+.term-toc .toc-group:last-child{border-bottom:0}
+.term-toc .toc-group b{display:block;font-size:.88rem;color:var(--muted);margin-bottom:4px}
+.term-toc .toc-links{font-size:.94rem;line-height:1.9}
+.term-toc .toc-links a{color:var(--primary);text-decoration:none}
+.term-toc .toc-links a:hover{text-decoration:underline}
+.term-section{margin:34px 0 0}
+.term-section>h2{margin:0 0 4px;padding-bottom:8px;border-bottom:2px solid var(--line);font-size:1.22rem}
+.term-section-lead{margin:0 0 16px;font-size:.9rem;color:var(--muted)}
+.term-entry{padding:16px 0 4px;border-top:1px solid var(--line)}
+.term-entry:first-of-type{border-top:0}
+.term-entry>h3{margin:0 0 3px;font-size:1.06rem}
+.term-entry .term-tagline{margin:0 0 9px;font-size:.9rem;color:var(--muted)}
+.term-entry>p{line-height:1.75}
 /* Land Master Pro — 공통 스타일 (민트 프레시 테마, 큰 글씨 기준) */
 :root {
   --bg: #F2FAF7;
