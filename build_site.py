@@ -494,83 +494,64 @@ SEED_NOTICES = {
 
 # ---------------------------------------------------------------- 용어사전
 def build_glossary():
+    """용어사전 = 한 페이지(glossary.html)에 전체 수록.
+    2026-09-27: 용어마다 개별 페이지(glossary-<slug>.html)를 만들던 방식을 폐지했다.
+    페이지당 본문이 400자대에 그쳐 애드센스가 '가치가 별로 없는 콘텐츠'로 반려했기 때문.
+    되돌리려면 이 함수를 git 이력의 이전 버전으로 복원하고 static_pages()에
+    glossary-<slug> 항목을 다시 넣으면 된다."""
     slugify_check()
-    group_meta = {g[0]: g for g in GROUPS}
-
-    # ---- 색인 페이지 (glossary.html) ----
-    sections = []
+    toc_groups, sections = [], []
     for gkey, glabel, glink, gnavlabel in GROUPS:
         terms = [t for t in GLOSSARY if t["group"] == gkey]
         if not terms:
             continue
-        cards = "\n      ".join(
-            '<a class="glossary-card" href="glossary-%s.html"><b>%s</b><span>%s</span></a>'
-            % (t["slug"], esc(t["term"]), esc(t["tagline"]))
+        toc_links = " \u00b7 ".join(
+            '<a href="#term-%s">%s</a>' % (t["slug"], esc(t["term"])) for t in terms
+        )
+        toc_groups.append(
+            '<div class="toc-group"><b>%s</b><div class="toc-links">%s</div></div>'
+            % (esc(glabel), toc_links)
+        )
+        entries = "\n      ".join(
+            '<article class="term-entry" id="term-%(slug)s">\n        <h3>%(term)s</h3>\n'
+            '        <p class="term-tagline">%(tagline)s</p>\n        <p>%(desc)s</p>\n'
+            '        <div class="trap-box"><b>\U0001F4A1 실무 포인트:</b> %(point)s</div>\n      </article>' % {
+                "slug": t["slug"], "term": esc(t["term"]), "tagline": esc(t["tagline"]),
+                "desc": t["body"], "point": t["point"],
+            }
             for t in terms
         )
         sections.append(
-            '<div class="glossary-group">\n'
-            '      <h3>%s <a class="glossary-group-link" href="%s">%s 자세히 보기 →</a></h3>\n'
-            '      <div class="glossary-grid">\n      %s\n      </div>\n    </div>'
-            % (esc(glabel), glink, esc(gnavlabel), cards)
+            '<section class="term-section" id="group-%(gkey)s">\n      <h2>%(glabel)s</h2>\n'
+            '      <p class="term-section-lead">이 주제는 <a href="%(glink)s">%(gnavlabel)s 스테이지</a>에서 실전 퀴즈로 이어집니다.</p>\n'
+            '      %(entries)s\n    </section>' % {
+                "gkey": gkey, "glabel": esc(glabel), "glink": glink,
+                "gnavlabel": esc(gnavlabel), "entries": entries,
+            }
         )
     body = """
     <div class="page-head">
-      <h1>📖 토지 투자 용어사전</h1>
-      <p>초보자가 가장 많이 막히는 용어를 한 개념씩, 짧고 정확하게 정리했습니다 (%(count)d개)</p>
+      <h1>\U0001F4D6 토지 투자 용어사전</h1>
+      <p>초보자가 가장 많이 막히는 용어 %(count)d개를 한 페이지에 모았습니다</p>
     </div>
     <div class="intro-box">
       법령·행정 용어는 사전 그대로 읽으면 더 헷갈립니다. 실제 투자 판단에 필요한 만큼만,
-      관련 스테이지와 연결해서 정리했습니다. 용어가 계속 추가되니 궁금한 용어가 없다면 나중에 다시 찾아보세요.
+      정의와 실무에서 걸리는 지점을 함께 정리했습니다. 아래 목차에서 용어를 누르면 해당 설명으로 바로 이동합니다.
     </div>
+    <nav class="term-toc" aria-label="용어 목차">
+      %(toc)s
+    </nav>
     %(sections)s
     <div class="ad-slot"></div>""" % {
-        "count": len(GLOSSARY), "sections": "\n    ".join(sections),
+        "count": len(GLOSSARY),
+        "toc": "\n      ".join(toc_groups),
+        "sections": "\n    ".join(sections),
     }
     write("glossary.html", shell(
-        "glossary.html", "토지 투자 용어사전 | Land Master Pro",
-        "맹지, 보전산지, 용도지역, 지구단위계획 등 토지 투자 초보자가 막히는 용어를 짧고 정확하게 정리.",
+        "glossary.html",
+        "토지 투자 용어사전 \u2014 맹지·용도지역·보상 용어 %d개 정리 | Land Master Pro" % len(GLOSSARY),
+        "맹지, 접도의무, 보전산지, 용도지역, 건폐율, 지구단위계획, 토지보상까지 토지 투자에서 막히는 용어 %d개를 정의와 실무 포인트로 한 페이지에 정리했습니다." % len(GLOSSARY),
         body))
-
-    # ---- 개별 용어 페이지 (glossary-<slug>.html) ----
-    for i, t in enumerate(GLOSSARY):
-        gkey, glabel, glink, gnavlabel = group_meta[t["group"]]
-        same_group = [x for x in GLOSSARY if x["group"] == t["group"] and x["slug"] != t["slug"]]
-        related_html = ""
-        if same_group:
-            related_items = "\n        ".join(
-                '<a href="glossary-%s.html">%s</a>' % (x["slug"], esc(x["term"]))
-                for x in same_group[:6]
-            )
-            related_html = (
-                '\n    <div class="term-related">\n      <h4>%s 관련 다른 용어</h4>\n      <div class="term-related-links">\n        %s\n      </div>\n    </div>'
-                % (esc(glabel), related_items)
-            )
-        body_t = """
-    <div class="page-head">
-      <span class="term-badge">%(group)s</span>
-      <h1>%(term)s</h1>
-      <p>%(tagline)s</p>
-    </div>
-    <div class="doc">
-      <p>%(desc)s</p>
-      <div class="trap-box"><b>💡 실무 포인트:</b> %(point)s</div>
-      <p><a class="btn ghost sm" href="%(glink)s">%(gnavlabel)s 스테이지에서 실전 퀴즈로 이어서 보기 →</a></p>
-    </div>%(related)s
-    %(nudge)s
-    <div class="ad-slot"></div>
-    <p class="doc-back"><a href="glossary.html">← 용어사전 전체 목록</a></p>""" % {
-            "group": esc(glabel), "term": esc(t["term"]), "tagline": esc(t["tagline"]),
-            "desc": t["body"], "point": t["point"], "glink": glink, "gnavlabel": esc(gnavlabel),
-            "related": related_html,
-            "nudge": community_nudge_html(
-                "'%s' 관련 실제 사례나 궁금한 점이 있다면, 커뮤니티에서 물어보세요." % t["term"]
-            ),
-        }
-        write("glossary-%s.html" % t["slug"], shell(
-            "glossary-%s.html" % t["slug"], "%s이란? 뜻과 실무 포인트 | Land Master Pro" % t["term"],
-            t["tagline"], body_t))
-
 
 def build_cases():
     cases_slugify_check()
@@ -921,7 +902,6 @@ def static_pages():
     pages = ["index.html", "stage1.html", "stage2.html", "stage3.html", "stage4.html",
              "stage5.html", "glossary.html", "notices.html", "guide.html", "community.html",
              "community-archive.html", "about.html", "privacy.html"]
-    pages += ["glossary-%s.html" % t["slug"] for t in GLOSSARY]
     pages += ["cases.html"] + ["case-%s.html" % c["slug"] for c in CASES]
     return pages
 
