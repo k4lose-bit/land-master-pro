@@ -112,6 +112,10 @@ CASES = [
 ]
 
 
+from content_cases_more import MORE_CASES  # noqa: E402
+CASES.extend(MORE_CASES)
+
+
 def slugify_check():
     slugs = [c["slug"] for c in CASES]
     dups = {s for s in slugs if slugs.count(s) > 1}

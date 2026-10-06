@@ -39,7 +39,6 @@ NAV = [
     ("stage4.html", "S4. 권리·계약"),
     ("stage5.html", "S5. 토지보상"),
     ("glossary.html", "📖 용어사전"),
-    ("notices.html", "📡 공고 와처"),
     ("guide.html", "🌐 토지이음 가이드"),
     ("cases.html", "📂 실전 사례"),
     ("community.html", "💬 커뮤니티"),
@@ -177,7 +176,6 @@ def shell(page, title, desc, body, extra_scripts="", extra_head=""):
           <div>
             <a href="about.html">사이트 소개·문의</a>
             <a href="privacy.html">개인정보처리방침</a>
-            <a href="notices.html">공고 와처</a>
           </div>
           <p class="disclaimer">본 사이트의 모든 콘텐츠는 일반적인 정보 제공을 목적으로 하며, 법률·세무·투자 자문이 아닙니다.
           법령·조례·세율은 개정될 수 있고 지자체마다 기준이 다르므로, 실제 거래 전 반드시 해당 기관과 전문가(변호사·세무사·감정평가사 등)의 확인을 받으시기 바랍니다.
@@ -285,7 +283,7 @@ def build_stage(stg):
             '<a class="btn next-stage-link" href="stage%d.html">다음 스테이지 →</a>' % (stg["num"] + 1)
         ) if stg["num"] < 5 else (
             '<div class="stage-done">🎉 <b>5개 스테이지, 25개 관문을 모두 둘러봤습니다.</b><br>'
-            '공고 와처나 커뮤니티도 확인해 보세요.'
+            '실전 사례와 커뮤니티도 확인해 보세요.'
             '<div class="stage-done-actions">'
             '<a class="btn ghost" href="index.html">🏠 홈으로</a>'
             '<a class="btn" href="community.html">💬 커뮤니티에서 후기 남기기</a>'
@@ -380,7 +378,7 @@ def build_index():
 
     <div class="page-head">
       <h1>경기북부 토지 투자, 게임처럼 정복한다</h1>
-      <p>맹지 탈출부터 토지보상까지 — 25개 관문 실전 학습 + 공공 개발 고시·공고 와처</p>
+      <p>맹지 탈출부터 토지보상까지 — 25개 관문 실전 학습 + 용어사전 + 실전 사례</p>
     </div>
 
     <div class="fact-hero" id="factHero">
@@ -423,12 +421,6 @@ def build_index():
     <div class="trail-map">%(cards)s</div>
 
     <div class="grid">
-      <a class="stage-card plain" href="notices.html">
-        <span class="s-num" style="color:var(--red);">WATCHER</span>
-        <h3>📡 공공 개발 고시·공고 와처</h3>
-        <p>경기북부 지자체·LH의 개발 관련 고시·공고를 한 곳에 모아 봅니다. 자동 수집기 연동 구조.</p>
-        <div class="mini-label">바로가기 →</div>
-      </a>
       <a class="stage-card plain" href="guide.html">
         <span class="s-num" style="color:var(--green);">TOOL</span>
         <h3>🌐 토지이음 완벽 활용 가이드</h3>
@@ -459,7 +451,7 @@ def build_index():
     }
     write("index.html", shell(
         "index.html", SITE_NAME,
-        "맹지 탈출, 임야·농지, 용도지역, 권리분석, 토지보상까지 — 경기북부 토지 투자를 25개 관문으로 배우는 실전 학습 사이트. 지자체 개발 고시·공고 와처 제공.",
+        "맹지 탈출, 임야·농지, 용도지역, 권리분석, 토지보상까지 — 경기북부 토지 투자를 25개 관문으로 배우는 실전 학습 사이트. 용어사전과 실전 사례 해설 제공.",
         body))
 
 
@@ -665,7 +657,8 @@ def build_notices():
     write("notices.html", shell(
         "notices.html", "공공 개발 고시·공고 와처 | Land Master Pro",
         "남양주·의정부·양주·동두천·포천·연천과 LH의 개발 관련 고시·공고를 한 곳에서 확인하세요.",
-        body, extra_scripts='  <script src="assets/notices.js" defer></script>\n'))
+        body, extra_scripts='  <script src="assets/notices.js" defer></script>\n',
+        extra_head='  <meta name="robots" content="noindex,follow">\n'))
     # 초기 JSON 파일
     os.makedirs(os.path.join(OUT, "data"), exist_ok=True)
     with open(os.path.join(OUT, "data", "notices.json"), "w", encoding="utf-8") as f:
@@ -818,7 +811,8 @@ def build_community_archive_placeholder():
     </div>"""
     write("community-archive.html", shell(
         "community-archive.html", "커뮤니티 지난 글 | Land Master Pro",
-        "Land Master Pro 커뮤니티 회원들이 남긴 글 모음.", body))
+        "커뮤니티에 올라온 글을 모아 둔 목록입니다.", body,
+        extra_head='  <meta name="robots" content="noindex,follow">\n'))
 
 
 # ---------------------------------------------------------------- 소개 / 개인정보
@@ -835,7 +829,7 @@ def build_about():
       <ul>
         <li><b>실전 학습 아카데미</b>: 맹지·도로, 임야·농지, 용도지역, 권리분석, 토지보상 — 5개 스테이지
         25개 관문을 퀴즈 게임 방식으로 학습합니다.</li>
-        <li><b>공고 와처</b>: 지자체·LH의 개발 관련 고시·공고를 모아 보고, 읽는 법을 안내합니다.</li>
+        <li><b>용어사전·실전 사례</b>: 토지 투자에서 막히는 용어와 실제 상황별 확인 순서를 근거 법령과 함께 정리합니다.</li>
         <li><b>커뮤니티</b>: 회원 간 투자 고민과 임장 후기를 나누는 공간입니다.</li>
       </ul>
       <h2>누가 만들었나</h2>
@@ -900,8 +894,8 @@ def static_pages():
     그래서 이 함수를 수동으로 다시 실행해도(=build_site.py 재실행) 커뮤니티 글 항목은
     다음 자동 실행 때 스스로 복구된다."""
     pages = ["index.html", "stage1.html", "stage2.html", "stage3.html", "stage4.html",
-             "stage5.html", "glossary.html", "notices.html", "guide.html", "community.html",
-             "community-archive.html", "about.html", "privacy.html"]
+             "stage5.html", "glossary.html", "guide.html", "community.html",
+             "about.html", "privacy.html"]
     pages += ["cases.html"] + ["case-%s.html" % c["slug"] for c in CASES]
     return pages
 

@@ -102,7 +102,10 @@ def post_html(post, text, excerpt):
         "title": esc(title), "author": esc(author), "date": esc(date),
         "paragraphs": paragraphs or "<p>(내용 없음)</p>", "id": post["id"],
     }
-    return fname, shell(fname, "%s | Land Master Pro 커뮤니티" % title, esc(excerpt), body)
+    # 사례 글(case-*.html)과 내용이 겹치거나 한 사람이 쓴 짧은 글이라 검색 색인 대상에서 제외한다.
+    # (2026-10-07: 애드센스 '가치가 별로 없는 콘텐츠' 반려 대응)
+    return fname, shell(fname, "%s | Land Master Pro 커뮤니티" % title, esc(excerpt), body,
+                        extra_head='  <meta name="robots" content="noindex,follow">\n')
 
 
 def archive_html(entries):
@@ -122,7 +125,8 @@ def archive_html(entries):
         "rows": rows or "<p>아직 정리된 글이 없습니다.</p>",
     }
     return shell("community-archive.html", "커뮤니티 지난 글 | Land Master Pro",
-                 "Land Master Pro 커뮤니티 회원들이 남긴 글 모음.", body)
+                 "커뮤니티에 올라온 글을 모아 둔 목록입니다.", body,
+                 extra_head='  <meta name="robots" content="noindex,follow">\n')
 
 
 def write_file(name, content):
@@ -175,7 +179,7 @@ def main():
 
     write_file("community-archive.html", archive_html(entries))
 
-    pages = static_pages() + [e["file"] for e in entries]
+    pages = static_pages()  # 커뮤니티 글·아카이브는 noindex라 사이트맵에서 제외
     sm = ['<?xml version="1.0" encoding="UTF-8"?>',
           '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
     for p in pages:
