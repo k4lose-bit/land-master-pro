@@ -114,6 +114,8 @@ CASES = [
 
 from content_cases_more import MORE_CASES  # noqa: E402
 CASES.extend(MORE_CASES)
+from content_cases_more2 import MORE_CASES2  # noqa: E402
+CASES.extend(MORE_CASES2)
 
 
 def slugify_check():
