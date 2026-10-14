@@ -20,9 +20,15 @@ from content_stage345 import STAGE3, STAGE4, STAGE5
 from content_facts import FACTS, DIFFICULTY_COLOR
 from content_cases import CASES, slugify_check as cases_slugify_check
 from content_glossary import GLOSSARY, GROUPS, slugify_check
-from content_terms import TERMS
+from content_terms import TERMS as TERMS_1
+from content_terms2 import TERMS2 as TERMS_2
 
+# 1차(2026-10-13) 10개 + 2차(2026-10-14) 8개. 스키마 동일.
+TERMS = TERMS_1 + TERMS_2
 TERM_PAGES = {t["slug"]: t for t in TERMS}
+# 법령 원문을 대조한 날짜 (묶음별로 다름) — 본문 하단 출처 주석에 쓴다
+TERM_VERIFIED = dict([(t["slug"], "2026-10-13") for t in TERMS_1]
+                     + [(t["slug"], "2026-10-14") for t in TERMS_2])
 
 STAGES = [STAGE1, STAGE2, STAGE3, STAGE4, STAGE5]
 OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "site")
@@ -593,9 +599,9 @@ def build_terms():
         law_html = (
             '<h2>근거 법령</h2>\n      <table>\n        <thead><tr><th style="width:38%%">조문</th>'
             '<th>핵심 내용</th></tr></thead>\n        <tbody>\n        %s\n        </tbody>\n      </table>\n'
-            '      <p class="note-line">※ 위 조문은 2026-10-13 국가법령정보센터 원문과 대조한 내용입니다. '
+            '      <p class="note-line">※ 위 조문은 %s 국가법령정보센터 원문과 대조한 내용입니다. '
             '법령은 개정될 수 있고, 조례로 기준이 달라지는 항목은 해당 시·군·구 조례를 직접 확인하십시오.</p>'
-            % law_rows
+            % (law_rows, TERM_VERIFIED[t["slug"]])
         )
 
         checks_html = (
