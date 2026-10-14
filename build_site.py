@@ -20,6 +20,9 @@ from content_stage345 import STAGE3, STAGE4, STAGE5
 from content_facts import FACTS, DIFFICULTY_COLOR
 from content_cases import CASES, slugify_check as cases_slugify_check
 from content_glossary import GLOSSARY, GROUPS, slugify_check
+from content_terms import TERMS
+
+TERM_PAGES = {t["slug"]: t for t in TERMS}
 
 STAGES = [STAGE1, STAGE2, STAGE3, STAGE4, STAGE5]
 OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "site")
@@ -486,11 +489,18 @@ SEED_NOTICES = {
 
 # ---------------------------------------------------------------- 용어사전
 def build_glossary():
-    """용어사전 = 한 페이지(glossary.html)에 전체 수록.
-    2026-09-27: 용어마다 개별 페이지(glossary-<slug>.html)를 만들던 방식을 폐지했다.
-    페이지당 본문이 400자대에 그쳐 애드센스가 '가치가 별로 없는 콘텐츠'로 반려했기 때문.
-    되돌리려면 이 함수를 git 이력의 이전 버전으로 복원하고 static_pages()에
-    glossary-<slug> 항목을 다시 넣으면 된다."""
+    """용어사전 허브(glossary.html) — 28개 용어 전체를 한 페이지에 수록.
+
+    이력:
+      2026-09-27 용어마다 있던 개별 페이지를 이 한 장으로 통합하고 개별 URL을
+                 noindex 리디렉트로 바꿨다. 페이지당 본문이 400자대라
+                 애드센스가 '가치가 별로 없는 콘텐츠'로 반려했기 때문.
+      2026-10-13 그 조치가 검색 노출의 83%가 나오던 착지 페이지를 없앤 것이
+                 서치콘솔에서 확인됐다(28일 노출 379 / 클릭 3 / CTR 0.8%).
+                 그래서 노출이 실제로 나오는 용어만 content_terms.TERMS 에
+                 본문 1,500자 이상으로 다시 쓰고 build_terms()가 개별 페이지를
+                 만든다. 이 허브는 그 용어에 '자세히 보기' 링크를 단다.
+    """
     slugify_check()
     toc_groups, sections = [], []
     for gkey, glabel, glink, gnavlabel in GROUPS:
@@ -498,7 +508,12 @@ def build_glossary():
         if not terms:
             continue
         toc_links = " \u00b7 ".join(
-            '<a href="#term-%s">%s</a>' % (t["slug"], esc(t["term"])) for t in terms
+            '<a href="%s">%s</a>' % (
+                ("glossary-%s.html" % t["slug"]) if t["slug"] in TERM_PAGES
+                else ("#term-%s" % t["slug"]),
+                esc(t["term"]),
+            )
+            for t in terms
         )
         toc_groups.append(
             '<div class="toc-group"><b>%s</b><div class="toc-links">%s</div></div>'
@@ -507,9 +522,14 @@ def build_glossary():
         entries = "\n      ".join(
             '<article class="term-entry" id="term-%(slug)s">\n        <h3>%(term)s</h3>\n'
             '        <p class="term-tagline">%(tagline)s</p>\n        <p>%(desc)s</p>\n'
-            '        <div class="trap-box"><b>\U0001F4A1 실무 포인트:</b> %(point)s</div>\n      </article>' % {
+            '        <div class="trap-box"><b>\U0001F4A1 실무 포인트:</b> %(point)s</div>%(more)s\n      </article>' % {
                 "slug": t["slug"], "term": esc(t["term"]), "tagline": esc(t["tagline"]),
                 "desc": t["body"], "point": t["point"],
+                "more": (
+                    '\n        <p class="term-more"><a class="btn ghost sm" href="glossary-%s.html">'
+                    '%s 근거 법령·확인 절차까지 자세히 보기 →</a></p>'
+                    % (t["slug"], esc(t["term"]))
+                ) if t["slug"] in TERM_PAGES else "",
             }
             for t in terms
         )
@@ -544,6 +564,88 @@ def build_glossary():
         "토지 투자 용어사전 \u2014 맹지·용도지역·보상 용어 %d개 정리 | Land Master Pro" % len(GLOSSARY),
         "맹지, 접도의무, 보전산지, 용도지역, 건폐율, 지구단위계획, 토지보상까지 토지 투자에서 막히는 용어 %d개를 정의와 실무 포인트로 한 페이지에 정리했습니다." % len(GLOSSARY),
         body))
+
+def build_terms():
+    """용어 상세 페이지(glossary-<slug>.html) — content_terms.TERMS 기준.
+
+    2026-10-13 신설. 2026-09-27에 noindex 리디렉트로 바꿔 둔 10개 URL을
+    실제 본문이 있는 페이지로 되돌린다. canonical은 자기 자신이고
+    noindex·meta refresh는 넣지 않는다. static_pages()에도 같이 들어가야
+    사이트맵(6시간 주기 자동 갱신)에 반영된다.
+    """
+    group_meta = {g[0]: g for g in GROUPS}
+    gloss_meta = {t["slug"]: t for t in GLOSSARY}
+
+    for t in TERMS:
+        if t["slug"] not in gloss_meta:
+            raise SystemExit("content_terms: GLOSSARY에 없는 slug → %s" % t["slug"])
+        gkey, glabel, glink, gnavlabel = group_meta[t["group"]]
+
+        sections_html = "\n      ".join(
+            "<h2>%s</h2>\n      %s" % (esc(stitle), sbody)
+            for stitle, sbody in t["sections"]
+        )
+
+        law_rows = "\n        ".join(
+            "<tr><td><b>%s</b></td><td>%s</td></tr>" % (esc(name), esc(gist))
+            for name, gist in t["laws"]
+        )
+        law_html = (
+            '<h2>근거 법령</h2>\n      <table>\n        <thead><tr><th style="width:38%%">조문</th>'
+            '<th>핵심 내용</th></tr></thead>\n        <tbody>\n        %s\n        </tbody>\n      </table>\n'
+            '      <p class="note-line">※ 위 조문은 2026-10-13 국가법령정보센터 원문과 대조한 내용입니다. '
+            '법령은 개정될 수 있고, 조례로 기준이 달라지는 항목은 해당 시·군·구 조례를 직접 확인하십시오.</p>'
+            % law_rows
+        )
+
+        checks_html = (
+            '<h2>계약 전에 확인할 것</h2>\n      <ol>\n        %s\n      </ol>'
+            % "\n        ".join("<li>%s</li>" % esc(c) for c in t["checks"])
+        )
+
+        rel_links = []
+        for slug in t["related"]:
+            if slug not in gloss_meta:
+                continue
+            label = gloss_meta[slug]["term"]
+            href = ("glossary-%s.html" % slug) if slug in TERM_PAGES else ("glossary.html#term-%s" % slug)
+            rel_links.append('<a href="%s">%s</a>' % (href, esc(label)))
+        related_html = ""
+        if rel_links:
+            related_html = (
+                '\n    <div class="term-related">\n      <h4>함께 보면 좋은 용어</h4>\n      %s\n    </div>'
+                % "\n      ".join(rel_links)
+            )
+
+        body_t = """
+    <div class="page-head">
+      <span class="term-badge">%(group)s</span>
+      <h1>%(term)s</h1>
+      <p>%(tagline)s</p>
+    </div>
+    <div class="doc term-detail">
+      %(sections)s
+      %(law)s
+      %(checks)s
+      <div class="trap-box"><b>\U0001F4A5 실무 함정:</b> %(trap)s</div>
+      <p><a class="btn ghost sm" href="%(glink)s">%(gnavlabel)s 스테이지에서 실전 퀴즈로 이어서 보기 →</a></p>
+    </div>%(related)s
+    %(nudge)s
+    <div class="ad-slot"></div>
+    <p class="term-back"><a href="glossary.html">← 용어사전 전체 목록(%(count)d개)</a></p>""" % {
+            "group": esc(glabel), "term": esc(t["term"]), "tagline": esc(t["tagline"]),
+            "sections": sections_html, "law": law_html, "checks": checks_html,
+            "trap": esc(t["trap"]), "glink": glink, "gnavlabel": esc(gnavlabel),
+            "related": related_html, "count": len(GLOSSARY),
+            "nudge": community_nudge_html(
+                "이 용어 때문에 막힌 물건이 있으십니까? 커뮤니티에 상황을 남겨주시면 확인 순서를 같이 짚어 드립니다."
+            ),
+        }
+        write("glossary-%s.html" % t["slug"], shell(
+            "glossary-%s.html" % t["slug"],
+            "%s — 뜻과 근거 법령, 확인 절차 | Land Master Pro" % t["term"],
+            t["desc"], body_t))
+
 
 def build_cases():
     cases_slugify_check()
@@ -897,6 +999,8 @@ def static_pages():
              "stage5.html", "glossary.html", "guide.html", "community.html",
              "about.html", "privacy.html"]
     pages += ["cases.html"] + ["case-%s.html" % c["slug"] for c in CASES]
+    # 용어 상세 페이지 (2026-10-13 복원) — 빼면 6시간 주기 자동 갱신에서 사이트맵이 지워진다
+    pages += ["glossary-%s.html" % t["slug"] for t in TERMS]
     return pages
 
 
@@ -927,6 +1031,7 @@ if __name__ == "__main__":
     for s in STAGES:
         build_stage(s)
     build_glossary()
+    build_terms()
     build_cases()
     build_notices()
     build_guide()
