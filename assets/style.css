@@ -732,3 +732,24 @@ input.field, textarea.field {
   text-align: center;
   border-top: 1px solid #f1f5f9;
 }
+
+/* ── 용어 상세 페이지 (glossary-<slug>.html) 2026-10-12 ── */
+.term-detail h2{margin:30px 0 10px;font-size:1.18rem;padding-bottom:6px;border-bottom:1px solid var(--line)}
+.term-detail p{line-height:1.8;margin:0 0 12px}
+.term-detail ul,.term-detail ol{line-height:1.8;margin:0 0 14px;padding-left:22px}
+.term-detail li{margin:0 0 6px}
+.term-detail blockquote{margin:12px 0;padding:12px 16px;background:var(--card);border-left:4px solid #A78BFA;line-height:1.75;font-size:.97rem}
+.term-detail table{border-collapse:collapse;width:100%;margin:12px 0 16px;font-size:.94rem}
+.term-detail th,.term-detail td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top;line-height:1.65}
+.term-detail th{background:var(--card);font-weight:700}
+.term-detail .note-line{font-size:.9rem;color:var(--muted);line-height:1.7}
+.law-box{margin:26px 0 8px;padding:14px 16px;border:1px solid var(--line);border-radius:8px;background:var(--card);font-size:.9rem;line-height:1.75}
+.law-box b{display:block;margin-bottom:6px}
+.law-box ul{margin:0;padding-left:18px}
+.term-related{margin:22px 0 6px;font-size:.95rem}
+.term-related a{display:inline-block;margin:0 10px 8px 0;padding:6px 12px;border:1px solid var(--line);border-radius:999px;text-decoration:none}
+.term-back{margin:18px 0 0;font-size:.95rem}
+@media (max-width:640px){
+  .term-detail table{font-size:.88rem}
+  .term-detail th,.term-detail td{padding:6px 7px}
+}
