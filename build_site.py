@@ -32,7 +32,7 @@ TERM_VERIFIED = dict([(t["slug"], "2026-10-13") for t in TERMS_1]
 
 STAGES = [STAGE1, STAGE2, STAGE3, STAGE4, STAGE5]
 OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "site")
-SITE_URL = "https://ttangstudy.com"
+SITE_URL = os.environ.get("SITE_URL", "https://ttangstudy.com").rstrip("/")
 SITE_NAME = "랜드 마스터 프로 | 경기북부 토지 투자 아카데미"
 # 네이버 서치어드바이저 "사이트 소유확인" HTML 태그 방식에서 content 값만 받아서 채우면 됨.
 # 예: <meta name="naver-site-verification" content="abcdef1234..."> 에서 abcdef1234... 부분.
@@ -1019,7 +1019,7 @@ def build_misc():
     sm.append("</urlset>")
     write("sitemap.xml", "\n".join(sm))
     write("robots.txt", "User-agent: *\nAllow: /\nSitemap: %s/sitemap.xml\n" % SITE_URL)
-    write("CNAME", "ttangstudy.com\n")
+    write("CNAME", SITE_URL.split("//", 1)[-1] + "\n")
 
 
 def write(name, content):
