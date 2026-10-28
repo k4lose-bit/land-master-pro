@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>토지 경매 임장 노트 | Land Master Pro</title>
+<style>
+:root{--g:#0f9d6e;--gd:#0b7a55;--bg:#f4f7f5;--ink:#1c2a24;--mut:#66756d;--line:#d7e0db;--warn:#c0392b;--card:#fff}
+*{box-sizing:border-box}
+body{margin:0;font-family:'Noto Sans KR','Malgun Gothic',system-ui,sans-serif;background:var(--bg);color:var(--ink);font-size:14px;line-height:1.55}
+header.top{position:sticky;top:0;z-index:5;background:var(--gd);color:#fff;padding:10px 16px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+header.top h1{font-size:16px;margin:0;flex:1 1 220px}
+button,select,input,textarea{font:inherit}
+button{background:#fff;color:var(--gd);border:0;border-radius:6px;padding:6px 11px;font-weight:700;cursor:pointer}
+button.d{background:#e8efe9;color:var(--ink)}
+button:hover{filter:brightness(.95)}
+.wrap{max-width:1100px;margin:0 auto;padding:14px}
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px}
+.bar select{padding:6px;border:1px solid var(--line);border-radius:6px;min-width:200px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:12px}
+.card h2{font-size:15px;margin:0 0 10px;color:var(--gd);border-left:4px solid var(--g);padding-left:8px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+label.f{display:flex;flex-direction:column;font-size:12px;color:var(--mut);gap:3px}
+label.f input,label.f select,label.f textarea{border:1px solid var(--line);border-radius:6px;padding:6px 8px;font-size:14px;color:var(--ink);background:#fbfdfc}
+.num{text-align:right}
+.chk{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:8px}
+.item{border:1px solid var(--line);border-radius:8px;padding:8px 10px;background:#fcfefd}
+.item.risk{border-color:#efc4be;background:#fff8f7}
+.item .t{display:flex;gap:8px;align-items:flex-start;font-weight:600}
+.item .t input{margin-top:4px}
+.item .h{font-size:12px;color:var(--mut);margin:2px 0 4px 24px}
+.item input.m{width:calc(100% - 24px);margin-left:24px;border:1px dashed var(--line);border-radius:5px;padding:3px 6px;font-size:12px}
+.res{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:8px;margin-top:8px}
+.res div{background:#eef6f2;border-radius:8px;padding:8px 10px}
+.res b{display:block;font-size:12px;color:var(--mut);font-weight:500}
+.res span{font-size:16px;font-weight:800}
+.res .big{background:var(--g);color:#fff}.res .big b{color:#dff6ec}
+.neg{color:var(--warn)}
+.badge{display:inline-block;padding:2px 10px;border-radius:99px;font-size:12px;font-weight:700}
+.b0{background:#dff6ec;color:var(--gd)}.b1{background:#fff3cd;color:#8a6d00}.b2{background:#fde0dc;color:var(--warn)}
+.note{font-size:12px;color:var(--mut);margin-top:8px}
+.dec label{margin-right:14px;font-weight:600}
+@media print{
+ @page{size:A4;margin:10mm}
+ body{background:#fff;font-size:11px}
+ header.top,.bar,.noprint{display:none!important}
+ .wrap{padding:0;max-width:none}
+ .card{break-inside:avoid;border-color:#999;padding:8px;margin-bottom:6px}
+ .chk{grid-template-columns:1fr 1fr}
+ .item input.m{border:0;border-bottom:1px solid #bbb}
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <h1>🧭 토지 경매 임장 노트 <small style="font-weight:400;opacity:.85">· Land Master Pro (land.free336.com)</small></h1>
+  <button onclick="window.print()">🖨 인쇄(A4)</button>
+  <button class="d" onclick="printBlank()">빈 양식 인쇄</button>
+</header>
+
+<div class="wrap">
+  <div class="bar noprint">
+    <select id="sel" onchange="loadNote(this.value)"></select>
+    <button onclick="newNote()">＋ 새 물건</button>
+    <button onclick="saveNote(true)">💾 저장</button>
+    <button class="d" onclick="delNote()">🗑 삭제</button>
+    <button class="d" onclick="exportJson()">⬇ 백업(JSON)</button>
+    <button class="d" onclick="document.getElementById('imp').click()">⬆ 불러오기</button>
+    <input type="file" id="imp" accept=".json" style="display:none" onchange="importJson(this)">
+    <span class="note" id="saved"></span>
+  </div>
+
+  <section class="card">
+    <h2>1. 물건 기본정보</h2>
+    <div class="grid">
+      <label class="f">사건번호<input data-k="case" placeholder="예) 2026타경12345"></label>
+      <label class="f">소재지<input data-k="addr" placeholder="시·군·읍·면·리 번지"></label>
+      <label class="f">현장 방문일<input type="date" data-k="visit"></label>
+      <label class="f">입찰(매각)기일<input type="date" data-k="bidday"></label>
+      <label class="f">지목<input data-k="jimok" placeholder="전·답·임야·대·잡종지 등"></label>
+      <label class="f">토지 구분(세금 계산용)
+        <select data-k="kind" id="kind"><option value="field">농지(전·답·과수원 등)</option><option value="other">농지 외 토지(임야·대지·잡종지 등)</option></select></label>
+      <label class="f">면적(㎡)<input class="num" data-k="area" id="area" inputmode="decimal"></label>
+      <label class="f">용도지역<input data-k="zone" placeholder="계획관리·생산관리·보전관리 등"></label>
+      <label class="f">감정가(원)<input class="num money" data-k="appr" id="appr" inputmode="numeric"></label>
+      <label class="f">최저매각가격(원)<input class="num money" data-k="minp" id="minp" inputmode="numeric"></label>
+      <label class="f">입찰 예정가(원)<input class="num money" data-k="bid" id="bid" inputmode="numeric"></label>
+      <label class="f">주변 시세 평당(원)<input class="num money" data-k="mkt" id="mkt" inputmode="numeric"></label>
+    </div>
+    <div class="res">
+      <div><b>면적(평)</b><span id="r_py">-</span></div>
+      <div><b>감정가 대비 입찰가</b><span id="r_ratio">-</span></div>
+      <div><b>입찰가 평당</b><span id="r_bpy">-</span></div>
+      <div><b>주변 시세 평당 대비</b><span id="r_vs">-</span></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>2. 서류 확인 (현장 가기 전)</h2>
+    <div class="chk" id="docs"></div>
+  </section>
+
+  <section class="card">
+    <h2>3. 현장 확인</h2>
+    <div class="chk" id="field"></div>
+  </section>
+
+  <section class="card">
+    <h2>4. 위험 신호 <span id="riskBadge" class="badge b0">0건</span></h2>
+    <p class="note" style="margin:0 0 8px">해당되면 체크하세요. 체크 항목은 낙찰 후 비용·기간이 늘 수 있는 쟁점이므로, 입찰 전에 전문가(변호사·법무사) 확인을 받으세요.</p>
+    <div class="chk" id="risk"></div>
+  </section>
+
+  <section class="card">
+    <h2>5. 취득비용 · 수익 계산 <small style="font-weight:400;color:var(--mut)">(금액은 모두 원 단위)</small></h2>
+    <div class="grid">
+      <label class="f">취득세율 직접 입력(%) — 감면 등 해당 시만<input class="num" data-k="taxo" id="taxo" inputmode="decimal" placeholder="비우면 법정 표준세율 적용"></label>
+      <label class="f">└ 농어촌특별세율(%) 직접 입력<input class="num" data-k="nongo" id="nongo" inputmode="decimal" placeholder="위 칸 입력 시에만 사용(빈칸=0)"></label>
+      <label class="f">└ 지방교육세율(%) 직접 입력<input class="num" data-k="eduo" id="eduo" inputmode="decimal" placeholder="위 칸 입력 시에만 사용(빈칸=0)"></label>
+      <label class="f">법무사·등기 비용(원)<input class="num money" data-k="legal" id="legal" inputmode="numeric"></label>
+      <label class="f">명도·철거·폐기물 처리비(원)<input class="num money" data-k="clear" id="clear" inputmode="numeric"></label>
+      <label class="f">측량·인허가·성토 등 개발비(원)<input class="num money" data-k="dev" id="dev" inputmode="numeric"></label>
+      <label class="f">대출금(원)<input class="num money" data-k="loan" id="loan" inputmode="numeric"></label>
+      <label class="f">대출 금리(연 %)<input class="num" data-k="rate" id="rate" inputmode="decimal"></label>
+      <label class="f">보유 예상 기간(개월)<input class="num" data-k="months" id="months" inputmode="numeric"></label>
+      <label class="f">기타 비용(원)<input class="num money" data-k="etc" id="etc" inputmode="numeric"></label>
+      <label class="f">목표 매도가(원)<input class="num money" data-k="sell" id="sell" inputmode="numeric"></label>
+      <label class="f">매도 중개보수율(%)<input class="num" data-k="brk" id="brk" inputmode="decimal" placeholder="중개사와 합의한 요율"></label>
+    </div>
+    <div class="res">
+      <div><b>취득세(<span id="u_trate">-</span>)</b><span id="r_tax">-</span></div>
+      <div><b>농어촌특별세(<span id="u_nrate">-</span>)</b><span id="r_nong">-</span></div>
+      <div><b>지방교육세(<span id="u_erate">-</span>)</b><span id="r_edu">-</span></div>
+      <div><b>대출이자</b><span id="r_int">-</span></div>
+      <div class="big"><b>총 취득원가</b><span id="r_cost">-</span></div>
+      <div><b>매도 중개보수</b><span id="r_brk">-</span></div>
+      <div class="big"><b>세전 차익 (양도소득세 미반영)</b><span id="r_gain">-</span></div>
+      <div class="big"><b>세전 수익률(총 취득원가 대비)</b><span id="r_roi">-</span></div>
+    </div>
+    <p class="note">세율 근거: 지방세법 제11조 제1항 제7호(유상취득 농지 3%, 농지 외 4%), 농어촌특별세 0.2%, 지방교육세 (표준세율−2%)×20%. 2026-10 확인 기준이며 개정될 수 있습니다. 취득세는 10원 미만 절사로 계산합니다. 자경농지 감면 등 감면 요건은 사람마다 달라 자동 계산하지 않습니다. 해당되면 위 "직접 입력" 세 칸에 취득세율·농어촌특별세율·지방교육세율의 최종 값을 적으세요(취득세율을 적으면 나머지 두 칸 빈칸은 0%로 계산). 양도소득세(비사업용 토지 중과 등)·중개보수 상한·법무비는 사안별로 달라 별도 확인이 필요합니다.</p>
+  </section>
+
+  <section class="card">
+    <h2>6. 판단 · 메모</h2>
+    <div class="dec" style="margin-bottom:8px">
+      <label><input type="radio" name="dec" data-k="dec" value="bid"> 입찰</label>
+      <label><input type="radio" name="dec" data-k="dec" value="hold"> 보류</label>
+      <label><input type="radio" name="dec" data-k="dec" value="pass"> 패스</label>
+    </div>
+    <label class="f">판단 근거 · 현장 메모 · 지자체 문의 내용(담당부서/통화일/답변)
+      <textarea data-k="memo" rows="7"></textarea></label>
+  </section>
+
+  <p class="note noprint">이 노트는 학습·기록용 도구이며 법률·세무·투자 자문이 아닙니다. 입력한 내용은 이 브라우저(기기)에만 저장되며 서버로 전송되지 않습니다. 기기를 바꾸거나 브라우저 데이터를 지우기 전에 반드시 ⬇ 백업(JSON)을 받아 두세요. © Land Master Pro</p>
+</div>
+
+<script>
+const DOCS=[
+ ["등기사항전부증명서 확인","갑구·을구에서 말소기준권리와, 낙찰 후에도 남는(인수되는) 권리가 있는지 봅니다."],
+ ["토지이용계획확인서","용도지역과 개발제한·보호구역 등 규제 중첩 여부를 확인합니다."],
+ ["지적도(임야도) 확인","필지 모양과 도로에 접한 길이, 인접 필지 관계를 봅니다."],
+ ["토지대장(임야대장)","지목과 면적이 감정평가서와 일치하는지 대조합니다."],
+ ["건축물대장 · 지상 건물 유무","미등기·무허가 건물이 있는지, 토지와 건물 소유자가 다른지 확인합니다."],
+ ["매각물건명세서 · 현황조사서","점유자, 법정지상권 성립 여지, 특별매각조건 문구를 읽습니다."],
+ ["농지취득자격증명(농취증) 발급 가능 여부","농지는 관할 읍·면·동 등에 사전 문의합니다. 미제출 시 매각불허가될 수 있습니다."],
+ ["감정평가서 사진과 현장 대조","평가서 사진·도면과 실제 현장이 같은지 확인합니다."],
+ ["실거래가 · 인근 경매 낙찰사례","국토교통부 실거래가와 인근 낙찰가율로 입찰가 범위를 점검합니다."]
+];
+const FIELD=[
+ ["진입도로 상태(포장·폭)","차량이 실제로 들어갈 수 있는지 직접 걸어서·운전해서 확인합니다."],
+ ["도로의 법적 성격","지적도상 도로인지, 현황도로(사실상 길)인지, 사유지인지 확인합니다."],
+ ["맹지 여부","도로에 접한 폭과 길이, 통행 근거(승낙·통행권)가 있는지 봅니다."],
+ ["경계 · 경계말뚝","담장·옹벽·밭두렁이 경계를 넘어 있지 않은지 확인합니다."],
+ ["분묘 유무","분묘 개수와 위치를 기록하고 사진을 남깁니다."],
+ ["지상물","건물·비닐하우스·컨테이너·수목·폐기물 등을 목록으로 적습니다."],
+ ["점유 · 경작자","경작 또는 사용 중인 사람이 있으면 대화하고 권리 주장 내용을 기록합니다."],
+ ["지형 · 경사 · 배수 · 침수 흔적","경사도, 고저차, 물길, 비 온 뒤 물 고임 흔적을 봅니다."],
+ ["전기 · 상수도 · 하수 · 통신 인입 거리","가장 가까운 인입점까지 거리를 적어 개발비를 가늠합니다."],
+ ["주변 환경","송전탑·축사·공장 등 기피시설과 개발 호재 표지를 확인합니다."],
+ ["인근 공인중개사 탐문","실제 거래가, 매물 호가, 거래 속도를 묻고 이름·번호를 적습니다."],
+ ["지자체(시·군청) 문의","건축·개발행위허가 가능 여부를 담당 부서에 묻고 답변을 메모합니다."]
+];
+const RISK=[
+ ["법정지상권 성립 여지","토지와 건물이 같은 소유자였다가 경매로 소유자가 갈리는 경우 등을 확인합니다."],
+ ["분묘기지권 가능성","분묘가 있으면 이전·철거가 어려울 수 있어 기간·비용이 늘 수 있습니다."],
+ ["유치권 신고","점유와 채권을 주장하는 신고가 있는지 매각물건명세서에서 봅니다."],
+ ["선순위 지상권 · 가처분 · 가등기","낙찰 후에도 남을 수 있는 권리를 확인합니다."],
+ ["맹지 · 통행 불가","진입이 막히면 활용·매도가 어렵습니다."],
+ ["농취증 발급 불가 우려","농지로 보이는데 발급 가능성이 불확실한 경우입니다."],
+ ["지분(공유) 경매","일부 지분만 취득하면 활용·처분에 공유자 협의가 필요합니다."],
+ ["불법 형질변경 · 훼손 · 폐기물","원상회복 비용과 행정 조치 가능성을 확인합니다."]
+];
+function buildList(id,arr,pre,risk){
+  document.getElementById(id).innerHTML=arr.map((x,i)=>`<div class="item${risk?' risk':''}"><label class="t"><input type="checkbox" data-k="${pre}${i}"><span>${x[0]}</span></label><div class="h">${x[1]}</div><input class="m" data-k="${pre}${i}_m" placeholder="메모"></div>`).join('');
+}
+buildList('docs',DOCS,'d',0);buildList('field',FIELD,'f',0);buildList('risk',RISK,'r',1);
+
+const $=id=>document.getElementById(id);
+const KEY='toji_note_v1';
+let notes=[],cur=null;
+function ls(){try{return JSON.parse(localStorage.getItem(KEY)||'[]')}catch(e){return[]}}
+function lsSave(){try{localStorage.setItem(KEY,JSON.stringify(notes));return true}catch(e){return false}}
+function uid(){return 'n'+Date.now().toString(36)}
+function fields(){return document.querySelectorAll('[data-k]')}
+function collect(){const o={};fields().forEach(e=>{const k=e.dataset.k;if(e.type==='checkbox')o[k]=e.checked;else if(e.type==='radio'){if(e.checked)o[k]=e.value}else o[k]=e.value});return o}
+function fill(o){fields().forEach(e=>{const k=e.dataset.k;if(e.type==='checkbox')e.checked=!!o[k];else if(e.type==='radio')e.checked=(o[k]===e.value);else e.value=(o[k]!==undefined?o[k]:(e.tagName==='SELECT'?e.options[0].value:''))});money();calc()}
+function refreshSel(){$('sel').innerHTML=notes.map(n=>`<option value="${n.id}">${(n.d.case||'(사건번호 없음)')} · ${(n.d.addr||'소재지 미입력')}</option>`).join('');if(cur)$('sel').value=cur}
+function newNote(){saveNote();const n={id:uid(),d:{}};notes.unshift(n);cur=n.id;refreshSel();fill({});lsSave()}
+function loadNote(id){saveNote();cur=id;const n=notes.find(x=>x.id===id);fill(n?n.d:{});}
+function saveNote(show){const n=notes.find(x=>x.id===cur);if(!n)return;n.d=collect();const ok=lsSave();refreshSel();if(show)$('saved').textContent=ok?('저장됨 '+new Date().toLocaleTimeString('ko-KR')):'저장 실패: 이 브라우저는 저장을 막고 있습니다. ⬇ 백업(JSON)을 이용하세요.'}
+function delNote(){if(!cur||!confirm('이 물건 노트를 삭제할까요?'))return;notes=notes.filter(x=>x.id!==cur);if(!notes.length)notes=[{id:uid(),d:{}}];cur=notes[0].id;refreshSel();fill(notes[0].d);lsSave()}
+function exportJson(){saveNote();const b=new Blob([JSON.stringify(notes,null,1)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='토지경매_임장노트_백업_'+new Date().toISOString().slice(0,10)+'.json';a.click()}
+function importJson(inp){const f=inp.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const a=JSON.parse(r.result);if(!Array.isArray(a))throw 0;const ids=new Set(notes.map(n=>n.id));a.forEach(n=>{if(n&&n.id&&n.d){if(ids.has(n.id))n.id=uid();notes.push(n)}});lsSave();refreshSel();$('saved').textContent='불러오기 완료'}catch(e){alert('올바른 백업 파일이 아닙니다.')}};r.readAsText(f);inp.value=''}
+function printBlank(){const keep=collect();fill({});setTimeout(()=>{window.print();fill(keep)},50)}
+
+function num(id){const s=($(id).value||'').replace(/,/g,'').trim();const v=parseFloat(s);return isNaN(v)?0:v}
+function won(v){return Math.round(v).toLocaleString('ko-KR')+'원'}
+function money(){document.querySelectorAll('input.money').forEach(e=>{const s=e.value.replace(/[^\d]/g,'');e.value=s?Number(s).toLocaleString('ko-KR'):''})}
+const PY=3.305785;
+function calc(){
+  const area=num('area'),py=area/PY,appr=num('appr'),bid=num('bid'),mkt=num('mkt');
+  $('r_py').textContent=area?py.toFixed(1)+'평':'-';
+  $('r_ratio').textContent=(appr&&bid)?(bid/appr*100).toFixed(1)+'%':'-';
+  $('r_bpy').textContent=(py&&bid)?won(bid/py):'-';
+  $('r_vs').textContent=(py&&bid&&mkt)?((bid/py)/mkt*100).toFixed(0)+'%':'-';
+  const kind=$('kind').value,over=($('taxo').value||'').trim()!==''?parseFloat($('taxo').value):NaN;
+  const base=kind==='field'?3:4;
+  const trate=isNaN(over)?base:over;
+  const pf=id=>{const v=parseFloat(($(id).value||'').replace(/,/g,''));return isNaN(v)?0:v};
+  const edu=isNaN(over)?(base-2)*0.2:pf('eduo');
+  const nongR=isNaN(over)?0.2:pf('nongo');
+  const fl=v=>Math.floor(v/10)*10;
+  const tax=fl(bid*trate/100),nong=fl(bid*nongR/100),eduT=fl(bid*edu/100);
+  $('u_trate').textContent=trate+'%';$('u_nrate').textContent=nongR+'%';$('u_erate').textContent=(+edu.toFixed(3))+'%';
+  $('r_tax').textContent=bid?won(tax):'-';$('r_nong').textContent=bid?won(nong):'-';$('r_edu').textContent=bid?won(eduT):'-';
+  const intr=num('loan')*(num('rate')/100)*(num('months')/12);
+  $('r_int').textContent=intr?won(intr):'-';
+  const cost=bid+(bid?tax+nong+eduT:0)+num('legal')+num('clear')+num('dev')+num('etc')+intr;
+  $('r_cost').textContent=bid?won(cost):'-';
+  const sell=num('sell'),brk=sell*num('brk')/100;
+  $('r_brk').textContent=sell&&num('brk')?won(brk):'-';
+  if(bid&&sell){const g=sell-brk-cost;$('r_gain').innerHTML='<span class="'+(g<0?'neg':'')+'" style="color:inherit">'+won(g)+'</span>';$('r_roi').textContent=(g/cost*100).toFixed(1)+'%'}else{$('r_gain').textContent='-';$('r_roi').textContent='-'}
+  let rc=0;document.querySelectorAll('#risk input[type=checkbox]').forEach(e=>{if(e.checked)rc++});
+  const b=$('riskBadge');b.textContent=rc+'건';b.className='badge '+(rc===0?'b0':rc<3?'b1':'b2');
+}
+document.addEventListener('input',e=>{if(e.target.classList&&e.target.classList.contains('money'))money();calc();clearTimeout(window._t);window._t=setTimeout(()=>saveNote(),600)});
+document.addEventListener('change',()=>{calc();saveNote()});
+window.addEventListener('beforeunload',()=>saveNote());
+notes=ls();if(!notes.length)notes=[{id:uid(),d:{}}];cur=notes[0].id;refreshSel();fill(notes[0].d);
+</script>
+</body>
+</html>

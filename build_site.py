@@ -33,6 +33,8 @@ TERM_VERIFIED = dict([(t["slug"], "2026-10-13") for t in TERMS_1]
 STAGES = [STAGE1, STAGE2, STAGE3, STAGE4, STAGE5]
 OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "site")
 SITE_URL = os.environ.get("SITE_URL", "https://ttangstudy.com").rstrip("/")
+# land.free336.com 빌드에서만 추가되는 전용 페이지(임장 노트 다운로드)
+LAND = "land.free336.com" in SITE_URL
 SITE_NAME = "랜드 마스터 프로 | 경기북부 토지 투자 아카데미"
 # 네이버 서치어드바이저 "사이트 소유확인" HTML 태그 방식에서 content 값만 받아서 채우면 됨.
 # 예: <meta name="naver-site-verification" content="abcdef1234..."> 에서 abcdef1234... 부분.
@@ -52,6 +54,8 @@ NAV = [
     ("cases.html", "📂 실전 사례"),
     ("community.html", "💬 커뮤니티"),
 ]
+if LAND:
+    NAV.insert(9, ("imjang-note.html", "📥 임장 노트 받기"))
 
 FAVICON = ("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'>"
            "<text y='.9em' font-size='90'>🧭</text></svg>")
@@ -111,7 +115,17 @@ def community_nudge_html(text):
     </div>""" % esc(text)
 
 
+def note_promo_html():
+    return """
+    <div class="intro-box" style="margin-top:18px;border-left:4px solid #0f9d6e">
+      <b>📥 토지 경매 임장 노트 (무료)</b> — 현장에서 확인할 항목, 취득세 포함 취득원가·세전 수익 계산, A4 인쇄까지 한 파일로.
+      <a class="btn ghost sm" href="imjang-note.html">사용법 보고 받기 →</a>
+    </div>"""
+
+
 def shell(page, title, desc, body, extra_scripts="", extra_head=""):
+    if LAND and page != "imjang-note.html" and (page.startswith(("case-", "glossary-", "stage")) or page in ("index.html", "cases.html")):
+        body = body + note_promo_html()
     nav_html = "\n        ".join(
         '<a href="%s">%s</a>' % (href, label) for href, label in NAV
     )
@@ -1007,6 +1021,8 @@ def static_pages():
     pages += ["cases.html"] + ["case-%s.html" % c["slug"] for c in CASES]
     # 용어 상세 페이지 (2026-10-13 복원) — 빼면 6시간 주기 자동 갱신에서 사이트맵이 지워진다
     pages += ["glossary-%s.html" % t["slug"] for t in TERMS]
+    if LAND:
+        pages.append("imjang-note.html")
     return pages
 
 
@@ -1020,6 +1036,86 @@ def build_misc():
     write("sitemap.xml", "\n".join(sm))
     write("robots.txt", "User-agent: *\nAllow: /\nSitemap: %s/sitemap.xml\n" % SITE_URL)
     write("CNAME", SITE_URL.split("//", 1)[-1] + "\n")
+
+
+def build_land_extras():
+    """land.free336.com 전용: 토지 경매 임장 노트 설명 페이지 + 다운로드 파일."""
+    import shutil
+    src = os.path.join(os.path.dirname(os.path.abspath(__file__)), "_land_extras")
+    for fn in ("toji-auction-imjang-note.html", "toji-auction-imjang-note.xlsx"):
+        dst = os.path.join(OUT, "downloads", fn)
+        os.makedirs(os.path.dirname(dst), exist_ok=True)
+        shutil.copyfile(os.path.join(src, fn), dst)
+        print("  ✔ downloads/" + fn)
+    body = """
+    <div class="page-head">
+      <span class="term-badge">무료 자료</span>
+      <h1>📥 토지 경매 임장 노트</h1>
+      <p>서류 확인 → 현장 확인 → 위험 신호 → 취득원가·세전 수익 계산 → 입찰 판단까지, 물건 하나를 한 장으로 정리하는 기록 도구입니다.</p>
+    </div>
+    <div class="doc">
+      <div class="trap-box"><b>받기:</b>
+        <a class="btn sm" href="downloads/toji-auction-imjang-note.html" download="토지경매_임장노트.html">⬇ 임장 노트 (HTML · 인쇄/휴대폰용)</a>
+        <a class="btn ghost sm" href="downloads/toji-auction-imjang-note.xlsx" download="토지경매_임장노트_누적.xlsx">⬇ 누적 보관용 엑셀</a>
+        <a class="btn ghost sm" href="downloads/toji-auction-imjang-note.html" target="_blank" rel="noopener">지금 바로 열어보기</a>
+      </div>
+
+      <h2>이 노트로 무엇을 하나</h2>
+      <p>토지 경매는 주택보다 확인할 것이 많고 현장마다 조건이 다릅니다. 도로에 접했는지, 농지라면 농지취득자격증명(농취증)을 받을 수 있는지, 분묘나 지상물이 있는지 같은 항목을 물건마다 같은 순서로 확인하지 않으면 입찰 직전에 빠뜨리기 쉽습니다. 이 노트는 확인 항목을 <b>서류 → 현장 → 위험 신호</b> 순서로 나눠 두고, 마지막에 입찰 예정가로 총 취득원가와 세전 수익을 계산해 입찰 여부를 판단하게 만든 기록 양식입니다.</p>
+
+      <h2>사용 순서</h2>
+      <ol>
+        <li><b>물건 기본정보 입력</b> — 사건번호, 소재지, 면적, 감정가, 최저매각가격, 입찰 예정가를 적습니다. 입찰가가 감정가의 몇 %인지, 평당 얼마인지 자동으로 보여 줍니다.</li>
+        <li><b>서류 확인(현장 가기 전)</b> — 등기사항전부증명서, 토지이용계획확인서, 지적도, 토지대장, 매각물건명세서를 보고 항목을 체크합니다. 농지는 농취증 발급 가능 여부를 관할 읍·면·동에 먼저 문의합니다.</li>
+        <li><b>현장 확인</b> — 진입도로, 경계, 분묘, 지상물, 점유자, 지형·배수, 전기·상수도 인입 거리를 확인하고 항목별 메모 칸에 사진 번호나 특이사항을 적습니다.</li>
+        <li><b>위험 신호 체크</b> — 법정지상권 성립 여지, 분묘기지권 가능성, 유치권 신고, 맹지 등 해당되는 것을 체크하면 상단에 건수가 표시됩니다. 체크가 많을수록 낙찰 후 기간·비용이 늘 수 있는 물건입니다.</li>
+        <li><b>취득비용·수익 계산</b> — 입찰 예정가를 기준으로 취득세 등 세금과 법무·명도·개발비·대출이자를 더해 총 취득원가를 구하고, 목표 매도가를 넣어 세전 차익과 수익률을 봅니다.</li>
+        <li><b>판단 기록</b> — 입찰·보류·패스를 고르고 근거와 지자체 문의 내용을 메모합니다. 나중에 같은 물건이 다시 나왔을 때 그대로 꺼내 볼 수 있습니다.</li>
+      </ol>
+
+      <h2>계산에 쓰는 세율 (확인된 항목만 자동 계산)</h2>
+      <table>
+        <thead><tr><th>구분</th><th>취득세</th><th>농어촌특별세</th><th>지방교육세</th><th>합계</th></tr></thead>
+        <tbody>
+          <tr><td>농지 유상취득</td><td>3%</td><td>0.2%</td><td>0.2%</td><td>3.4%</td></tr>
+          <tr><td>농지 외 토지(임야·대지·잡종지 등)</td><td>4%</td><td>0.2%</td><td>0.4%</td><td>4.6%</td></tr>
+        </tbody>
+      </table>
+      <p>취득세 표준세율은 지방세법 제11조 제1항 제7호(농지 3%, 농지 외 4%)를 기준으로 했고, 농어촌특별세는 0.2%, 지방교육세는 (표준세율 − 2%)의 20%로 계산했습니다. 세금은 10원 미만을 버립니다. 예를 들어 농지 외 토지를 1억 원에 낙찰받으면 취득세 4,000,000원, 농어촌특별세 200,000원, 지방교육세 400,000원으로 세금만 합계 4,600,000원입니다. 여기에 법무사 비용, 명도·철거비, 개발비, 대출이자를 더해야 실제 취득원가가 됩니다.</p>
+      <p><b>자동 계산하지 않는 것:</b> 자경농지 등 취득세 감면은 요건이 사람마다 달라 직접 입력 칸으로 처리했습니다. 양도소득세(비사업용 토지 중과 포함)는 반영하지 않은 <b>세전</b> 수익이며, 중개보수율과 법무사 비용은 사안별로 달라 직접 입력합니다. 세율은 개정될 수 있으니 입찰 전 위택스·관할 지자체 또는 세무사에게 확인하세요.</p>
+
+      <h2>현장에서 꼭 남겨 두는 사진</h2>
+      <ul>
+        <li>도로에서 대상 토지로 들어가는 진입로 전경(도로 폭이 보이게)</li>
+        <li>경계 말뚝·담장·밭두렁 등 경계 표시와 인접 필지와의 관계</li>
+        <li>분묘, 건물, 비닐하우스, 컨테이너, 쌓인 폐기물 등 지상물 전부</li>
+        <li>전신주·상수도 계량기 위치(인입 거리 가늠용)</li>
+        <li>비 온 뒤 물이 고이거나 흘러가는 흔적</li>
+      </ul>
+
+      <h2>이 노트와 함께 보면 좋은 글</h2>
+      <ul>
+        <li><a href="case-toji-imjang-checklist.html">토지 임장 체크리스트 해설</a></li>
+        <li><a href="case-nongji-chwideuk-jagyeok-jeungmyeong.html">농지취득자격증명(농취증) 확인</a></li>
+        <li><a href="case-gyeongmae-doro-suyong.html">경매 토지의 도로 수용 여부</a></li>
+        <li><a href="case-hyeonhwang-doro-maengji.html">현황도로와 맹지 판단</a></li>
+        <li><a href="case-jisanggwon-beopjeong-jisanggwon.html">지상권·법정지상권</a></li>
+        <li><a href="glossary-maengji.html">용어: 맹지</a></li>
+      </ul>
+
+      <h2>자주 묻는 질문</h2>
+      <p><b>입력한 내용은 어디에 저장되나요?</b> 사용 중인 기기의 브라우저에만 저장되고 서버로 전송되지 않습니다. 기기를 바꾸거나 브라우저 데이터를 지우기 전에는 노트 상단의 백업(JSON) 버튼으로 파일을 받아 두세요.</p>
+      <p><b>휴대폰에서도 쓸 수 있나요?</b> 받은 HTML 파일을 휴대폰에서 열면 그대로 쓸 수 있고, 인터넷 연결 없이도 동작합니다. 인쇄 버튼으로 A4 양식도 출력할 수 있습니다.</p>
+      <p><b>엑셀과 HTML은 어떻게 같이 쓰나요?</b> 현장 기록은 HTML 노트로 하고, 최종 수치(입찰 예정가, 비용, 목표 매도가, 판단)를 엑셀 한 줄에 옮겨 적으면 물건별 비교와 누적 보관이 됩니다. 엑셀의 초록 칸은 수식이라 잠겨 있고 노란 칸에만 입력합니다.</p>
+      <p class="note">이 자료는 학습·기록용 도구이며 법률·세무·투자 자문이 아닙니다. 입찰 판단과 결과는 이용자 본인의 책임입니다.</p>
+      <p class="doc-back"><a href="cases.html">← 실전 사례 전체 목록</a></p>
+    </div>
+    <div class="ad-slot"></div>"""
+    write("imjang-note.html", shell(
+        "imjang-note.html", "토지 경매 임장 노트 무료 다운로드 | Land Master Pro",
+        "토지 경매 임장 체크리스트와 취득세 포함 취득원가·세전 수익 계산을 한 장으로. A4 인쇄·휴대폰·엑셀 누적 보관용 무료 노트.",
+        body))
+
 
 
 def write(name, content):
@@ -1045,5 +1141,7 @@ if __name__ == "__main__":
     build_community_archive_placeholder()
     build_about()
     build_privacy()
+    if LAND:
+        build_land_extras()
     build_misc()
     print("완료! site/ 폴더를 통째로 배포하면 됩니다.")
