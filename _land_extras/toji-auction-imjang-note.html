@@ -249,7 +249,7 @@ details.howto a{color:#1d4ed8;font-weight:700}
     </div>
   </section>
 
-  <footer class="legal" id="legal"></footer>
+  <footer class="legal" id="legalfoot"></footer>
   <div class="printfoot" id="printfoot"></div>
   <p class="note noprint" style="display:none">이 노트는 학습·기록용 도구이며 법률·세무·투자 자문이 아닙니다. 입력한 내용은 이 브라우저(기기)에만 저장되며 서버로 전송되지 않습니다. 기기를 바꾸거나 브라우저 데이터를 지우기 전에 반드시 ⬇ 파일로 내려받기(.json)로 보관해 두세요. © Land Master Pro</p>
 </div>
@@ -266,13 +266,13 @@ const LEGAL='<b>© 2026 Land Master Pro (land.free336.com) · 토지 경매 임�
       var c=document.getElementById('core');if(!c)return false;
       var src=c.textContent.replace(/const _SIG="[0-9a-f]{8}";/,'const _SIG="@@SIG@@";');
       if(h(src)!==_SIG)return false;
-      var f=document.getElementById('legal');
+      var f=document.getElementById("legalfoot");
       if(!f||f.textContent.replace(/\s+/g,'')!==LEGAL.replace(/<[^>]*>/g,'').replace(/&amp;/g,'&').replace(/\s+/g,''))return false;
       return true;
     }catch(e){return false}
   }
   function init(){
-    var f=document.getElementById('legal');if(f)f.innerHTML=LEGAL;
+    var f=document.getElementById("legalfoot");if(f)f.innerHTML=LEGAL;
     var pf=document.getElementById('printfoot');if(pf)pf.textContent='© 2026 Land Master Pro · land.free336.com · 토지 경매 임장 노트 v1.0 · 무단 수정·재배포·판매 금지';
     if(!ok()){var t=document.getElementById('tamper');if(t){t.className='tamper on';t.textContent='⚠ 이 파일은 내려받은 원본과 다릅니다. 내용이 수정되었거나 손상되었을 수 있어 계산 결과를 그대로 믿으면 안 됩니다. 원본: https://land.free336.com/imjang-note.html'}}
   }
