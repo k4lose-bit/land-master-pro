@@ -1042,11 +1042,14 @@ def build_land_extras():
     """land.free336.com 전용: 토지 경매 임장 노트 설명 페이지 + 다운로드 파일."""
     import shutil
     src = os.path.join(os.path.dirname(os.path.abspath(__file__)), "_land_extras")
-    for fn in ("toji-auction-imjang-note.html", "toji-auction-imjang-note.xlsx"):
-        dst = os.path.join(OUT, "downloads", fn)
-        os.makedirs(os.path.dirname(dst), exist_ok=True)
-        shutil.copyfile(os.path.join(src, fn), dst)
-        print("  ✔ downloads/" + fn)
+    import subprocess, sys
+    dd = os.path.join(OUT, "downloads")
+    os.makedirs(dd, exist_ok=True)
+    subprocess.check_call([sys.executable, os.path.join(src, "sign.py"),
+        os.path.join(src, "toji-auction-imjang-note.html"), os.path.join(dd, "toji-auction-imjang-note.html")])
+    for fn in ("toji-auction-imjang-note.xlsx", "toji-auction-imjang-note-manual.pdf"):
+        shutil.copyfile(os.path.join(src, fn), os.path.join(dd, fn))
+    print("  ✔ downloads/ (html signed, xlsx, manual pdf)")
     body = """
     <div class="page-head">
       <span class="term-badge">무료 자료</span>
@@ -1057,6 +1060,7 @@ def build_land_extras():
       <div class="trap-box"><b>받기:</b>
         <a class="btn sm" href="downloads/toji-auction-imjang-note.html" download="토지경매_임장노트.html">⬇ 임장 노트 (HTML · 인쇄/휴대폰용)</a>
         <a class="btn ghost sm" href="downloads/toji-auction-imjang-note.xlsx" download="토지경매_임장노트_누적.xlsx">⬇ 누적 보관용 엑셀</a>
+        <a class="btn ghost sm" href="downloads/toji-auction-imjang-note-manual.pdf" download="토지경매_임장노트_사용설명서.pdf">⬇ 사용설명서 (PDF)</a>
         <a class="btn ghost sm" href="downloads/toji-auction-imjang-note.html" target="_blank" rel="noopener">지금 바로 열어보기</a>
       </div>
 
@@ -1070,7 +1074,7 @@ def build_land_extras():
         <li><b>현장 확인</b> — 진입도로, 경계, 분묘, 지상물, 점유자, 지형·배수, 전기·상수도 인입 거리를 확인하고 항목별 메모 칸에 사진 번호나 특이사항을 적습니다.</li>
         <li><b>위험 신호 체크</b> — 법정지상권 성립 여지, 분묘기지권 가능성, 유치권 신고, 맹지 등 해당되는 것을 체크하면 상단에 건수가 표시됩니다. 체크가 많을수록 낙찰 후 기간·비용이 늘 수 있는 물건입니다.</li>
         <li><b>취득비용·수익 계산</b> — 입찰 예정가를 기준으로 취득세 등 세금과 법무·명도·개발비·대출이자를 더해 총 취득원가를 구하고, 목표 매도가를 넣어 세전 차익과 수익률을 봅니다.</li>
-        <li><b>판단 기록</b> — 입찰·보류·패스를 고르고 근거와 지자체 문의 내용을 메모합니다. 나중에 같은 물건이 다시 나왔을 때 그대로 꺼내 볼 수 있습니다.</li>
+        <li><b>판단 기록</b> — 입찰·매입·보류·패스를 고르고 근거와 지자체 문의 내용을 메모합니다. 나중에 같은 물건이 다시 나왔을 때 그대로 꺼내 볼 수 있습니다.</li>
       </ol>
 
       <h2>계산에 쓰는 세율 (확인된 항목만 자동 계산)</h2>
@@ -1104,9 +1108,11 @@ def build_land_extras():
       </ul>
 
       <h2>자주 묻는 질문</h2>
-      <p><b>입력한 내용은 어디에 저장되나요?</b> 사용 중인 기기의 브라우저에만 저장되고 서버로 전송되지 않습니다. 기기를 바꾸거나 브라우저 데이터를 지우기 전에는 노트 상단의 백업(JSON) 버튼으로 파일을 받아 두세요.</p>
+      <p><b>입력한 내용은 어디에 저장되나요?</b> 사용 중인 기기의 브라우저에만 저장되고 서버로 전송되지 않습니다. 기기를 바꾸거나 브라우저 데이터를 지우기 전에는 노트 상단의 <b>파일로 내려받기(.json)</b> 버튼으로 파일을 받아 두고, 필요할 때 <b>내려받은 파일 불러오기</b>로 복원하세요.</p>
       <p><b>휴대폰에서도 쓸 수 있나요?</b> 받은 HTML 파일을 휴대폰에서 열면 그대로 쓸 수 있고, 인터넷 연결 없이도 동작합니다. 인쇄 버튼으로 A4 양식도 출력할 수 있습니다.</p>
       <p><b>엑셀과 HTML은 어떻게 같이 쓰나요?</b> 현장 기록은 HTML 노트로 하고, 최종 수치(입찰 예정가, 비용, 목표 매도가, 판단)를 엑셀 한 줄에 옮겨 적으면 물건별 비교와 누적 보관이 됩니다. 엑셀의 초록 칸은 수식이라 잠겨 있고 노란 칸에만 입력합니다.</p>
+      <h2>저작권 · 이용 조건</h2>
+      <p>© 2026 Land Master Pro. 개인의 학습·기록 목적 사용은 무료입니다. 저작권자의 허락 없이 ① 내용·구조·계산식을 수정해 배포하거나 ② 판매·유료 자료에 포함하거나 ③ 저작권 표시를 지우거나 ④ 다른 사이트·카페·자료에 복제·게시하는 것을 금지합니다. 다른 분께는 파일이 아니라 이 페이지 주소를 알려 주세요. 노트 파일은 원본과 다르게 수정되면 화면에 경고가 표시됩니다.</p>
       <p class="note">이 자료는 학습·기록용 도구이며 법률·세무·투자 자문이 아닙니다. 입찰 판단과 결과는 이용자 본인의 책임입니다.</p>
       <p class="doc-back"><a href="cases.html">← 실전 사례 전체 목록</a></p>
     </div>

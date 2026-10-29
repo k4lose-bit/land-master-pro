@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>토지 경매 임장 노트 사용설명서</title>
+<meta name="author" content="Land Master Pro (land.free336.com)">
+<meta name="copyright" content="© 2026 Land Master Pro. All rights reserved.">
+<style>
+@page{size:A4;margin:16mm 15mm 18mm}
+*{box-sizing:border-box}
+body{font-family:'Noto Sans CJK KR','Noto Sans CJK HK','Noto Sans KR','Malgun Gothic',sans-serif;color:#14211b;font-size:11.5pt;line-height:1.7;margin:0}
+h1{font-size:25pt;margin:0 0 4pt;color:#0b3d2e;line-height:1.25}
+h2{font-size:15.5pt;color:#fff;background:#0b3d2e;padding:5pt 11pt;border-radius:6pt;margin:22pt 0 9pt;break-after:avoid}
+h3{font-size:12.5pt;color:#0b3d2e;margin:13pt 0 3pt;border-left:5pt solid #0f9d6e;padding-left:7pt;break-after:avoid}
+p{margin:5pt 0}
+.cover{background:linear-gradient(135deg,#0b3d2e,#15803d);color:#fff;border-radius:12pt;padding:26pt 24pt;margin-bottom:14pt;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.cover h1{color:#fff}
+.cover .sub{font-size:13pt;opacity:.92}
+.cover .meta{margin-top:12pt;font-size:10pt;opacity:.85}
+table{border-collapse:collapse;width:100%;margin:6pt 0 10pt;font-size:10.5pt;break-inside:avoid}
+th,td{border:1px solid #b8c7bf;padding:5pt 8pt;vertical-align:top;text-align:left}
+th{background:#e6f2ec;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+td.r,th.r{text-align:right}
+.box{border:1.5pt solid #0f9d6e;background:#ecfdf3;border-radius:7pt;padding:7pt 11pt;margin:8pt 0;break-inside:avoid;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.warn{border:1.5pt solid #fdba74;background:#fff7ed;color:#7c2d12;border-radius:7pt;padding:7pt 11pt;margin:8pt 0;break-inside:avoid;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.btn{display:inline-block;border:1.2pt solid #0b3d2e;border-radius:5pt;padding:0 6pt;font-weight:700;font-size:10pt;background:#fff;white-space:nowrap}
+.c1{background:#1d4ed8}.c2{background:#0f766e}.c3{background:#15803d}.c4{background:#b91c1c}.c5{background:#c2410c}.c6{background:#6d28d9}
+.dot{display:inline-block;width:15pt;height:15pt;border-radius:50%;color:#fff;font-weight:900;text-align:center;line-height:15pt;font-size:9.5pt;margin-right:5pt;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+ol,ul{margin:4pt 0 6pt;padding-left:19pt}
+li{margin:2pt 0}
+code{background:#f1f5f2;border:1px solid #d7e0db;border-radius:3pt;padding:0 4pt;font-size:10pt}
+.legal{margin-top:18pt;border-top:2pt solid #0b3d2e;padding-top:8pt;font-size:9.5pt;line-height:1.6;color:#334155;break-inside:avoid}
+.pb{break-before:page}
+</style>
+</head>
+<body>
+
+<div class="cover">
+  <h1>토지 경매 임장 노트<br>사용설명서</h1>
+  <div class="sub">서류 확인 → 현장 확인 → 위험 신호 → 취득원가·수익 계산 → 입찰 판단</div>
+  <div class="meta">Land Master Pro · land.free336.com · 문서 v1.0 · 2026년 10월<br>구성: 임장 노트(HTML) · 누적 엑셀 · 이 설명서</div>
+</div>
+
+<h2>1. 이 자료는 무엇인가</h2>
+<p>토지 경매 물건 <b>하나를 한 장의 기록</b>으로 정리하는 도구입니다. 입찰 전에 무엇을 확인해야 하는지, 왜 확인해야 하는지, 어느 정도면 괜찮은지를 항목마다 적어 두었습니다. 처음 경매를 하는 분이 빠뜨리기 쉬운 확인 순서를 따라가도록 만들었습니다.</p>
+<table>
+<tr><th style="width:26%">파일</th><th>용도</th></tr>
+<tr><td>토지경매_임장노트.html</td><td>현장·집에서 입력하는 본체입니다. 인쇄해서 현장에 가져갈 수도 있습니다.</td></tr>
+<tr><td>토지경매_임장노트_누적.xlsx</td><td>물건별 최종 수치(입찰 예정가, 비용, 판단)를 한 줄씩 쌓아 두는 누적 보관본입니다.</td></tr>
+<tr><td>이 설명서(PDF)</td><td>사용법과 한계를 설명합니다.</td></tr>
+</table>
+<div class="warn"><b>하지 않는 일</b> 물건을 추천하거나, 낙찰·수익을 보장하거나, 법률·세무 자문을 대신하지 않습니다. 입찰 판단과 결과는 이용자 본인의 책임입니다.</div>
+
+<h2>2. 시작하기</h2>
+<h3>컴퓨터(권장)</h3>
+<ol>
+<li>내려받은 <code>토지경매_임장노트.html</code> 파일을 <b>더블클릭</b>합니다. 크롬(Chrome)이나 엣지(Edge)에서 열립니다.</li>
+<li>다른 프로그램으로 열리면 파일을 <b>마우스 오른쪽 버튼 → 연결 프로그램 → Chrome</b>을 선택합니다.</li>
+<li>인터넷이 없어도 입력·계산·저장이 됩니다. 다만 서류 항목의 파란 링크 버튼은 인터넷이 있어야 열립니다.</li>
+</ol>
+<h3>휴대폰</h3>
+<p>파일을 휴대폰으로 옮겨(예: 카카오톡 나에게 보내기, 구글 드라이브) 크롬으로 엽니다. 기기와 앱에 따라 내려받은 HTML 파일이 열리지 않을 수 있습니다. 그럴 때는 <b>land.free336.com/imjang-note.html</b> 페이지의 <b>지금 바로 열어보기</b>를 이용하세요.</p>
+<div class="box">저장 위치는 <b>사용하는 기기의 사용하는 브라우저</b>입니다. 컴퓨터에서 쓴 내용은 휴대폰에서 보이지 않습니다. 기기를 옮길 때는 5장의 내려받기·불러오기를 사용하세요.</div>
+
+<h2>3. 화면 구성</h2>
+<p>화면 위쪽 색 버튼을 누르면 해당 구역으로 이동합니다. 구역마다 색이 달라 어디를 보고 있는지 구분됩니다.</p>
+<table>
+<tr><th style="width:23%">구역</th><th>하는 일</th></tr>
+<tr><td><span class="dot c1">1</span>기본정보</td><td>사건번호, 소재지, 지목, 면적, 감정가, 입찰 예정가 등을 적습니다. 입찰가가 감정가의 몇 %인지, 평당 얼마인지 자동으로 보여 줍니다.</td></tr>
+<tr><td><span class="dot c2">2</span>서류 확인</td><td>현장에 가기 전에 집에서 서류로 걸러냅니다. 서류에서 걸리면 현장에 갈 필요가 없습니다.</td></tr>
+<tr><td><span class="dot c3">3</span>현장 확인</td><td>서류에는 없고 가서 봐야만 알 수 있는 것들입니다. 항목마다 최소 기준이 있습니다.</td></tr>
+<tr><td><span class="dot c4">4</span>위험 신호</td><td>낙찰받고 나서 문제가 커지는 권리·사실관계입니다. 체크하면 상단에 건수가 표시됩니다.</td></tr>
+<tr><td><span class="dot c5">5</span>계산</td><td>세금·비용을 더해 총 취득원가와 세전 수익을 계산합니다.</td></tr>
+<tr><td><span class="dot c6">6</span>판단·메모</td><td>입찰·매입·보류·패스를 고르고 근거를 남깁니다.</td></tr>
+</table>
+
+<h2 class="pb">4. 입력 방법</h2>
+<h3>체크 항목(서류·현장·위험 신호) 읽는 법</h3>
+<p>항목은 네 부분으로 되어 있습니다.</p>
+<ul>
+<li><b>왜 확인하나</b>(회색 라벨): 이것을 안 보면 어떤 문제가 생기는지 설명합니다.</li>
+<li><b>최소 기준</b>(초록 라벨, 현장 확인에만 있음): 이 정도는 되어야 건축·활용·재매각을 기대할 수 있다는 선입니다. 못 미치면 입찰가를 낮추거나 <b>패스</b>를 검토하세요. 예) 진입도로 폭 4m 이상, 맹지는 도로에 2m 이상 접할 것.</li>
+<li><b>확인 방법</b>: 무엇을 어떻게 보는지 적었습니다.</li>
+<li><b>파란 버튼</b>: 해당 서류를 발급·열람하는 공식 사이트나 사이트 안의 관련 글로 연결됩니다.</li>
+</ul>
+<p>확인했으면 왼쪽 네모 칸을 체크하고, 아래 <b>내 메모</b> 칸에 확인 결과·날짜·담당자를 적습니다. 체크하면 항목 배경에 색이 칠해지고, 구역 제목 오른쪽에 <b>3/9 확인</b>처럼 진행 상황이 표시됩니다.</p>
+<div class="box"><b>최소 기준의 성격</b> 법령에 정해진 선과 현장 판단의 기준선이 섞여 있습니다. 수치와 허가 가능 여부는 용도와 지자체마다 다를 수 있으므로, 확정은 시·군청 담당 부서에서 받으세요(현장 확인 구역의 '시·군청 문의' 항목).</div>
+
+<h3>⑤ 계산 입력</h3>
+<ol>
+<li>먼저 <b>1번 기본정보의 '토지 구분'</b>을 고릅니다. 농지(전·답·과수원)인지, 농지 외 토지(임야·대지·잡종지 등)인지에 따라 세율이 다릅니다.</li>
+<li><b>입찰 예정가</b>를 적습니다. 금액은 모두 <b>원 단위 전체 숫자</b>로 적으면 쉼표가 자동으로 붙습니다.</li>
+<li>5번 구역에 법무사·등기 비용, 명도·철거비, 개발비, 대출금·금리·보유 개월, 기타 비용, 목표 매도가, 매도 중개보수율을 적습니다. 모르는 칸은 비워 두면 0으로 계산합니다.</li>
+<li>결과 칸에 <b>총 취득원가</b>, <b>세전 차익</b>, <b>세전 수익률</b>이 나옵니다. 칸에 <code>-</code>가 보이면 필요한 값이 아직 입력되지 않은 것입니다.</li>
+</ol>
+<table>
+<tr><th colspan="2">계산 예시 (숫자는 설명용 가정입니다)</th></tr>
+<tr><td>농지 외 토지, 입찰 예정가</td><td class="r">100,000,000원</td></tr>
+<tr><td>취득세 4% · 농어촌특별세 0.2% · 지방교육세 0.4%</td><td class="r">4,000,000 · 200,000 · 400,000원</td></tr>
+<tr><td>법무사·등기 비용 (직접 입력)</td><td class="r">1,000,000원</td></tr>
+<tr><td><b>총 취득원가</b></td><td class="r"><b>105,600,000원</b></td></tr>
+<tr><td>목표 매도가 112,000,000원, 중개보수율 0.9% → 중개보수</td><td class="r">1,008,000원</td></tr>
+<tr><td><b>세전 차익 (양도소득세 미반영)</b> / 수익률</td><td class="r"><b>5,392,000원 / 5.1%</b></td></tr>
+</table>
+<div class="warn"><b>꼭 알아 둘 한계</b><br>
+① 양도소득세(비사업용 토지 중과 포함)는 계산에 넣지 않은 <b>세전</b> 수익입니다.<br>
+② 자경농지 감면 등 취득세 감면은 요건이 사람마다 달라 자동 계산하지 않습니다. 해당되면 5번 구역의 <b>'감면 등으로 세율이 다른 경우 직접 입력'</b>에 최종 세율(취득세율·농어촌특별세율·지방교육세율)을 적으세요.<br>
+③ 이 계산은 <b>토지만</b> 기준입니다. 토지 위 건물을 함께 취득하면 건물 취득세는 별도로 확인해야 합니다.<br>
+④ 중개보수율과 법무사 비용은 사안마다 달라 직접 입력합니다.</div>
+
+<h3>⑥ 판단·메모</h3>
+<p>입찰·매입·보류·패스 중 하나를 고르고 세 칸을 채웁니다. <b>매입</b>은 경매 입찰이 아니라 일반 매매·협의로 사는 경우입니다.</p>
+<ul><li><b>판단 근거</b>: 왜 그렇게 정했는지를 한두 줄로 적습니다.</li>
+<li><b>현장 메모</b>: 본 것, 사진 번호, 이웃·중개사에게 들은 말.</li>
+<li><b>지자체 문의 내용</b>: 문의한 부서, 통화일·담당자, 질문과 답변. 구두 답변은 확정이 아니므로 기록이 중요합니다.</li></ul>
+
+<h2 class="pb">5. 저장 · 내려받기 · 불러오기</h2>
+<table>
+<tr><th style="width:26%">버튼</th><th>하는 일</th><th style="width:30%">주의</th></tr>
+<tr><td>💾 이 브라우저에 저장</td><td>입력 내용을 지금 쓰는 브라우저에 보관합니다. 입력하면 자동으로도 저장됩니다.</td><td>브라우저의 사이트 데이터를 지우면 함께 사라집니다. 다른 기기·브라우저에서는 보이지 않습니다.</td></tr>
+<tr><td>⬇ 파일로 내려받기(.json)</td><td>모든 물건 노트를 파일 하나로 내려받습니다. 파일명은 <code>토지경매_임장노트_백업_날짜.json</code> 형태입니다.</td><td>파일을 고치거나 지우지 마세요. 메모장으로 열 필요가 없습니다.</td></tr>
+<tr><td>⬆ 내려받은 파일 불러오기</td><td>내려받은 <code>.json</code> 파일을 골라 물건들을 복원합니다.</td><td>같은 번호의 노트는 사본으로 추가됩니다.</td></tr>
+<tr><td>🗑 삭제</td><td>지금 보고 있는 물건 노트를 삭제합니다.</td><td>삭제 전에 내려받기를 해 두세요.</td></tr>
+</table>
+<div class="box"><b>권장 습관</b> 입찰 전 중요한 물건을 다 적었거나, 기기를 바꾸거나 브라우저를 정리하기 전에는 <b>⬇ 파일로 내려받기</b>를 한 번 누르세요. 파일은 다운로드 폴더에 저장됩니다(크롬 설정에 따라 저장 위치를 묻기도 합니다).</div>
+
+<h2>6. 인쇄</h2>
+<ol>
+<li>위쪽 <span class="btn">🖨 인쇄(A4)</span>를 누릅니다. 인쇄 화면에서 용지를 <b>A4</b>로 선택합니다.</li>
+<li>색 구분까지 인쇄하려면 인쇄 옵션에서 <b>배경 그래픽</b>을 켭니다. 켜지 않아도 내용은 모두 인쇄됩니다.</li>
+<li>현장에서 손으로 적으려면 <span class="btn">빈 양식 인쇄</span>를 누릅니다.</li>
+<li>인쇄물 아래에는 저작권 표시가 항상 인쇄됩니다.</li>
+</ol>
+
+<h2>7. 엑셀(누적 보관본) 사용법</h2>
+<ul>
+<li><b>노란 칸</b>에만 입력합니다. <b>초록 칸</b>은 수식이라 잠겨 있어 수정할 수 없습니다.</li>
+<li><b>한 줄이 한 물건</b>입니다. 새 물건은 다음 빈 줄에 쌓아 가면 되고, 지우지 않는 한 계속 누적됩니다(300줄 제공).</li>
+<li>토지구분(농지/농지외)과 판단(입찰/매입/보류/패스)은 목록에서 고릅니다.</li>
+<li>금액은 모두 원 단위 전체 숫자로 입력합니다.</li>
+<li>현장 기록은 HTML 노트로 하고, 최종 수치만 엑셀 한 줄에 옮겨 적으면 물건별 비교가 쉽습니다. 필터 버튼으로 판단별·수익률별로 걸러 볼 수 있습니다.</li>
+<li>시트 보호가 걸려 있어 수식 칸이나 시트 구조는 바꿀 수 없습니다.</li>
+</ul>
+
+<h2>8. 문제가 생겼을 때</h2>
+<table>
+<tr><th style="width:34%">증상</th><th>확인할 것</th></tr>
+<tr><td>다음에 열었더니 내용이 비어 있다</td><td>시크릿(비공개) 창에서 열지 않았는지, 브라우저가 종료할 때 사이트 데이터를 지우도록 설정되어 있지 않은지 확인하세요. 처음 열었던 브라우저로 다시 열어 보고, 앞으로는 내려받기로 보관하세요.</td></tr>
+<tr><td>저장 실패 안내가 뜬다</td><td>브라우저가 저장을 막고 있는 경우입니다. 내려받기로 파일을 보관하세요.</td></tr>
+<tr><td>결과 칸에 <code>-</code>만 나온다</td><td>입찰 예정가, 목표 매도가 등 필요한 입력이 비어 있습니다.</td></tr>
+<tr><td>화면 위에 빨간 경고가 뜬다</td><td>내려받은 원본과 다른 파일로 감지된 것입니다. 파일이 수정·손상되었을 수 있으니 land.free336.com에서 다시 내려받으세요.</td></tr>
+<tr><td>파란 링크 버튼이 안 열린다</td><td>인터넷 연결을 확인하세요. 관공서 사이트는 점검 시간이 있을 수 있습니다.</td></tr>
+<tr><td>파일이 열리지 않는다(휴대폰)</td><td>land.free336.com/imjang-note.html 의 '지금 바로 열어보기'를 이용하세요.</td></tr>
+</table>
+
+<h2>9. 계산 기준과 참고 법령</h2>
+<table>
+<tr><th>구분</th><th>취득세</th><th>농어촌특별세</th><th>지방교육세</th><th>합계</th></tr>
+<tr><td>농지 유상취득</td><td>3%</td><td>0.2%</td><td>0.2%</td><td>3.4%</td></tr>
+<tr><td>농지 외 토지</td><td>4%</td><td>0.2%</td><td>0.4%</td><td>4.6%</td></tr>
+</table>
+<p>취득세 표준세율은 지방세법 제11조 제1항 제7호(농지 1천분의 30, 농지 외 1천분의 40)를 기준으로 했고, 농어촌특별세 0.2%, 지방교육세는 (표준세율−2%)×20%로 계산했습니다. 세금은 10원 미만을 버립니다. 노트에 인용한 주요 근거는 다음과 같으며, 2026-10-29에 국가법령정보센터(law.go.kr)에서 확인했습니다. 법령은 개정될 수 있으니 입찰 전에 최신 조문을 확인하세요.</p>
+<ul>
+<li>지방세법 제11조(부동산 취득의 세율)</li>
+<li>농지법 제8조(농지취득자격증명), 민법 제219조·제220조(주위토지통행권), 제280조·제281조(지상권 존속기간), 제366조(법정지상권)</li>
+<li>민사집행법 제91조(인수주의와 잉여주의의 선택 등), 제140조(공유자의 우선매수권)</li>
+<li>건축법 제2조 제1항 제11호(도로), 제44조(대지와 도로의 관계)</li>
+<li>대법원 2021. 4. 29. 선고 2017다228007 전원합의체 판결(분묘기지권 지료)</li>
+</ul>
+
+<div class="legal">
+<b>© 2026 Land Master Pro (land.free336.com) · 토지 경매 임장 노트 사용설명서 v1.0 · 모든 권리 보유</b><br>
+<b>이용 조건</b> 개인의 학습·기록 목적 사용은 무료입니다. 저작권자의 허락 없이 ① 내용·구조·문구·계산식을 수정해 배포하는 것 ② 판매하거나 유료 자료에 포함하는 것 ③ 저작권 표시·출처를 지우는 것 ④ 다른 사이트·카페·자료에 복제·게시하는 것을 금지합니다. 위반 시 저작권법에 따른 책임이 따를 수 있습니다. 다른 분에게 알려 주실 때는 파일이 아니라 받는 곳 주소(https://land.free336.com/imjang-note.html)를 알려 주세요.<br>
+<b>유의</b> 이 자료는 학습·기록용 도구이며 법률·세무·투자 자문이 아닙니다. 법령·세율은 개정될 수 있고 지자체마다 기준이 다를 수 있으니, 입찰 전 반드시 전문가(변호사·법무사·세무사)와 해당 기관에서 확인하세요. 입찰 판단과 그 결과는 이용자 본인의 책임입니다.
+</div>
+</body>
+</html>
