@@ -110,10 +110,10 @@ label.f input:focus,label.f select:focus,label.f textarea:focus,.item input.m:fo
   <div class="bar noprint">
     <select id="sel" onchange="loadNote(this.value)"></select>
     <button class="d" onclick="newNote()">＋ 새 물건</button>
-    <button onclick="saveNote(true)" style="background:#0b3d2e;color:#fff;border-color:#0b3d2e">💾 저장</button>
+    <button onclick="saveNote(true)" style="background:#0b3d2e;color:#fff;border-color:#0b3d2e">💾 이 브라우저에 저장</button>
     <button class="d" onclick="delNote()">🗑 삭제</button>
-    <button class="d" onclick="exportJson()">⬇ 백업(JSON)</button>
-    <button class="d" onclick="document.getElementById('imp').click()">⬆ 불러오기</button>
+    <button class="d" onclick="exportJson()">⬇ 파일로 내려받기(.json)</button>
+    <button class="d" onclick="document.getElementById('imp').click()">⬆ 내려받은 파일 불러오기</button>
     <input type="file" id="imp" accept=".json" style="display:none" onchange="importJson(this)">
     <span class="note" id="saved" style="margin:0"></span>
   </div>
@@ -220,7 +220,7 @@ label.f input:focus,label.f select:focus,label.f textarea:focus,.item input.m:fo
     </div>
   </section>
 
-  <p class="note noprint">이 노트는 학습·기록용 도구이며 법률·세무·투자 자문이 아닙니다. 입력한 내용은 이 브라우저(기기)에만 저장되며 서버로 전송되지 않습니다. 기기를 바꾸거나 브라우저 데이터를 지우기 전에 반드시 ⬇ 백업(JSON)을 받아 두세요. © Land Master Pro</p>
+  <p class="note noprint">이 노트는 학습·기록용 도구이며 법률·세무·투자 자문이 아닙니다. 입력한 내용은 이 브라우저(기기)에만 저장되며 서버로 전송되지 않습니다. 기기를 바꾸거나 브라우저 데이터를 지우기 전에 반드시 ⬇ 파일로 내려받기(.json)로 보관해 두세요. © Land Master Pro</p>
 </div>
 
 <script>
@@ -252,7 +252,7 @@ function fill(o){fields().forEach(e=>{const k=e.dataset.k;if(e.type==='checkbox'
 function refreshSel(){$('sel').innerHTML=notes.map(n=>`<option value="${n.id}">${(n.d.case||'(사건번호 없음)')} · ${(n.d.addr||'소재지 미입력')}</option>`).join('');if(cur)$('sel').value=cur}
 function newNote(){saveNote();const n={id:uid(),d:{}};notes.unshift(n);cur=n.id;refreshSel();fill({});lsSave()}
 function loadNote(id){saveNote();cur=id;const n=notes.find(x=>x.id===id);fill(n?n.d:{});}
-function saveNote(show){const n=notes.find(x=>x.id===cur);if(!n)return;n.d=collect();const ok=lsSave();refreshSel();if(show)$('saved').textContent=ok?('저장됨 '+new Date().toLocaleTimeString('ko-KR')):'저장 실패: 이 브라우저는 저장을 막고 있습니다. ⬇ 백업(JSON)을 이용하세요.'}
+function saveNote(show){const n=notes.find(x=>x.id===cur);if(!n)return;n.d=collect();const ok=lsSave();refreshSel();if(show)$('saved').textContent=ok?('저장됨 '+new Date().toLocaleTimeString('ko-KR')):'저장 실패: 이 브라우저는 저장을 막고 있습니다. ⬇ 파일로 내려받기를 이용하세요.'}
 function delNote(){if(!cur||!confirm('이 물건 노트를 삭제할까요?'))return;notes=notes.filter(x=>x.id!==cur);if(!notes.length)notes=[{id:uid(),d:{}}];cur=notes[0].id;refreshSel();fill(notes[0].d);lsSave()}
 function exportJson(){saveNote();const b=new Blob([JSON.stringify(notes,null,1)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='토지경매_임장노트_백업_'+new Date().toISOString().slice(0,10)+'.json';a.click()}
 function importJson(inp){const f=inp.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const a=JSON.parse(r.result);if(!Array.isArray(a))throw 0;const ids=new Set(notes.map(n=>n.id));a.forEach(n=>{if(n&&n.id&&n.d){if(ids.has(n.id))n.id=uid();notes.push(n)}});lsSave();refreshSel();$('saved').textContent='불러오기 완료'}catch(e){alert('올바른 백업 파일이 아닙니다.')}};r.readAsText(f);inp.value=''}
