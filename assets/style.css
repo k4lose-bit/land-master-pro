@@ -753,3 +753,67 @@ input.field, textarea.field {
   .term-detail table{font-size:.88rem}
   .term-detail th,.term-detail td{padding:6px 7px}
 }
+
+/* ── 주제별 심층 가이드 (guide-<slug>.html) 2026-11-14 ── */
+.guide-index{margin:22px 0 10px}
+.guide-index h2{margin:0 0 6px;font-size:1.25rem}
+.guide-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin-top:12px}
+.guide-card{display:block;padding:14px 16px;border:2px solid var(--line);border-radius:12px;
+  background:var(--card);text-decoration:none;color:inherit;transition:transform .15s,box-shadow .15s}
+.guide-card:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(14,166,114,.14)}
+.guide-card b{display:block;font-size:1.02rem;color:var(--primary);margin-bottom:5px;line-height:1.35}
+.guide-card span{display:block;font-size:.9rem;color:var(--muted);line-height:1.5}
+.guide-card em{display:block;margin-top:8px;font-size:.82rem;font-style:normal;color:var(--muted);
+  border-top:1px solid var(--line);padding-top:7px}
+.guide-toc{margin:16px 0 22px;padding:12px 14px;border:1px dashed var(--line);border-radius:10px;
+  background:rgba(46,230,168,.06);font-size:.95rem}
+.guide-toc b{display:block;margin-bottom:6px;font-size:.9rem;color:var(--muted)}
+.guide-toc .toc-links a{margin-right:4px}
+.term-detail .law-cell{font-size:.88rem;color:var(--muted);white-space:normal}
+.flow-list{margin:10px 0 0;padding-left:22px}
+.flow-list>li{margin-bottom:13px;line-height:1.72}
+.mistake-box{margin:12px 0;padding:12px 15px;border-radius:10px;border:1px solid var(--line);
+  background:var(--card)}
+.mistake-claim{margin:0 0 7px;font-weight:700;color:#C2410C}
+.mistake-claim::before{content:"✕ ";font-weight:700}
+.mistake-real{margin:0;line-height:1.72}
+.mistake-real::before{content:"→ ";color:var(--primary);font-weight:700}
+.guide-term{margin:26px 0 0;padding-top:20px;border-top:2px solid var(--line)}
+.guide-term h3{margin:0 0 4px;font-size:1.3rem;color:var(--primary)}
+.guide-term h4{margin:18px 0 6px;font-size:1.03rem}
+.term-related-inline{margin:12px 0 0;font-size:.92rem;color:var(--muted)}
+@media (max-width:640px){
+  .guide-cards{grid-template-columns:1fr}
+  .guide-term h3{font-size:1.15rem}
+}
+
+/* ── 판정기 도구 (tool-*.html) 2026-11-14 ── */
+.tool-box{margin:20px 0;padding:18px 20px;border:2px solid var(--line);border-radius:14px;background:var(--card)}
+.tool-field{margin-bottom:16px}
+.tool-field>label{display:block;font-weight:700;margin-bottom:7px;font-size:1rem}
+.tool-field select,.tool-field input[type=number]{width:100%;padding:11px 12px;font-size:1rem;
+  font-family:inherit;border:2px solid var(--line);border-radius:9px;background:#fff;color:inherit}
+.tool-field select:focus,.tool-field input:focus{outline:none;border-color:var(--primary)}
+.tool-hint{margin:6px 0 0;font-size:.86rem;color:var(--muted);line-height:1.6}
+.tool-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.tool-check{display:flex;flex-direction:column;justify-content:center}
+.tool-check label{font-weight:700;display:flex;align-items:center;gap:8px}
+.tool-check input[type=checkbox]{width:19px;height:19px;accent-color:var(--primary)}
+#tmRun{width:100%;margin-top:4px;padding:14px;font-size:1.05rem;font-weight:700}
+.tool-result{margin-top:20px;padding:18px 20px;border-radius:12px;border:2px solid var(--line);
+  background:rgba(46,230,168,.05)}
+.tool-verdict{font-size:1.15rem;font-weight:700;padding:12px 14px;border-radius:9px;margin-bottom:12px;line-height:1.45}
+.tool-verdict.good{background:#E6F7F1;color:#0B7A55;border:1px solid #0EA672}
+.tool-verdict.warn{background:#FEF6E7;color:#92531A;border:1px solid #E8A33D}
+.tool-verdict.bad{background:#FDECEA;color:#9B2C22;border:1px solid #E0524B}
+.tool-verdict.neutral{background:#EFF3FB;color:#2B4A7E;border:1px solid #2E86DE}
+.tool-lead{margin:0 0 6px;line-height:1.72}
+.tool-result h3{margin:16px 0 6px;font-size:1rem;color:var(--primary)}
+.tool-result ul{margin:0;padding-left:20px}
+.tool-result li{margin-bottom:9px;line-height:1.7}
+.tool-foot{margin:16px 0 0;padding-top:12px;border-top:1px solid var(--line);
+  font-size:.87rem;color:var(--muted);line-height:1.65}
+@media (max-width:640px){
+  .tool-row{grid-template-columns:1fr}
+  .tool-box{padding:15px 14px}
+}
