@@ -22,10 +22,17 @@ from content_cases import CASES, slugify_check as cases_slugify_check
 from content_glossary import GLOSSARY, GROUPS, slugify_check
 from content_terms import TERMS as TERMS_1
 from content_terms2 import TERMS2 as TERMS_2
+from content_guides import GUIDES, guides_check, term_href_map
+from site_contact import CONTACT_EMAIL
 
 # 1차(2026-10-13) 10개 + 2차(2026-10-14) 8개. 스키마 동일.
 TERMS = TERMS_1 + TERMS_2
-TERM_PAGES = {t["slug"]: t for t in TERMS}
+TERM_DATA = {t["slug"]: t for t in TERMS}
+# 2026-11-14: 용어 상세 개별 페이지(glossary-<slug>.html)를 폐기하고
+# 주제별 심층 가이드(guide-<slug>.html)의 앵커로 통합했다. 사유는 content_guides.py 참고.
+TERM_PAGES = term_href_map()
+# 그룹키 → 그 주제의 심층 가이드 (용어사전·스테이지에서 링크)
+GUIDE_BY_GROUP = {g["group"]: g for g in GUIDES}
 # 법령 원문을 대조한 날짜 (묶음별로 다름) — 본문 하단 출처 주석에 쓴다
 TERM_VERIFIED = dict([(t["slug"], "2026-10-13") for t in TERMS_1]
                      + [(t["slug"], "2026-10-14") for t in TERMS_2])
@@ -50,6 +57,7 @@ NAV = [
     ("stage4.html", "S4. 권리·계약"),
     ("stage5.html", "S5. 토지보상"),
     ("glossary.html", "📖 용어사전"),
+    ("tool-maengji.html", "🛣 맹지 판정기"),
     ("guide.html", "🌐 토지이음 가이드"),
     ("cases.html", "📂 실전 사례"),
     ("community.html", "💬 커뮤니티"),
@@ -529,8 +537,7 @@ def build_glossary():
             continue
         toc_links = " \u00b7 ".join(
             '<a href="%s">%s</a>' % (
-                ("glossary-%s.html" % t["slug"]) if t["slug"] in TERM_PAGES
-                else ("#term-%s" % t["slug"]),
+                TERM_PAGES.get(t["slug"], "#term-%s" % t["slug"]),
                 esc(t["term"]),
             )
             for t in terms
@@ -546,19 +553,25 @@ def build_glossary():
                 "slug": t["slug"], "term": esc(t["term"]), "tagline": esc(t["tagline"]),
                 "desc": t["body"], "point": t["point"],
                 "more": (
-                    '\n        <p class="term-more"><a class="btn ghost sm" href="glossary-%s.html">'
+                    '\n        <p class="term-more"><a class="btn ghost sm" href="%s">'
                     '%s 근거 법령·확인 절차까지 자세히 보기 →</a></p>'
-                    % (t["slug"], esc(t["term"]))
+                    % (TERM_PAGES[t["slug"]], esc(t["term"]))
                 ) if t["slug"] in TERM_PAGES else "",
             }
             for t in terms
         )
+        gd = GUIDE_BY_GROUP.get(gkey)
+        lead = ('이 주제는 <a href="%s">%s 스테이지</a>에서 실전 퀴즈로 이어집니다.'
+                % (glink, esc(gnavlabel)))
+        if gd:
+            lead += (' 근거 조문과 판단 순서는 <a href="guide-%s.html"><b>%s</b></a>에 '
+                     '모아 두었습니다.' % (gd["slug"], esc(gd["h1"])))
         sections.append(
             '<section class="term-section" id="group-%(gkey)s">\n      <h2>%(glabel)s</h2>\n'
-            '      <p class="term-section-lead">이 주제는 <a href="%(glink)s">%(gnavlabel)s 스테이지</a>에서 실전 퀴즈로 이어집니다.</p>\n'
+            '      <p class="term-section-lead">%(lead)s</p>\n'
             '      %(entries)s\n    </section>' % {
-                "gkey": gkey, "glabel": esc(glabel), "glink": glink,
-                "gnavlabel": esc(gnavlabel), "entries": entries,
+                "gkey": gkey, "glabel": esc(glabel), "lead": lead,
+                "entries": entries,
             }
         )
     body = """
@@ -570,6 +583,14 @@ def build_glossary():
       법령·행정 용어는 사전 그대로 읽으면 더 헷갈립니다. 실제 투자 판단에 필요한 만큼만,
       정의와 실무에서 걸리는 지점을 함께 정리했습니다. 아래 목차에서 용어를 누르면 해당 설명으로 바로 이동합니다.
     </div>
+    <section class="guide-index">
+      <h2>📑 주제별 심층 가이드</h2>
+      <p class="term-section-lead">근거 조문·기준 숫자·판단 순서를 주제별로 모은 레퍼런스입니다.
+      용어 하나가 아니라 그 주제에서 걸리는 조문 전체를 한 번에 봅니다.</p>
+      <div class="guide-cards">
+        %(guides)s
+      </div>
+    </section>
     <nav class="term-toc" aria-label="용어 목차">
       %(toc)s
     </nav>
@@ -578,6 +599,11 @@ def build_glossary():
         "count": len(GLOSSARY),
         "toc": "\n      ".join(toc_groups),
         "sections": "\n    ".join(sections),
+        "guides": "\n        ".join(
+            '<a class="guide-card" href="guide-%s.html"><b>%s</b>'
+            '<span>%s</span><em>다루는 용어 %d개</em></a>'
+            % (g["slug"], esc(g["h1"]), esc(g["tagline"]), len(g["order"]))
+            for g in GUIDES),
     }
     write("glossary.html", shell(
         "glossary.html",
@@ -585,86 +611,168 @@ def build_glossary():
         "맹지, 접도의무, 보전산지, 용도지역, 건폐율, 지구단위계획, 토지보상까지 토지 투자에서 막히는 용어 %d개를 정의와 실무 포인트로 한 페이지에 정리했습니다." % len(GLOSSARY),
         body))
 
-def build_terms():
-    """용어 상세 페이지(glossary-<slug>.html) — content_terms.TERMS 기준.
+def build_guides():
+    """주제별 심층 가이드(guide-<slug>.html) — content_guides.GUIDES 기준.
 
-    2026-10-13 신설. 2026-09-27에 noindex 리디렉트로 바꿔 둔 10개 URL을
-    실제 본문이 있는 페이지로 되돌린다. canonical은 자기 자신이고
-    noindex·meta refresh는 넣지 않는다. static_pages()에도 같이 들어가야
-    사이트맵(6시간 주기 자동 갱신)에 반영된다.
+    2026-11-14 신설. 2026-10-13/14에 만든 용어 상세 18개(glossary-<slug>.html)를
+    5개 가이드로 통합하고 개별 URL은 폐기한다. 사유와 근거 데이터는
+    content_guides.py 상단 주석 참고. 본문의 법령 서술은 content_terms /
+    content_terms2 의 검증된 내용을 그대로 옮긴 것이므로, 용어 데이터를
+    고치면 가이드에도 자동 반영된다.
     """
+    guides_check()
     group_meta = {g[0]: g for g in GROUPS}
     gloss_meta = {t["slug"]: t for t in GLOSSARY}
+    case_by_group = {}
+    for c in CASES:
+        case_by_group.setdefault(c.get("group"), []).append(c)
 
-    for t in TERMS:
-        if t["slug"] not in gloss_meta:
-            raise SystemExit("content_terms: GLOSSARY에 없는 slug → %s" % t["slug"])
-        gkey, glabel, glink, gnavlabel = group_meta[t["group"]]
+    for gd in GUIDES:
+        gkey, glabel, glink, gnavlabel = group_meta[gd["group"]]
+        terms = [TERM_DATA[s] for s in gd["order"]]
 
-        sections_html = "\n      ".join(
-            "<h2>%s</h2>\n      %s" % (esc(stitle), sbody)
-            for stitle, sbody in t["sections"]
+        # ── 목차
+        toc = " \u00b7 ".join(
+            '<a href="#term-%s">%s</a>' % (t["slug"], esc(t["term"])) for t in terms
         )
 
-        law_rows = "\n        ".join(
-            "<tr><td><b>%s</b></td><td>%s</td></tr>" % (esc(name), esc(gist))
-            for name, gist in t["laws"]
+        # ── 숫자 표
+        num_rows = "\n        ".join(
+            "<tr><td>%s</td><td><b>%s</b></td><td class=\"law-cell\">%s</td></tr>"
+            % (item, value, law)
+            for item, value, law in gd["numbers"]
         )
-        law_html = (
-            '<h2>근거 법령</h2>\n      <table>\n        <thead><tr><th style="width:38%%">조문</th>'
-            '<th>핵심 내용</th></tr></thead>\n        <tbody>\n        %s\n        </tbody>\n      </table>\n'
-            '      <p class="note-line">※ 위 조문은 %s 국가법령정보센터 원문과 대조한 내용입니다. '
-            '법령은 개정될 수 있고, 조례로 기준이 달라지는 항목은 해당 시·군·구 조례를 직접 확인하십시오.</p>'
-            % (law_rows, TERM_VERIFIED[t["slug"]])
-        )
-
-        checks_html = (
-            '<h2>계약 전에 확인할 것</h2>\n      <ol>\n        %s\n      </ol>'
-            % "\n        ".join("<li>%s</li>" % esc(c) for c in t["checks"])
+        numbers_html = (
+            '<h2 id="numbers">%s</h2>\n      <div class="table-scroll"><table>\n'
+            '        <thead><tr><th>항목</th><th>기준</th><th>근거 조문</th></tr></thead>\n'
+            '        <tbody>\n        %s\n        </tbody>\n      </table></div>'
+            % (esc(gd["numbers_head"]), num_rows)
         )
 
-        rel_links = []
-        for slug in t["related"]:
-            if slug not in gloss_meta:
-                continue
-            label = gloss_meta[slug]["term"]
-            href = ("glossary-%s.html" % slug) if slug in TERM_PAGES else ("glossary.html#term-%s" % slug)
-            rel_links.append('<a href="%s">%s</a>' % (href, esc(label)))
-        related_html = ""
-        if rel_links:
-            related_html = (
-                '\n    <div class="term-related">\n      <h4>함께 보면 좋은 용어</h4>\n      %s\n    </div>'
-                % "\n      ".join(rel_links)
+        # ── 비교표 (있는 가이드만)
+        compare_html = ""
+        if gd.get("compare"):
+            cols = gd["compare_cols"]
+            ncol = len([c for c in cols if c])
+            head = "".join("<th>%s</th>" % esc(c) for c in cols if c)
+            rows = "\n        ".join(
+                "<tr>%s</tr>" % "".join(
+                    ("<td><b>%s</b></td>" % cell) if i == 0 else ("<td>%s</td>" % cell)
+                    for i, cell in enumerate(row[:ncol])
+                )
+                for row in gd["compare"]
+            )
+            compare_html = (
+                '<h2 id="compare">%s</h2>\n      <div class="table-scroll"><table>\n'
+                '        <thead><tr>%s</tr></thead>\n        <tbody>\n        %s\n'
+                '        </tbody>\n      </table></div>'
+                % (esc(gd["compare_head"]), head, rows)
             )
 
-        body_t = """
+        # ── 판단 순서
+        flow_html = (
+            '<h2 id="flow">%s</h2>\n      <ol class="flow-list">\n        %s\n      </ol>'
+            % (esc(gd["flow_head"]),
+               "\n        ".join("<li>%s</li>" % step for step in gd["flow"]))
+        )
+
+        # ── 자주 틀리는 지점
+        mis_html = (
+            '<h2 id="mistakes">%s</h2>\n      %s'
+            % (esc(gd["mistakes_head"]),
+               "\n      ".join(
+                   '<div class="mistake-box"><p class="mistake-claim">%s</p>'
+                   '<p class="mistake-real">%s</p></div>' % (esc(claim), real)
+                   for claim, real in gd["mistakes"]))
+        )
+
+        # ── 용어별 상세 (검증된 본문을 그대로 옮긴다)
+        term_blocks = []
+        for t in terms:
+            secs = "\n        ".join(
+                "<h4>%s</h4>\n        %s" % (esc(stitle), sbody)
+                for stitle, sbody in t["sections"]
+            )
+            law_rows = "\n          ".join(
+                "<tr><td><b>%s</b></td><td>%s</td></tr>" % (esc(name), esc(gist))
+                for name, gist in t["laws"]
+            )
+            checks = "\n          ".join("<li>%s</li>" % esc(c) for c in t["checks"])
+            rel = []
+            for slug in t["related"]:
+                if slug not in gloss_meta:
+                    continue
+                rel.append('<a href="%s">%s</a>' % (
+                    TERM_PAGES.get(slug, "glossary.html#term-%s" % slug),
+                    esc(gloss_meta[slug]["term"])))
+            rel_html = ""
+            if rel:
+                rel_html = ('\n        <p class="term-related-inline">함께 보기: %s</p>'
+                            % " \u00b7 ".join(rel))
+            term_blocks.append(
+                '<section class="guide-term" id="term-%(slug)s">\n'
+                '        <h3>%(term)s</h3>\n'
+                '        <p class="term-tagline">%(tagline)s</p>\n'
+                '        %(secs)s\n'
+                '        <h4>근거 법령</h4>\n'
+                '        <div class="table-scroll"><table>\n'
+                '          <thead><tr><th style="width:38%%">조문</th><th>핵심 내용</th></tr></thead>\n'
+                '          <tbody>\n          %(laws)s\n          </tbody>\n        </table></div>\n'
+                '        <h4>계약 전에 확인할 것</h4>\n        <ol>\n          %(checks)s\n        </ol>\n'
+                '        <div class="trap-box"><b>\U0001F4A5 실무 함정:</b> %(trap)s</div>%(rel)s\n'
+                '      </section>' % {
+                    "slug": t["slug"], "term": esc(t["term"]), "tagline": esc(t["tagline"]),
+                    "secs": secs, "laws": law_rows, "checks": checks,
+                    "trap": esc(t["trap"]), "rel": rel_html,
+                })
+
+        # ── 관련 실전 사례
+        cases_html = ""
+        rel_cases = case_by_group.get(gd["group"], [])
+        if rel_cases:
+            cases_html = (
+                '\n    <div class="term-related">\n      <h4>이 주제의 실전 사례</h4>\n      %s\n    </div>'
+                % "\n      ".join('<a href="case-%s.html">%s</a>' % (c["slug"], esc(c["title"]))
+                                  for c in rel_cases))
+
+        body_g = """
     <div class="page-head">
-      <span class="term-badge">%(group)s</span>
-      <h1>%(term)s</h1>
+      <span class="term-badge">%(glabel)s</span>
+      <h1>%(h1)s</h1>
       <p>%(tagline)s</p>
     </div>
     <div class="doc term-detail">
-      %(sections)s
-      %(law)s
-      %(checks)s
-      <div class="trap-box"><b>\U0001F4A5 실무 함정:</b> %(trap)s</div>
-      <p><a class="btn ghost sm" href="%(glink)s">%(gnavlabel)s 스테이지에서 실전 퀴즈로 이어서 보기 →</a></p>
-    </div>%(related)s
+      <div class="intro-box">%(intro)s</div>
+      <nav class="guide-toc" aria-label="이 가이드에서 다루는 용어">
+        <b>이 가이드에서 다루는 용어</b>
+        <div class="toc-links">%(toc)s</div>
+      </nav>
+      %(numbers)s
+      %(compare)s
+      %(flow)s
+      %(mistakes)s
+      <h2 id="terms">용어별 상세</h2>
+      %(terms)s
+      <p class="note-line">\u203b 위 조문은 %(verified)s 국가법령정보센터 원문과 대조한 내용입니다.
+      법령은 개정될 수 있고, 조례로 기준이 달라지는 항목은 해당 시·군·구 조례를 직접 확인하십시오.</p>
+      <p><a class="btn ghost sm" href="%(glink)s">%(gnavlabel)s 스테이지에서 실전 퀴즈로 이어서 보기 \u2192</a></p>
+    </div>%(cases)s
     %(nudge)s
     <div class="ad-slot"></div>
-    <p class="term-back"><a href="glossary.html">← 용어사전 전체 목록(%(count)d개)</a></p>""" % {
-            "group": esc(glabel), "term": esc(t["term"]), "tagline": esc(t["tagline"]),
-            "sections": sections_html, "law": law_html, "checks": checks_html,
-            "trap": esc(t["trap"]), "glink": glink, "gnavlabel": esc(gnavlabel),
-            "related": related_html, "count": len(GLOSSARY),
+    <p class="term-back"><a href="glossary.html">\u2190 용어사전 전체 목록(%(count)d개)</a></p>""" % {
+            "glabel": esc(glabel), "h1": esc(gd["h1"]), "tagline": esc(gd["tagline"]),
+            "intro": gd["intro"], "toc": toc, "numbers": numbers_html,
+            "compare": compare_html, "flow": flow_html, "mistakes": mis_html,
+            "terms": "\n      ".join(term_blocks), "verified": gd["verified"],
+            "glink": glink, "gnavlabel": esc(gnavlabel), "cases": cases_html,
+            "count": len(GLOSSARY),
             "nudge": community_nudge_html(
-                "이 용어 때문에 막힌 물건이 있으십니까? 커뮤니티에 상황을 남겨주시면 확인 순서를 같이 짚어 드립니다."
+                "이 주제로 막힌 물건이 있으십니까? 커뮤니티에 상황을 남겨주시면 확인 순서를 같이 짚어 드립니다."
             ),
         }
-        write("glossary-%s.html" % t["slug"], shell(
-            "glossary-%s.html" % t["slug"],
-            "%s — 뜻과 근거 법령, 확인 절차 | Land Master Pro" % t["term"],
-            t["desc"], body_t))
+        write("guide-%s.html" % gd["slug"], shell(
+            "guide-%s.html" % gd["slug"], "%s | Land Master Pro" % gd["title"],
+            gd["desc"], body_g))
 
 
 def build_cases():
@@ -745,6 +853,111 @@ def build_cases():
         write("case-%s.html" % c["slug"], shell(
             "case-%s.html" % c["slug"], "%s | Land Master Pro" % c["title"],
             c["tagline"], body_c))
+
+
+def build_tool_maengji():
+    """맹지·접도 요건 1차 판정기 (tool-maengji.html) — 2026-11-14 신설.
+
+    조문 근거는 content_terms2.py 의 'maengji' / 'jeopdo-uimu' laws 목록과 동일하며
+    2026-10-14에 국가법령정보센터 원문과 대조한 내용이다. 새 분기를 추가할 때는
+    반드시 원문을 다시 대조할 것. 판정 결과는 1차 판단이며 최종 확인은 관할
+    지자체 건축과라는 고지를 화면에서 빼지 말 것.
+    """
+    body = """
+    <div class="page-head">
+      <span class="term-badge">도구</span>
+      <h1>\U0001F6E3 맹지·접도 요건 판정기</h1>
+      <p>건축법 제2조 제1항 제11호와 제44조 제1항을 기준으로, 이 땅이 건축이 가능한 접도 요건을 갖췄는지 1차로 가려 봅니다</p>
+    </div>
+    <div class="doc">
+      <div class="intro-box">
+        거래 현장에서 \"도로에 붙어 있으니 집을 지을 수 있다\"는 말이 어긋나는 이유는 대체로
+        <b>네 가지</b> 중 하나입니다 &mdash; ① 그 길이 건축법상 '도로'가 아니거나,
+        ② 너비가 4m에 못 미치거나, ③ 접한 길이가 2m에 못 미치거나,
+        ④ 반대로 면 지역이어서 접도 규정 자체가 적용되지 않는 경우입니다.
+        아래 다섯 칸을 채우면 어느 경우에 해당하는지와 근거 조문이 함께 나옵니다.
+      </div>
+
+      <div class="tool-box">
+        <div class="tool-field">
+          <label for="tmArea">1. 땅의 소재지 구분</label>
+          <select id="tmArea">
+            <option value="urban">도시지역 또는 지구단위계획구역 안</option>
+            <option value="dong">그 밖의 지역 &mdash; 동(洞) 지역</option>
+            <option value="eup">그 밖의 지역 &mdash; 읍(邑) 지역</option>
+            <option value="myeon">그 밖의 지역 &mdash; 면(面) 지역</option>
+          </select>
+          <p class="tool-hint">토지이음의 '지역지구등 지정여부'와 행정구역 명칭으로 확인합니다.</p>
+        </div>
+
+        <div class="tool-field">
+          <label for="tmRoad">2. 땅에 접한 길의 성격</label>
+          <select id="tmRoad">
+            <option value="gosi">법령에 따라 고시된 도로 (건축법 제2조 제1항 제11호 가목)</option>
+            <option value="gongo">시장·군수·구청장이 위치를 지정·공고한 도로 (같은 호 나목)</option>
+            <option value="sasil">사람·차가 다니지만 고시·지정·공고된 적은 없는 길</option>
+            <option value="none">접한 길이 없음</option>
+          </select>
+          <p class="tool-hint">지적도에 '도로'로 그려져 있다는 것만으로는 가목·나목에 해당하지 않습니다. 도로관리대장(건축법 제45조 제3항) 기재 여부로 확인합니다.</p>
+        </div>
+
+        <div class="tool-row">
+          <div class="tool-field">
+            <label for="tmWidth">3. 그 길의 너비 (m)</label>
+            <input type="number" id="tmWidth" min="0" step="0.1" placeholder="예: 3.5">
+          </div>
+          <div class="tool-field">
+            <label for="tmFront">4. 땅이 길에 접한 길이 (m)</label>
+            <input type="number" id="tmFront" min="0" step="0.1" placeholder="예: 2.5">
+          </div>
+        </div>
+
+        <div class="tool-row">
+          <div class="tool-field">
+            <label for="tmFloor">5. 지으려는 건축물의 연면적 (㎡)</label>
+            <input type="number" id="tmFloor" min="0" step="1" placeholder="예: 150">
+          </div>
+          <div class="tool-field tool-check">
+            <label><input type="checkbox" id="tmFactory"> 공장입니다</label>
+            <p class="tool-hint">연면적 기준이 2,000㎡에서 3,000㎡로 올라갑니다.</p>
+          </div>
+        </div>
+
+        <button class="btn" id="tmRun" type="button">판정하기</button>
+        <div id="tmResult" class="tool-result" hidden></div>
+      </div>
+
+      <h2>이 판정기가 보는 조문</h2>
+      <div class="table-scroll"><table>
+        <thead><tr><th style="width:38%%">조문</th><th>핵심 내용</th></tr></thead>
+        <tbody>
+        <tr><td><b>건축법 제2조 제1항 제11호</b></td><td>도로 = 너비 4m 이상 + 고시되었거나(가목) 위치를 지정·공고한 것(나목)</td></tr>
+        <tr><td><b>건축법 제44조 제1항</b></td><td>대지는 2m 이상이 도로에 접할 것 (단서 3개: 출입 지장 없음·공지·농막)</td></tr>
+        <tr><td><b>건축법 시행령 제28조 제2항</b></td><td>연면적 2,000㎡(공장 3,000㎡) 이상은 너비 6m 도로에 4m 이상 접할 것</td></tr>
+        <tr><td><b>건축법 시행령 제3조의3</b></td><td>지형 조건·막다른 도로의 예외 너비 (2m / 3m / 6m, 읍·면 지역 4m)</td></tr>
+        <tr><td><b>건축법 제45조 제1항</b></td><td>도로 지정은 이해관계인 동의가 원칙, 제2호는 조례로 정한 '사실상의 통로'를 건축위원회 심의로 지정</td></tr>
+        <tr><td><b>건축법 제46조 제1항</b></td><td>소요 너비 미달 도로는 중심선에서 1/2 후퇴한 선이 건축선</td></tr>
+        <tr><td><b>건축법 제3조 제2항</b></td><td>도시지역·지구단위계획구역 밖이면서 동·읍이 아닌 지역은 제44조~제47조 적용 제외</td></tr>
+        </tbody>
+      </table></div>
+      <p class="note-line">※ 위 조문은 2026-10-14 국가법령정보센터 원문과 대조한 내용입니다.
+      이 판정기는 <b>1차 선별용</b>이며, 조례로 달라지는 항목과 현장 조건은 반영하지 않습니다.
+      최종 확인은 관할 시·군·구 건축과에서 받으셔야 합니다.</p>
+
+      <p><a class="btn ghost sm" href="guide-doro-maengji.html">도로·맹지 법령 가이드에서 조문 전체 보기 →</a>
+      <a class="btn ghost sm" href="stage1.html">S1. 맹지·도로 스테이지에서 실전 퀴즈 풀기 →</a></p>
+    </div>
+    %(nudge)s
+    <div class="ad-slot"></div>""" % {
+        "nudge": community_nudge_html(
+            "판정 결과가 애매하게 나왔습니까? 커뮤니티에 조건을 남겨주시면 확인 순서를 같이 짚어 드립니다."
+        ),
+    }
+    write("tool-maengji.html", shell(
+        "tool-maengji.html",
+        "맹지·접도 요건 판정기 — 건축법 제44조 2m·제2조 4m 자동 확인 | Land Master Pro",
+        "소재지·도로 성격·너비·접한 길이·연면적을 넣으면 건축법 접도 요건 충족 여부와 근거 조문을 1차로 판정합니다.",
+        body, extra_scripts='  <script src="assets/tool-maengji.js" defer></script>\n'))
 
 
 def build_notices():
@@ -964,8 +1177,9 @@ def build_about():
       실제 거래·개발 행위 전에는 반드시 관할 기관 및 전문가(변호사, 세무사, 감정평가사, 토목설계사무소 등)의
       확인을 받으시기 바랍니다. 본 사이트는 콘텐츠 이용으로 발생한 손해에 대해 책임을 지지 않습니다.</p>
       <h2>문의</h2>
-      <p>콘텐츠 오류 제보, 제휴 문의: <a href="mailto:free336.adsens.2025@gmail.com">free336.adsens.2025@gmail.com</a></p>
+      <p>콘텐츠 오류 제보, 제휴 문의: <a href="mailto:%(mail)s">%(mail)s</a></p>
     </div>"""
+    body = body % {"mail": CONTACT_EMAIL}
     write("about.html", shell(
         "about.html", "사이트 소개·문의 | Land Master Pro",
         "경기북부 토지 투자 학습 사이트 Land Master Pro의 소개와 운영 원칙, 면책 고지, 문의처 안내.",
@@ -999,9 +1213,10 @@ def build_privacy():
       <h2>5. 이용자의 권리</h2>
       <p>이용자는 언제든지 자신의 개인정보 열람·정정·삭제를 요청할 수 있습니다.</p>
       <h2>6. 문의처</h2>
-      <p>개인정보 관련 문의: <a href="mailto:free336.adsens.2025@gmail.com">free336.adsens.2025@gmail.com</a></p>
+      <p>개인정보 관련 문의: <a href="mailto:%(mail)s">%(mail)s</a></p>
       <p style="color:var(--muted); font-size:0.85em;">본 방침은 법령·서비스 변경에 따라 개정될 수 있으며, 개정 시 본 페이지에 게시합니다.</p>
     </div>"""
+    body = body % {"mail": CONTACT_EMAIL}
     write("privacy.html", shell(
         "privacy.html", "개인정보처리방침 | Land Master Pro",
         "Land Master Pro의 개인정보 수집·이용, 쿠키 및 광고, 이용자 권리에 대한 안내입니다.",
@@ -1016,11 +1231,13 @@ def static_pages():
     그래서 이 함수를 수동으로 다시 실행해도(=build_site.py 재실행) 커뮤니티 글 항목은
     다음 자동 실행 때 스스로 복구된다."""
     pages = ["index.html", "stage1.html", "stage2.html", "stage3.html", "stage4.html",
-             "stage5.html", "glossary.html", "guide.html", "community.html",
-             "about.html", "privacy.html"]
+             "stage5.html", "glossary.html", "tool-maengji.html", "guide.html",
+             "community.html", "about.html", "privacy.html"]
     pages += ["cases.html"] + ["case-%s.html" % c["slug"] for c in CASES]
-    # 용어 상세 페이지 (2026-10-13 복원) — 빼면 6시간 주기 자동 갱신에서 사이트맵이 지워진다
-    pages += ["glossary-%s.html" % t["slug"] for t in TERMS]
+    # 주제별 심층 가이드 (2026-11-14). 용어 상세 개별 페이지는 여기서 빠졌다 —
+    # 구글이 17/18을 색인 거부해 가이드로 통합했기 때문(content_guides.py 참고).
+    # 빼면 6시간 주기 자동 갱신에서 사이트맵이 지워지므로 반드시 유지할 것.
+    pages += ["guide-%s.html" % g["slug"] for g in GUIDES]
     if LAND:
         pages.append("imjang-note.html")
     return pages
@@ -1139,7 +1356,8 @@ if __name__ == "__main__":
     for s in STAGES:
         build_stage(s)
     build_glossary()
-    build_terms()
+    build_guides()
+    build_tool_maengji()
     build_cases()
     build_notices()
     build_guide()

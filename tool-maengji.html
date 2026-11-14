@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>맹지·접도 요건 판정기 — 건축법 제44조 2m·제2조 4m 자동 확인 | Land Master Pro</title>
+  <meta name="description" content="소재지·도로 성격·너비·접한 길이·연면적을 넣으면 건축법 접도 요건 충족 여부와 근거 조문을 1차로 판정합니다.">
+  <link rel="canonical" href="https://ttangstudy.com/tool-maengji.html">
+  <meta property="og:title" content="맹지·접도 요건 판정기 — 건축법 제44조 2m·제2조 4m 자동 확인 | Land Master Pro">
+  <meta property="og:description" content="소재지·도로 성격·너비·접한 길이·연면적을 넣으면 건축법 접도 요건 충족 여부와 근거 조문을 1차로 판정합니다.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://ttangstudy.com/tool-maengji.html">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧭</text></svg>">
+  <meta name="naver-site-verification" content="4600038de4f3bc5274fce5f172ce95ba03cbd8f3">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/style.css">
+  <script src="assets/config.js"></script>
+  <script>
+    if (window.LMP_CONFIG && window.LMP_CONFIG.GA_MEASUREMENT_ID) {
+      var _gaId = window.LMP_CONFIG.GA_MEASUREMENT_ID;
+      var _gaS = document.createElement('script');
+      _gaS.async = true;
+      _gaS.src = 'https://www.googletagmanager.com/gtag/js?id=' + _gaId;
+      document.head.appendChild(_gaS);
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', _gaId);
+    }
+  </script>
+  <script src="assets/facts-data.js"></script>
+  <script src="assets/app.js" defer></script>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="site-sidebar">
+      <a class="brand" href="index.html"><span aria-hidden="true">🧭</span><b>Land Master Pro</b><span>경기북부 토지 탐사대</span></a>
+      <nav class="site-nav">
+        <a href="index.html">🏠 홈</a>
+        <a href="stage1.html">S1. 맹지·도로</a>
+        <a href="stage2.html">S2. 임야·농지</a>
+        <a href="stage3.html">S3. 용도지역</a>
+        <a href="stage4.html">S4. 권리·계약</a>
+        <a href="stage5.html">S5. 토지보상</a>
+        <a href="glossary.html">📖 용어사전</a>
+        <a href="tool-maengji.html">🛣 맹지 판정기</a>
+        <a href="guide.html">🌐 토지이음 가이드</a>
+        <a href="cases.html">📂 실전 사례</a>
+        <a href="community.html">💬 커뮤니티</a>
+      </nav>
+    </aside>
+    <div class="site-col">
+      <header class="site-header">
+        <div class="header-inner">
+          <div class="header-tools">
+            <input type="text" id="headerSearch" class="search-input" placeholder="🧭 현장 검색">
+            <span class="streak-chip" id="streakChip">🔥 1일 연속</span>
+            <span class="xp-chip" id="xpChip">Lv.1 토지 견습생 · 0 XP</span>
+          </div>
+        </div>
+      </header>
+      <div class="search-overlay" id="searchOverlay">
+        <div class="search-panel" id="searchResults"></div>
+      </div>
+      <div class="ad-interstitial hidden" id="adInterstitial">
+        <div class="ad-slot-card">
+          <div class="ad-slot-label"></div>
+          <div class="ad-slot-box" id="adSlotBox"></div>
+          <button class="btn ghost sm" id="adSlotClose" type="button">닫고 계속하기 →</button>
+        </div>
+      </div>
+      <main>
+
+    <div class="page-head">
+      <span class="term-badge">도구</span>
+      <h1>🛣 맹지·접도 요건 판정기</h1>
+      <p>건축법 제2조 제1항 제11호와 제44조 제1항을 기준으로, 이 땅이 건축이 가능한 접도 요건을 갖췄는지 1차로 가려 봅니다</p>
+    </div>
+    <div class="doc">
+      <div class="intro-box">
+        거래 현장에서 "도로에 붙어 있으니 집을 지을 수 있다"는 말이 어긋나는 이유는 대체로
+        <b>네 가지</b> 중 하나입니다 &mdash; ① 그 길이 건축법상 '도로'가 아니거나,
+        ② 너비가 4m에 못 미치거나, ③ 접한 길이가 2m에 못 미치거나,
+        ④ 반대로 면 지역이어서 접도 규정 자체가 적용되지 않는 경우입니다.
+        아래 다섯 칸을 채우면 어느 경우에 해당하는지와 근거 조문이 함께 나옵니다.
+      </div>
+
+      <div class="tool-box">
+        <div class="tool-field">
+          <label for="tmArea">1. 땅의 소재지 구분</label>
+          <select id="tmArea">
+            <option value="urban">도시지역 또는 지구단위계획구역 안</option>
+            <option value="dong">그 밖의 지역 &mdash; 동(洞) 지역</option>
+            <option value="eup">그 밖의 지역 &mdash; 읍(邑) 지역</option>
+            <option value="myeon">그 밖의 지역 &mdash; 면(面) 지역</option>
+          </select>
+          <p class="tool-hint">토지이음의 '지역지구등 지정여부'와 행정구역 명칭으로 확인합니다.</p>
+        </div>
+
+        <div class="tool-field">
+          <label for="tmRoad">2. 땅에 접한 길의 성격</label>
+          <select id="tmRoad">
+            <option value="gosi">법령에 따라 고시된 도로 (건축법 제2조 제1항 제11호 가목)</option>
+            <option value="gongo">시장·군수·구청장이 위치를 지정·공고한 도로 (같은 호 나목)</option>
+            <option value="sasil">사람·차가 다니지만 고시·지정·공고된 적은 없는 길</option>
+            <option value="none">접한 길이 없음</option>
+          </select>
+          <p class="tool-hint">지적도에 '도로'로 그려져 있다는 것만으로는 가목·나목에 해당하지 않습니다. 도로관리대장(건축법 제45조 제3항) 기재 여부로 확인합니다.</p>
+        </div>
+
+        <div class="tool-row">
+          <div class="tool-field">
+            <label for="tmWidth">3. 그 길의 너비 (m)</label>
+            <input type="number" id="tmWidth" min="0" step="0.1" placeholder="예: 3.5">
+          </div>
+          <div class="tool-field">
+            <label for="tmFront">4. 땅이 길에 접한 길이 (m)</label>
+            <input type="number" id="tmFront" min="0" step="0.1" placeholder="예: 2.5">
+          </div>
+        </div>
+
+        <div class="tool-row">
+          <div class="tool-field">
+            <label for="tmFloor">5. 지으려는 건축물의 연면적 (㎡)</label>
+            <input type="number" id="tmFloor" min="0" step="1" placeholder="예: 150">
+          </div>
+          <div class="tool-field tool-check">
+            <label><input type="checkbox" id="tmFactory"> 공장입니다</label>
+            <p class="tool-hint">연면적 기준이 2,000㎡에서 3,000㎡로 올라갑니다.</p>
+          </div>
+        </div>
+
+        <button class="btn" id="tmRun" type="button">판정하기</button>
+        <div id="tmResult" class="tool-result" hidden></div>
+      </div>
+
+      <h2>이 판정기가 보는 조문</h2>
+      <div class="table-scroll"><table>
+        <thead><tr><th style="width:38%">조문</th><th>핵심 내용</th></tr></thead>
+        <tbody>
+        <tr><td><b>건축법 제2조 제1항 제11호</b></td><td>도로 = 너비 4m 이상 + 고시되었거나(가목) 위치를 지정·공고한 것(나목)</td></tr>
+        <tr><td><b>건축법 제44조 제1항</b></td><td>대지는 2m 이상이 도로에 접할 것 (단서 3개: 출입 지장 없음·공지·농막)</td></tr>
+        <tr><td><b>건축법 시행령 제28조 제2항</b></td><td>연면적 2,000㎡(공장 3,000㎡) 이상은 너비 6m 도로에 4m 이상 접할 것</td></tr>
+        <tr><td><b>건축법 시행령 제3조의3</b></td><td>지형 조건·막다른 도로의 예외 너비 (2m / 3m / 6m, 읍·면 지역 4m)</td></tr>
+        <tr><td><b>건축법 제45조 제1항</b></td><td>도로 지정은 이해관계인 동의가 원칙, 제2호는 조례로 정한 '사실상의 통로'를 건축위원회 심의로 지정</td></tr>
+        <tr><td><b>건축법 제46조 제1항</b></td><td>소요 너비 미달 도로는 중심선에서 1/2 후퇴한 선이 건축선</td></tr>
+        <tr><td><b>건축법 제3조 제2항</b></td><td>도시지역·지구단위계획구역 밖이면서 동·읍이 아닌 지역은 제44조~제47조 적용 제외</td></tr>
+        </tbody>
+      </table></div>
+      <p class="note-line">※ 위 조문은 2026-10-14 국가법령정보센터 원문과 대조한 내용입니다.
+      이 판정기는 <b>1차 선별용</b>이며, 조례로 달라지는 항목과 현장 조건은 반영하지 않습니다.
+      최종 확인은 관할 시·군·구 건축과에서 받으셔야 합니다.</p>
+
+      <p><a class="btn ghost sm" href="guide-doro-maengji.html">도로·맹지 법령 가이드에서 조문 전체 보기 →</a>
+      <a class="btn ghost sm" href="stage1.html">S1. 맹지·도로 스테이지에서 실전 퀴즈 풀기 →</a></p>
+    </div>
+    
+    <div class="community-nudge">
+      <span class="cn-icon">🙋</span>
+      <div class="cn-text"><p>판정 결과가 애매하게 나왔습니까? 커뮤니티에 조건을 남겨주시면 확인 순서를 같이 짚어 드립니다.</p></div>
+      <a class="btn ghost sm" href="community.html">💬 커뮤니티 바로가기</a>
+    </div>
+    <div class="ad-slot"></div>
+      </main>
+      <footer class="site-footer">
+        <div class="footer-inner">
+          <div>
+            <a href="about.html">사이트 소개·문의</a>
+            <a href="privacy.html">개인정보처리방침</a>
+          </div>
+          <p class="disclaimer">본 사이트의 모든 콘텐츠는 일반적인 정보 제공을 목적으로 하며, 법률·세무·투자 자문이 아닙니다.
+          법령·조례·세율은 개정될 수 있고 지자체마다 기준이 다르므로, 실제 거래 전 반드시 해당 기관과 전문가(변호사·세무사·감정평가사 등)의 확인을 받으시기 바랍니다.
+          이 포스팅은 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다.
+          &copy; 2026 Land Master Pro</p>
+        </div>
+      </footer>
+    </div>
+  </div>
+  <script src="assets/tool-maengji.js" defer></script>
+</body>
+</html>
