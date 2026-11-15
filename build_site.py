@@ -40,6 +40,12 @@ TERM_VERIFIED = dict([(t["slug"], "2026-10-13") for t in TERMS_1]
 STAGES = [STAGE1, STAGE2, STAGE3, STAGE4, STAGE5]
 OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "site")
 SITE_URL = os.environ.get("SITE_URL", "https://ttangstudy.com").rstrip("/")
+# 2026-11-14: 같은 사이트를 ttangstudy.com(검색·애드센스 심사 트랙)과
+# land.free336.com(광고 게재·유입 테스트 트랙) 두 곳에 올리는 투트랙 구성이다.
+# 두 도메인이 각자 자기 쪽으로 canonical을 걸면 구글에는 전면 중복으로 보이므로,
+# canonical은 어느 빌드에서든 CANONICAL_URL(기본값 ttangstudy.com)로 고정한다.
+# land 빌드에서도 광고는 그대로 게재된다 — 광고 게재는 색인 여부와 무관하다.
+CANONICAL_URL = os.environ.get("CANONICAL_URL", "https://ttangstudy.com").rstrip("/")
 # land.free336.com 빌드에서만 추가되는 전용 페이지(임장 노트 다운로드)
 LAND = "land.free336.com" in SITE_URL and os.environ.get("LAND_NOTE", "0") == "1"
 SITE_NAME = "랜드 마스터 프로 | 경기북부 토지 투자 아카데미"
@@ -144,7 +150,7 @@ def shell(page, title, desc, body, extra_scripts="", extra_head=""):
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>%(title)s</title>
   <meta name="description" content="%(desc)s">
-  <link rel="canonical" href="%(site)s/%(page)s">
+  <link rel="canonical" href="%(canon)s/%(page)s">
   <meta property="og:title" content="%(title)s">
   <meta property="og:description" content="%(desc)s">
   <meta property="og:type" content="website">
@@ -219,7 +225,8 @@ def shell(page, title, desc, body, extra_scripts="", extra_head=""):
 %(scripts)s</body>
 </html>
 """ % {
-        "title": esc(title), "desc": esc(desc), "site": SITE_URL, "page": page,
+        "title": esc(title), "desc": esc(desc), "site": SITE_URL,
+        "canon": CANONICAL_URL, "page": page,
         "favicon": FAVICON, "nav": nav_html, "body": body,
         "year": date.today().year, "extra": "", "extra_head": extra_head,
         "scripts": extra_scripts,
