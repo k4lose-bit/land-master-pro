@@ -46,6 +46,18 @@ SITE_URL = os.environ.get("SITE_URL", "https://ttangstudy.com").rstrip("/")
 # canonical은 어느 빌드에서든 CANONICAL_URL(기본값 ttangstudy.com)로 고정한다.
 # land 빌드에서도 광고는 그대로 게재된다 — 광고 게재는 색인 여부와 무관하다.
 CANONICAL_URL = os.environ.get("CANONICAL_URL", "https://ttangstudy.com").rstrip("/")
+# 날짜 신호 (2026-11-17 신설). LAST_MODIFIED는 빌드일로 자동 갱신된다.
+SITE_PUBLISHED = "2026-08-27"
+LAST_MODIFIED = date.today().isoformat()
+PUBLISHED = {
+    "guide-doro-maengji.html": "2026-11-14",
+    "guide-sanji-nongji.html": "2026-11-14",
+    "guide-gyehoek-inga.html": "2026-11-14",
+    "guide-gwolli-gyeyak.html": "2026-11-14",
+    "guide-bosang-cheongsan.html": "2026-11-14",
+    "tool-maengji.html": "2026-11-14",
+    "tool-sallim.html": "2026-11-17",
+}
 # land.free336.com 빌드에서만 추가되는 전용 페이지(임장 노트 다운로드)
 LAND = "land.free336.com" in SITE_URL and os.environ.get("LAND_NOTE", "0") == "1"
 SITE_NAME = "랜드 마스터 프로 | 경기북부 토지 투자 아카데미"
@@ -64,6 +76,7 @@ NAV = [
     ("stage5.html", "S5. 토지보상"),
     ("glossary.html", "📖 용어사전"),
     ("tool-maengji.html", "🛣 맹지 판정기"),
+    ("tool-sallim.html", "🌳 조성비 계산기"),
     ("guide.html", "🌐 토지이음 가이드"),
     ("cases.html", "📂 실전 사례"),
     ("community.html", "💬 커뮤니티"),
@@ -137,6 +150,135 @@ def note_promo_html():
     </div>"""
 
 
+# ──────────────────────────────────────────────────────────────────
+# 이미지·구조화 데이터 (2026-11-17 신설)
+#
+# 2026-11-17 실측: 42개 페이지에 우리 소유 이미지 0장, og:image 0, JSON-LD 0,
+# max-image-preview 0, 발행일 표기 0이었다. 같은 날 경쟁 페이지 24개를 실측한
+# 결과 민간 상위 페이지의 본문 이미지는 평균 2.5장이고, '설명형' 쿼리의 1~3위는
+# 8~12장이었다. 이미지 0장으로 상위에 있던 건 조문 밀도가 압도적인 .go.kr뿐이다.
+#
+# max-image-preview:large 는 구글 공식 케이스 스터디에서 CTR +30~79%가 측정된
+# 조치다(developers.google.com/search/case-studies/large-images-case-study).
+# 이게 없으면 검색결과에 큰 이미지가 아예 안 뜬다.
+#
+# 이미지는 make_diagrams.py 가 코드로 그린다 — 토지이음·등기소 화면 캡처는
+# 저작권 문제가 있어 쓰지 않는다. 도해의 모든 수치는 검증된 조문에서 온다.
+# ──────────────────────────────────────────────────────────────────
+IMG_DIR = "assets/img"
+OG_DEFAULT = "og-default.png"
+
+# 페이지 → (OG 이미지 파일명)
+OG_BY_PAGE = {
+    "guide-doro-maengji.html": "og-guide-doro-maengji.png",
+    "guide-sanji-nongji.html": "og-guide-sanji-nongji.png",
+    "guide-gyehoek-inga.html": "og-guide-gyehoek-inga.png",
+    "guide-gwolli-gyeyak.html": "og-guide-gwolli-gyeyak.png",
+    "guide-bosang-cheongsan.html": "og-guide-bosang-cheongsan.png",
+    "tool-maengji.html": "og-tool-maengji.png",
+    "tool-sallim.html": "og-tool-sallim.png",
+}
+
+# 본문 삽입용 도해 — (파일명, alt, 캡션)
+FIGURES = {
+    "doro-jeopdo": (
+        "doro-jeopdo-yogeon.png",
+        "건축법상 도로 너비 4m와 대지가 도로에 접한 길이 2m의 차이를 보여주는 도해. "
+        "대지 A는 2m 이상 접해 요건을 충족하고, 대지 B는 2m 미만이라 미달이다.",
+        "4m는 도로의 <b>너비</b>(건축법 제2조 제1항 제11호), 2m는 대지가 도로에 "
+        "<b>접한 길이</b>(제44조 제1항)입니다. 서로 다른 조문의 숫자입니다."),
+    "sanji-bigyo": (
+        "sanji-bojeon-junbojeon-bigyo.png",
+        "보전산지와 준보전산지의 전용허가기준 적용 범위, 대체산림자원조성비 단가, "
+        "가산율, 허가권자를 비교한 표 형태의 도해.",
+        "보전산지와 준보전산지가 실제로 갈리는 네 지점입니다. 단가는 "
+        "산림청고시 제2026-16호 기준입니다."),
+    "sallim-gyesan": (
+        "daeche-sallim-gyesan-bangbeop.png",
+        "대체산림자원조성비 계산 구조 도해. 산지 구분별 단위면적당 산출금액에 "
+        "개별공시지가의 1000분의 1을 더해 단위면적당 금액을 구하고, 전용 면적을 곱한다.",
+        "개별공시지가 반영비율은 2025년도 고시부터 <b>1000분의 1</b>입니다. "
+        "'공시지가의 1%'로 계산한 자료는 2024년 이전 기준입니다."),
+    "deunggi-gujo": (
+        "deunggi-pyojebu-gapgu-eulgu.png",
+        "등기사항증명서의 표제부·갑구·을구가 각각 무엇을 기록하는지 보여주는 도해. "
+        "갑구는 소유권, 을구는 소유권 외의 권리를 기록한다.",
+        "소유명의인을 채무자로 하는 소유권 외 권리의 가처분은 을구가 아니라 "
+        "<b>갑구</b>에 기록됩니다(부동산등기규칙 제151조 제2항)."),
+    "suyong-sijeom": (
+        "saeobinjeong-uije-sijeom.png",
+        "국토계획법·도시개발법·택지개발촉진법·산업입지법에서 사업인정으로 의제되는 "
+        "시점이 각각 다름을 정리한 도해.",
+        "같은 '고시'라는 말을 써도 법마다 수용권이 생기는 단계가 다릅니다."),
+}
+
+
+# 페이지별 schema.org 타입. 판정기·계산기는 도구이므로 WebApplication 으로 선언한다.
+JSONLD_KIND = {
+    "tool-maengji.html": "WebApplication",
+    "tool-sallim.html": "WebApplication",
+    "index.html": "WebSite",
+    "glossary.html": "CollectionPage",
+    "cases.html": "CollectionPage",
+}
+JSONLD_EXTRA = {
+    "tool-maengji.html": {"applicationCategory": "UtilitiesApplication",
+                          "operatingSystem": "Web",
+                          "offers": {"@type": "Offer", "price": "0",
+                                     "priceCurrency": "KRW"}},
+    "tool-sallim.html": {"applicationCategory": "FinanceApplication",
+                         "operatingSystem": "Web",
+                         "offers": {"@type": "Offer", "price": "0",
+                                    "priceCurrency": "KRW"}},
+}
+
+
+def figure_html(key, width=1200):
+    """본문 도해 1장. alt는 그림이 말하는 내용을 문장으로 적는다 —
+    2026-11-17 경쟁 실측에서 alt를 제대로 쓴 페이지는 24개 중 3개뿐이었다."""
+    if key not in FIGURES:
+        raise SystemExit("build_site: 없는 도해 키 → %s" % key)
+    fn, alt, cap = FIGURES[key]
+    return ('\n      <figure class="doc-figure">\n'
+            '        <img src="%s/%s" alt="%s" width="%d" loading="lazy" decoding="async">\n'
+            '        <figcaption>%s</figcaption>\n'
+            '      </figure>' % (IMG_DIR, fn, esc(alt), width, cap))
+
+
+def jsonld(page, title, desc, kind="Article", extra=None):
+    """구조화 데이터. 발행일·수정일을 명시해 신선도 신호를 만든다 —
+    2026-11-17 실측에서 경쟁 페이지 24개 중 21개가 발행일을 노출하고 있었고
+    우리 사이트는 42개 전부 날짜 신호가 0이었다."""
+    img = OG_BY_PAGE.get(page, OG_DEFAULT)
+    data = {
+        "@context": "https://schema.org",
+        "@type": kind,
+        "headline": title.split(" | ")[0],
+        "description": desc,
+        "image": ["%s/%s/%s" % (CANONICAL_URL, IMG_DIR, img)],
+        "datePublished": PUBLISHED.get(page, SITE_PUBLISHED),
+        "dateModified": LAST_MODIFIED,
+        "inLanguage": "ko",
+        "isAccessibleForFree": True,
+        "mainEntityOfPage": {"@type": "WebPage",
+                             "@id": "%s/%s" % (CANONICAL_URL, page)},
+        "publisher": {"@type": "Organization", "name": "랜드 마스터 프로",
+                      "url": CANONICAL_URL},
+        "author": {"@type": "Organization", "name": "랜드 마스터 프로",
+                   "url": "%s/about.html" % CANONICAL_URL},
+    }
+    if extra:
+        data.update(extra)
+    return ('  <script type="application/ld+json">%s</script>\n'
+            % json.dumps(data, ensure_ascii=False))
+
+
+def updated_line(page):
+    """본문 하단에 보이는 날짜 표기."""
+    return ('\n    <p class="page-updated">발행 %s · 최종 확인 %s</p>'
+            % (PUBLISHED.get(page, SITE_PUBLISHED), LAST_MODIFIED))
+
+
 def shell(page, title, desc, body, extra_scripts="", extra_head=""):
     if LAND and page != "imjang-note.html" and (page.startswith(("case-", "glossary-", "stage")) or page in ("index.html", "cases.html")):
         body = body + note_promo_html()
@@ -150,13 +292,22 @@ def shell(page, title, desc, body, extra_scripts="", extra_head=""):
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>%(title)s</title>
   <meta name="description" content="%(desc)s">
+  <meta name="robots" content="max-image-preview:large, max-snippet:-1, max-video-preview:-1">
   <link rel="canonical" href="%(canon)s/%(page)s">
   <meta property="og:title" content="%(title)s">
   <meta property="og:description" content="%(desc)s">
-  <meta property="og:type" content="website">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="랜드 마스터 프로">
+  <meta property="og:locale" content="ko_KR">
   <meta property="og:url" content="%(site)s/%(page)s">
+  <meta property="og:image" content="%(canon)s/%(ogimg)s">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="%(title)s">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="%(canon)s/%(ogimg)s">
   <link rel="icon" href="%(favicon)s">
-%(naver)s  <link rel="preconnect" href="https://fonts.googleapis.com">
+%(jsonld)s%(naver)s  <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/style.css">
@@ -227,6 +378,9 @@ def shell(page, title, desc, body, extra_scripts="", extra_head=""):
 """ % {
         "title": esc(title), "desc": esc(desc), "site": SITE_URL,
         "canon": CANONICAL_URL, "page": page,
+        "ogimg": "%s/%s" % (IMG_DIR, OG_BY_PAGE.get(page, OG_DEFAULT)),
+        "jsonld": jsonld(page, title, desc, JSONLD_KIND.get(page, "Article"),
+                         JSONLD_EXTRA.get(page)),
         "favicon": FAVICON, "nav": nav_html, "body": body,
         "year": date.today().year, "extra": "", "extra_head": extra_head,
         "scripts": extra_scripts,
@@ -750,6 +904,7 @@ def build_guides():
     </div>
     <div class="doc term-detail">
       <div class="intro-box">%(intro)s</div>
+      %(figure)s
       <nav class="guide-toc" aria-label="이 가이드에서 다루는 용어">
         <b>이 가이드에서 다루는 용어</b>
         <div class="toc-links">%(toc)s</div>
@@ -766,8 +921,10 @@ def build_guides():
     </div>%(cases)s
     %(nudge)s
     <div class="ad-slot"></div>
-    <p class="term-back"><a href="glossary.html">\u2190 용어사전 전체 목록(%(count)d개)</a></p>""" % {
+    <p class="term-back"><a href="glossary.html">\u2190 용어사전 전체 목록(%(count)d개)</a></p>%(updated)s""" % {
+            "updated": updated_line("guide-%s.html" % gd["slug"]),
             "glabel": esc(glabel), "h1": esc(gd["h1"]), "tagline": esc(gd["tagline"]),
+            "figure": figure_html(gd["figure"]) if gd.get("figure") else "",
             "intro": gd["intro"], "toc": toc, "numbers": numbers_html,
             "compare": compare_html, "flow": flow_html, "mistakes": mis_html,
             "terms": "\n      ".join(term_blocks), "verified": gd["verified"],
@@ -965,6 +1122,146 @@ def build_tool_maengji():
         "맹지·접도 요건 판정기 — 건축법 제44조 2m·제2조 4m 자동 확인 | Land Master Pro",
         "소재지·도로 성격·너비·접한 길이·연면적을 넣으면 건축법 접도 요건 충족 여부와 근거 조문을 1차로 판정합니다.",
         body, extra_scripts='  <script src="assets/tool-maengji.js" defer></script>\n'))
+
+
+def build_tool_sallim():
+    """대체산림자원조성비 계산기 (tool-sallim.html) — 2026-11-17 신설.
+
+    2026-11-17 측정: 구글 "대체산림자원조성비 계산" 1페이지에 계산기는 2개뿐이고
+    하나는 2020년 단가, 나머지 결과도 대부분 2025년도 고시 기준이었다.
+    또 개별공시지가 반영비율이 2025년도 고시부터 1000분의 1로 바뀌었는데
+    블로그 자료는 여전히 1000분의 10(=1%%)로 적고 있어 가산액이 10배 과대계상된다.
+    현행 고시(제2026-16호)와 바뀐 반영비율을 정확히 반영한 계산기가 우리의 자리다.
+
+    모든 수치의 1차 자료 대조 내역은 assets/tool-sallim.js 상단 주석에 있다.
+    """
+    body = """
+    <div class="page-head">
+      <span class="term-badge">도구</span>
+      <h1>\U0001F333 대체산림자원조성비 계산기</h1>
+      <p>2026년 산림청고시 단가로 계산합니다 &mdash; 개별공시지가 가산과 감면 항목까지</p>
+    </div>
+    <div class="doc">
+      <div class="intro-box">
+        산지를 전용하려면 땅값과 별도로 <b>대체산림자원조성비</b>를 냅니다.
+        금액은 법령이 아니라 <b>매년 산림청장 고시</b>로 정해지기 때문에, 인터넷에 떠도는
+        계산 예시는 대개 몇 해 전 단가입니다. 특히 <b>개별공시지가 반영비율이 2025년도
+        고시부터 1000분의 1로 바뀌었는데</b>(그 전에는 1000분의 10) 옛 기준으로 계산하면
+        가산액이 10배 커집니다. 이 계산기는 <b>%(gosi)s</b> 기준입니다.
+      </div>
+      %(figure)s
+
+      <div class="tool-box">
+        <div class="tool-field">
+          <label for="dsKind">1. 산지 구분</label>
+          <select id="dsKind">
+            <option value="jun">준보전산지 &mdash; 8,340원/㎡</option>
+            <option value="bo">보전산지 (임업용·공익용) &mdash; 10,840원/㎡</option>
+            <option value="limit">산지전용·일시사용제한지역 &mdash; 16,680원/㎡</option>
+          </select>
+          <p class="tool-hint">토지이음의 '지역지구등 지정여부'에서 확인합니다. 보전산지는 산지관리법 제4조 제1항 제1호의 임업용산지·공익용산지입니다.</p>
+        </div>
+
+        <div class="tool-row">
+          <div class="tool-field">
+            <label for="dsArea">2. 전용하려는 산지 면적</label>
+            <input type="number" id="dsArea" min="0" step="0.1" placeholder="예: 660">
+          </div>
+          <div class="tool-field">
+            <label for="dsUnit">단위</label>
+            <select id="dsUnit">
+              <option value="m2">제곱미터(㎡)</option>
+              <option value="pyeong">평</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="tool-field">
+          <label for="dsGongsi">3. 해당 산지의 개별공시지가 (원/㎡)</label>
+          <input type="number" id="dsGongsi" min="0" step="1" placeholder="예: 45000 — 모르면 비워 두십시오">
+          <p class="tool-hint">이 금액의 <b>1000분의 1</b>이 단위면적당 금액에 더해집니다(상한 8,340원/㎡). 부동산공시가격 알리미에서 확인할 수 있습니다.</p>
+        </div>
+
+        <div class="tool-field">
+          <label for="dsExempt">4. 감면 대상 (산지관리법 시행령 별표 5)</label>
+          <select id="dsExempt"></select>
+          <p class="tool-hint" id="dsExemptNote" hidden></p>
+        </div>
+
+        <button class="btn" id="dsRun" type="button">계산하기</button>
+        <div id="dsResult" class="tool-result" hidden></div>
+      </div>
+
+      <h2 id="formula">대체산림자원조성비 계산식 &mdash; 고시 본문 그대로</h2>
+      <blockquote>
+        부과금액 = 산지전용허가·산지일시사용허가 면적 × 단위면적당 금액<br>
+        단위면적당 금액 = 산지별·지역별 단위면적당 산출금액 + 해당 산지 개별공시지가의 1000분의 1<br>
+        개별공시지가의 1000분의 1에 해당하는 금액은 최대 8,340원/㎡으로 한정한다.
+      </blockquote>
+      <p class="note-line">출처: %(gosi)s 「2026년도 대체산림자원조성비 부과기준」(2026. 1. 30. 발령·시행) 고시문 원문.
+      근거 법률은 산지관리법 제19조 제8항·제10항, 같은 법 시행령 제24조 제4항입니다.</p>
+
+      <h2 id="rate">2026년 대체산림자원조성비 단가</h2>
+      <div class="table-scroll"><table>
+        <thead><tr><th>산지 구분</th><th>단위면적당 산출금액</th><th>근거</th></tr></thead>
+        <tbody>
+        <tr><td><b>준보전산지</b></td><td>8,340 원/㎡</td><td class="law-cell">기준 단가</td></tr>
+        <tr><td><b>보전산지</b></td><td>10,840 원/㎡</td><td class="law-cell">시행령 제24조 제4항 — 준보전산지 기준 30%% 가산</td></tr>
+        <tr><td><b>산지전용·일시사용제한지역</b></td><td>16,680 원/㎡</td><td class="law-cell">시행령 제24조 제4항 — 100%% 가산</td></tr>
+        </tbody>
+      </table></div>
+      <p class="note-line">가산율로 역산하면 보전산지는 10,842원이 되지만 고시값은 <b>10,840원</b>입니다.
+      이 계산기는 역산하지 않고 고시에 적힌 세 값을 그대로 씁니다.</p>
+
+      <h2 id="mistake">가장 많이 틀리는 지점 &mdash; 개별공시지가 반영비율</h2>
+      <div class="mistake-box">
+        <p class="mistake-claim">"개별공시지가의 1%%를 더한다"</p>
+        <p class="mistake-real">2024년도 고시(제2024-12호)까지가 1000분의 10이었고,
+        <b>2025년도 고시(제2025-9호)부터 1000분의 1</b>로 바뀌었습니다.
+        옛 기준으로 계산하면 가산액이 10배 과대계상됩니다.</p>
+      </div>
+      <div class="mistake-box">
+        <p class="mistake-claim">"작년 단가로 계산하면 된다"</p>
+        <p class="mistake-real">단가는 해마다 고시로 바뀝니다. 2025년도는 8,190 / 10,640 / 16,380원,
+        2026년도는 8,340 / 10,840 / 16,680원입니다. 납부 시점의 고시를 확인하십시오.</p>
+      </div>
+
+      <h2 id="exempt">감면 &mdash; 보전산지와 준보전산지의 비율이 다릅니다</h2>
+      <p>감면 대상과 비율은 <b>산지관리법 시행령 [별표 5]</b>에 있습니다(2026. 9. 18. 시행).
+      일반 지주가 실제로 해당될 수 있는 항목은 대부분 제3호에 모여 있습니다.</p>
+      <div class="table-scroll"><table>
+        <thead><tr><th>대상</th><th>보전산지</th><th>준보전산지</th><th>근거</th></tr></thead>
+        <tbody>
+        <tr><td>농림어업인이 자기 소유 산지에 660㎡ 미만으로 짓는 주택·부대시설</td><td><b>100%%</b></td><td><b>100%%</b></td><td class="law-cell">별표 5 제3호 가목</td></tr>
+        <tr><td>농림어업인등의 축사·온실·버섯재배시설·양어장</td><td><b>100%%</b></td><td><b>100%%</b></td><td class="law-cell">별표 5 제3호 마목</td></tr>
+        <tr><td>초지법에 따라 조성된 초지</td><td>50%%</td><td><b>100%%</b></td><td class="law-cell">별표 5 제3호 아목</td></tr>
+        <tr><td>비영리법인의 사회복지시설</td><td>0%%</td><td><b>100%%</b></td><td class="law-cell">별표 5 제3호 카목</td></tr>
+        <tr><td>공공주택 특별법상 임대주택</td><td>0%%</td><td><b>100%%</b></td><td class="law-cell">별표 5 제3호 타목</td></tr>
+        <tr><td>청소년수련시설</td><td>50%%</td><td>50%%</td><td class="law-cell">별표 5 제3호 하목</td></tr>
+        </tbody>
+      </table></div>
+      <p class="note-line">표의 <b>0%%</b>는 '면제'가 아니라 <b>감면이 없어 전액 부과</b>된다는 뜻입니다.
+      '농림어업인이 설치하는 주택'은 농림어업을 직접 경영하면서 실제 거주하기 위한 것이어야 하고,
+      부대시설은 창고·축사·차고·화장실·탈곡장·퇴비저장시설을 말합니다(별표 5 비고 3).
+      위 표는 전체 목록이 아니며, 국가·지자체 공용시설과 산업단지 등은 제1호·제2호에 따로 있습니다.</p>
+
+      <p><a class="btn ghost sm" href="guide-sanji-nongji.html">산지·농지 법령 가이드에서 전용허가 기준 보기 \u2192</a>
+      <a class="btn ghost sm" href="tool-maengji.html">맹지·접도 요건 판정기 \u2192</a></p>
+    </div>
+    %(nudge)s
+    <div class="ad-slot"></div>%(updated)s""" % {
+        "gosi": "산림청고시 제2026-16호",
+        "figure": figure_html("sallim-gyesan"),
+        "updated": updated_line("tool-sallim.html"),
+        "nudge": community_nudge_html(
+            "계산 결과가 예상과 많이 다릅니까? 산지 구분과 면적을 커뮤니티에 남겨주시면 같이 짚어 드립니다."
+        ),
+    }
+    write("tool-sallim.html", shell(
+        "tool-sallim.html",
+        "대체산림자원조성비 계산기 \u2014 2026년 고시 단가·감면 반영 | Land Master Pro",
+        "2026년 산림청고시 제2026-16호 단가(준보전 8,340원·보전 10,840원)와 개별공시지가 1000분의 1 가산, 시행령 별표 5 감면까지 반영해 대체산림자원조성비를 계산합니다.",
+        body, extra_scripts='  <script src="assets/tool-sallim.js" defer></script>\n'))
 
 
 def build_notices():
@@ -1238,7 +1535,7 @@ def static_pages():
     그래서 이 함수를 수동으로 다시 실행해도(=build_site.py 재실행) 커뮤니티 글 항목은
     다음 자동 실행 때 스스로 복구된다."""
     pages = ["index.html", "stage1.html", "stage2.html", "stage3.html", "stage4.html",
-             "stage5.html", "glossary.html", "tool-maengji.html", "guide.html",
+             "stage5.html", "glossary.html", "tool-maengji.html", "tool-sallim.html", "guide.html",
              "community.html", "about.html", "privacy.html"]
     pages += ["cases.html"] + ["case-%s.html" % c["slug"] for c in CASES]
     # 주제별 심층 가이드 (2026-11-14). 용어 상세 개별 페이지는 여기서 빠졌다 —
@@ -1365,6 +1662,7 @@ if __name__ == "__main__":
     build_glossary()
     build_guides()
     build_tool_maengji()
+    build_tool_sallim()
     build_cases()
     build_notices()
     build_guide()
