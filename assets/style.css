@@ -817,3 +817,14 @@ input.field, textarea.field {
   .tool-row{grid-template-columns:1fr}
   .tool-box{padding:15px 14px}
 }
+
+/* ── 본문 도해 + 날짜 표기 (2026-11-17) ── */
+.doc-figure{margin:22px 0;padding:0}
+.doc-figure img{display:block;width:100%;height:auto;border:2px solid var(--line);
+  border-radius:12px;background:#fff}
+.doc-figure figcaption{margin-top:9px;font-size:.92rem;color:var(--muted);line-height:1.65;
+  padding-left:2px}
+.page-updated{margin:18px 0 0;font-size:.88rem;color:var(--muted)}
+.tool-note{margin:14px 0 0;padding:12px 15px;border-radius:10px;
+  background:rgba(46,230,168,.08);border:1px solid var(--line);font-size:.93rem;line-height:1.7}
+@media (max-width:640px){ .doc-figure figcaption{font-size:.87rem} }
