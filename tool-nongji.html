@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>농지보전부담금 계산기 — 공시지가 30%·20% 적용, 상한 5만원 | Land Master Pro</title>
+  <meta name="description" content="농지법 시행령 제53조에 따라 개별공시지가의 30%(농업진흥지역 안)·20%(밖)로 농지보전부담금을 계산합니다. ㎡당 상한 5만원과 감면율까지 반영합니다.">
+  <meta name="robots" content="max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+  <link rel="canonical" href="https://ttangstudy.com/tool-nongji.html">
+  <meta property="og:title" content="농지보전부담금 계산기 — 공시지가 30%·20% 적용, 상한 5만원 | Land Master Pro">
+  <meta property="og:description" content="농지법 시행령 제53조에 따라 개별공시지가의 30%(농업진흥지역 안)·20%(밖)로 농지보전부담금을 계산합니다. ㎡당 상한 5만원과 감면율까지 반영합니다.">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="랜드 마스터 프로">
+  <meta property="og:locale" content="ko_KR">
+  <meta property="og:url" content="https://ttangstudy.com/tool-nongji.html">
+  <meta property="og:image" content="https://ttangstudy.com/assets/img/og-tool-sallim.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="농지보전부담금 계산기 — 공시지가 30%·20% 적용, 상한 5만원 | Land Master Pro">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://ttangstudy.com/assets/img/og-tool-sallim.png">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧭</text></svg>">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebApplication", "headline": "농지보전부담금 계산기 — 공시지가 30%·20% 적용, 상한 5만원", "description": "농지법 시행령 제53조에 따라 개별공시지가의 30%(농업진흥지역 안)·20%(밖)로 농지보전부담금을 계산합니다. ㎡당 상한 5만원과 감면율까지 반영합니다.", "image": ["https://ttangstudy.com/assets/img/og-tool-sallim.png"], "datePublished": "2026-11-17", "dateModified": "2026-11-17", "inLanguage": "ko", "isAccessibleForFree": true, "mainEntityOfPage": {"@type": "WebPage", "@id": "https://ttangstudy.com/tool-nongji.html"}, "publisher": {"@type": "Organization", "name": "랜드 마스터 프로", "url": "https://ttangstudy.com"}, "author": {"@type": "Organization", "name": "랜드 마스터 프로", "url": "https://ttangstudy.com/about.html"}}</script>
+  <meta name="naver-site-verification" content="4600038de4f3bc5274fce5f172ce95ba03cbd8f3">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/style.css">
+  <script src="assets/config.js"></script>
+  <script>
+    if (window.LMP_CONFIG && window.LMP_CONFIG.GA_MEASUREMENT_ID) {
+      var _gaId = window.LMP_CONFIG.GA_MEASUREMENT_ID;
+      var _gaS = document.createElement('script');
+      _gaS.async = true;
+      _gaS.src = 'https://www.googletagmanager.com/gtag/js?id=' + _gaId;
+      document.head.appendChild(_gaS);
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', _gaId);
+    }
+  </script>
+  <script src="assets/facts-data.js"></script>
+  <script src="assets/app.js" defer></script>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="site-sidebar">
+      <a class="brand" href="index.html"><span aria-hidden="true">🧭</span><b>Land Master Pro</b><span>경기북부 토지 탐사대</span></a>
+      <nav class="site-nav">
+        <a href="index.html">🏠 홈</a>
+        <a href="stage1.html">S1. 맹지·도로</a>
+        <a href="stage2.html">S2. 임야·농지</a>
+        <a href="stage3.html">S3. 용도지역</a>
+        <a href="stage4.html">S4. 권리·계약</a>
+        <a href="stage5.html">S5. 토지보상</a>
+        <a href="glossary.html">📖 용어사전</a>
+        <a href="tool-maengji.html">🛣 맹지 판정기</a>
+        <a href="tool-sallim.html">🌳 조성비 계산기</a>
+        <a href="tool-nongji.html">🌾 농지부담금 계산기</a>
+        <a href="guide.html">🌐 토지이음 가이드</a>
+        <a href="cases.html">📂 실전 사례</a>
+        <a href="community.html">💬 커뮤니티</a>
+      </nav>
+    </aside>
+    <div class="site-col">
+      <header class="site-header">
+        <div class="header-inner">
+          <div class="header-tools">
+            <input type="text" id="headerSearch" class="search-input" placeholder="🧭 현장 검색">
+            <span class="streak-chip" id="streakChip">🔥 1일 연속</span>
+            <span class="xp-chip" id="xpChip">Lv.1 토지 견습생 · 0 XP</span>
+          </div>
+        </div>
+      </header>
+      <div class="search-overlay" id="searchOverlay">
+        <div class="search-panel" id="searchResults"></div>
+      </div>
+      <div class="ad-interstitial hidden" id="adInterstitial">
+        <div class="ad-slot-card">
+          <div class="ad-slot-label"></div>
+          <div class="ad-slot-box" id="adSlotBox"></div>
+          <button class="btn ghost sm" id="adSlotClose" type="button">닫고 계속하기 →</button>
+        </div>
+      </div>
+      <main>
+
+    <div class="page-head">
+      <span class="term-badge">도구</span>
+      <h1>🌾 농지보전부담금 계산기</h1>
+      <p>개별공시지가 &times; 비율로 계산합니다 &mdash; 농업진흥지역 안 30%, 밖 20%, 상한 ㎡당 5만원</p>
+    </div>
+    <div class="doc">
+      <div class="intro-box">
+        농지를 다른 용도로 쓰려면 <b>농지보전부담금</b>을 냅니다.
+        산지의 대체산림자원조성비와 자주 헷갈리는데 <b>계산 방식이 전혀 다릅니다</b> &mdash;
+        산지는 산림청이 해마다 고시하는 단가를 쓰고, 농지는 <b>그 땅의 개별공시지가에
+        비율을 곱합니다</b>. 그래서 농지는 공시지가를 모르면 금액이 나오지 않습니다.
+      </div>
+
+      <div class="tool-box">
+        <div class="tool-field">
+          <label for="njZone">1. 농업진흥지역 여부</label>
+          <select id="njZone">
+            <option value="in">농업진흥지역 <b>안</b>의 농지 &mdash; 공시지가의 30%</option>
+            <option value="out">농업진흥지역 <b>밖</b>의 농지 &mdash; 공시지가의 20%</option>
+          </select>
+          <p class="tool-hint">토지이음의 '다른 법령 등에 따른 지역·지구'에서 농업진흥구역·농업보호구역 표기를 확인합니다.</p>
+        </div>
+
+        <div class="tool-row">
+          <div class="tool-field">
+            <label for="njArea">2. 전용하려는 농지 면적</label>
+            <input type="number" id="njArea" min="0" step="0.1" placeholder="예: 500">
+          </div>
+          <div class="tool-field">
+            <label for="njUnit">단위</label>
+            <select id="njUnit">
+              <option value="m2">제곱미터(㎡)</option>
+              <option value="pyeong">평</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="tool-field">
+          <label for="njGongsi">3. 해당 농지의 개별공시지가 (원/㎡)</label>
+          <input type="number" id="njGongsi" min="0" step="1" placeholder="예: 120000">
+          <p class="tool-hint">부동산공시가격 알리미 또는 시·군·구에서 확인합니다. <b>부과기준일 현재 가장 최근에 공시된</b> 가격이 적용됩니다(시행령 제53조 제1항).</p>
+        </div>
+
+        <div class="tool-field">
+          <label for="njCut">4. 감면율 (%) &mdash; 시행령 [별표 2]에서 확인한 값</label>
+          <input type="number" id="njCut" min="0" max="100" step="1" placeholder="해당 없으면 0 또는 비워 두십시오">
+          <p class="tool-hint">감면 대상과 비율은 시설별로 <b>0% / 50% / 100%</b>로 갈립니다. 항목이 수십 개라 이 계산기는 추정하지 않고 직접 입력받습니다 &mdash;
+          <a href="https://www.law.go.kr/LSW/lsSc.do?menuId=1&amp;query=%EB%86%8D%EC%A7%80%EB%B2%95+%EC%8B%9C%ED%96%89%EB%A0%B9" target="_blank" rel="noopener">국가법령정보센터에서 농지법 시행령 별표 2 확인 →</a></p>
+        </div>
+
+        <button class="btn" id="njRun" type="button">계산하기</button>
+        <div id="njResult" class="tool-result" hidden></div>
+      </div>
+
+      <h2 id="formula">농지보전부담금 계산식 &mdash; 조문 그대로</h2>
+      <blockquote>
+        농지보전부담금의 제곱미터당 금액은 &hellip; 부과기준일 현재 가장 최근에 공시된
+        해당 농지의 <b>개별공시지가</b>에 다음 각 호의 구분에 따른 비율을 곱한 금액으로 한다.<br>
+        1. 농업진흥지역의 농지: <b>100분의 30</b><br>
+        2. 농업진흥지역 밖의 농지: <b>100분의 20</b>
+      </blockquote>
+      <p class="note-line">농지법 시행령 제53조 제1항 (시행 2026. 9. 18.).
+      같은 조 제2항에 따라 ㎡당 금액이 농림축산식품부령으로 정하는 금액을 넘으면 그 금액으로 하고,
+      시행규칙은 그 상한을 <b>5만원</b>으로 정하고 있습니다(공포 2026. 9. 22.).</p>
+
+      <h2 id="vs">농지보전부담금과 대체산림자원조성비는 다릅니다</h2>
+      <div class="table-scroll"><table>
+        <thead><tr><th>구분</th><th>농지보전부담금</th><th>대체산림자원조성비</th></tr></thead>
+        <tbody>
+        <tr><td><b>대상</b></td><td>농지(전·답·과수원 등)</td><td>산지(임야)</td></tr>
+        <tr><td><b>㎡당 금액</b></td><td>개별공시지가 &times; 30% 또는 20%</td><td>산림청 고시 단가 (2026년 8,340 / 10,840 / 16,680원)</td></tr>
+        <tr><td><b>공시지가 반영</b></td><td>금액의 <b>기준 자체</b></td><td>고시 단가에 <b>1000분의 1</b>만 가산</td></tr>
+        <tr><td><b>상한</b></td><td>㎡당 5만원</td><td>가산액만 8,340원 상한</td></tr>
+        <tr><td><b>근거</b></td><td class="law-cell">농지법 제38조 · 시행령 제53조</td><td class="law-cell">산지관리법 제19조 · 산림청고시</td></tr>
+        </tbody>
+      </table></div>
+      <p><a class="btn ghost sm" href="tool-sallim.html">대체산림자원조성비 계산기 →</a>
+      <a class="btn ghost sm" href="guide-sanji-nongji.html">산지·농지 법령 가이드 →</a></p>
+    </div>
+    
+    <div class="community-nudge">
+      <span class="cn-icon">🙋</span>
+      <div class="cn-text"><p>농업진흥지역 여부나 공시지가 확인이 막히면 커뮤니티에 남겨주십시오.</p></div>
+      <a class="btn ghost sm" href="community.html">💬 커뮤니티 바로가기</a>
+    </div>
+    <div class="ad-slot"></div>
+    <p class="page-updated">발행 2026-11-17 · 최종 확인 2026-11-17</p>
+      </main>
+      <footer class="site-footer">
+        <div class="footer-inner">
+          <div>
+            <a href="about.html">사이트 소개·문의</a>
+            <a href="privacy.html">개인정보처리방침</a>
+          </div>
+          <p class="disclaimer">본 사이트의 모든 콘텐츠는 일반적인 정보 제공을 목적으로 하며, 법률·세무·투자 자문이 아닙니다.
+          법령·조례·세율은 개정될 수 있고 지자체마다 기준이 다르므로, 실제 거래 전 반드시 해당 기관과 전문가(변호사·세무사·감정평가사 등)의 확인을 받으시기 바랍니다.
+          이 포스팅은 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다.
+          &copy; 2026 Land Master Pro</p>
+        </div>
+      </footer>
+    </div>
+  </div>
+  <script src="assets/tool-nongji.js" defer></script>
+</body>
+</html>

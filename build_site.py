@@ -57,6 +57,7 @@ PUBLISHED = {
     "guide-bosang-cheongsan.html": "2026-11-14",
     "tool-maengji.html": "2026-11-14",
     "tool-sallim.html": "2026-11-17",
+    "tool-nongji.html": "2026-11-17",
 }
 # land.free336.com 빌드에서만 추가되는 전용 페이지(임장 노트 다운로드)
 LAND = "land.free336.com" in SITE_URL and os.environ.get("LAND_NOTE", "0") == "1"
@@ -77,6 +78,7 @@ NAV = [
     ("glossary.html", "📖 용어사전"),
     ("tool-maengji.html", "🛣 맹지 판정기"),
     ("tool-sallim.html", "🌳 조성비 계산기"),
+    ("tool-nongji.html", "🌾 농지부담금 계산기"),
     ("guide.html", "🌐 토지이음 가이드"),
     ("cases.html", "📂 실전 사례"),
     ("community.html", "💬 커뮤니티"),
@@ -177,6 +179,7 @@ OG_BY_PAGE = {
     "guide-bosang-cheongsan.html": "og-guide-bosang-cheongsan.png",
     "tool-maengji.html": "og-tool-maengji.png",
     "tool-sallim.html": "og-tool-sallim.png",
+    "tool-nongji.html": "og-tool-sallim.png",
 }
 
 # 본문 삽입용 도해 — (파일명, alt, 캡션)
@@ -217,6 +220,7 @@ FIGURES = {
 JSONLD_KIND = {
     "tool-maengji.html": "WebApplication",
     "tool-sallim.html": "WebApplication",
+    "tool-nongji.html": "WebApplication",
     "index.html": "WebSite",
     "glossary.html": "CollectionPage",
     "cases.html": "CollectionPage",
@@ -1264,6 +1268,112 @@ def build_tool_sallim():
         body, extra_scripts='  <script src="assets/tool-sallim.js" defer></script>\n'))
 
 
+def build_tool_nongji():
+    """농지보전부담금 계산기 (tool-nongji.html) — 2026-11-17 신설.
+
+    2026-11-17 측정: 구글 "농지보전부담금 계산" 1페이지는 지역언론·법령DB·
+    농민신문·텍스트 해설로 채워져 있고 작동하는 계산기가 0개였다.
+    공식 계산기와 타사 계산기는 존재하지만 이 질의의 1페이지에 잡히지 않는다.
+    산지(대체산림자원조성비) 계산기와 쌍을 이루므로 구축비용이 거의 없다.
+
+    모든 수치의 1차 자료 대조 내역은 assets/tool-nongji.js 상단 주석에 있다.
+    감면율은 별표 2가 시설별로 수십 항목이라 코드에 넣지 않고 직접 입력받는다 —
+    잘못 옮기면 금액이 통째로 틀리기 때문이다.
+    """
+    body = """
+    <div class="page-head">
+      <span class="term-badge">도구</span>
+      <h1>\U0001F33E 농지보전부담금 계산기</h1>
+      <p>개별공시지가 &times; 비율로 계산합니다 &mdash; 농업진흥지역 안 30%%, 밖 20%%, 상한 ㎡당 5만원</p>
+    </div>
+    <div class="doc">
+      <div class="intro-box">
+        농지를 다른 용도로 쓰려면 <b>농지보전부담금</b>을 냅니다.
+        산지의 대체산림자원조성비와 자주 헷갈리는데 <b>계산 방식이 전혀 다릅니다</b> &mdash;
+        산지는 산림청이 해마다 고시하는 단가를 쓰고, 농지는 <b>그 땅의 개별공시지가에
+        비율을 곱합니다</b>. 그래서 농지는 공시지가를 모르면 금액이 나오지 않습니다.
+      </div>
+
+      <div class="tool-box">
+        <div class="tool-field">
+          <label for="njZone">1. 농업진흥지역 여부</label>
+          <select id="njZone">
+            <option value="in">농업진흥지역 <b>안</b>의 농지 &mdash; 공시지가의 30%%</option>
+            <option value="out">농업진흥지역 <b>밖</b>의 농지 &mdash; 공시지가의 20%%</option>
+          </select>
+          <p class="tool-hint">토지이음의 '다른 법령 등에 따른 지역·지구'에서 농업진흥구역·농업보호구역 표기를 확인합니다.</p>
+        </div>
+
+        <div class="tool-row">
+          <div class="tool-field">
+            <label for="njArea">2. 전용하려는 농지 면적</label>
+            <input type="number" id="njArea" min="0" step="0.1" placeholder="예: 500">
+          </div>
+          <div class="tool-field">
+            <label for="njUnit">단위</label>
+            <select id="njUnit">
+              <option value="m2">제곱미터(㎡)</option>
+              <option value="pyeong">평</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="tool-field">
+          <label for="njGongsi">3. 해당 농지의 개별공시지가 (원/㎡)</label>
+          <input type="number" id="njGongsi" min="0" step="1" placeholder="예: 120000">
+          <p class="tool-hint">부동산공시가격 알리미 또는 시·군·구에서 확인합니다. <b>부과기준일 현재 가장 최근에 공시된</b> 가격이 적용됩니다(시행령 제53조 제1항).</p>
+        </div>
+
+        <div class="tool-field">
+          <label for="njCut">4. 감면율 (%%) &mdash; 시행령 [별표 2]에서 확인한 값</label>
+          <input type="number" id="njCut" min="0" max="100" step="1" placeholder="해당 없으면 0 또는 비워 두십시오">
+          <p class="tool-hint">감면 대상과 비율은 시설별로 <b>0%% / 50%% / 100%%</b>로 갈립니다. 항목이 수십 개라 이 계산기는 추정하지 않고 직접 입력받습니다 &mdash;
+          <a href="https://www.law.go.kr/LSW/lsSc.do?menuId=1&amp;query=%%EB%%86%%8D%%EC%%A7%%80%%EB%%B2%%95+%%EC%%8B%%9C%%ED%%96%%89%%EB%%A0%%B9" target="_blank" rel="noopener">국가법령정보센터에서 농지법 시행령 별표 2 확인 →</a></p>
+        </div>
+
+        <button class="btn" id="njRun" type="button">계산하기</button>
+        <div id="njResult" class="tool-result" hidden></div>
+      </div>
+
+      <h2 id="formula">농지보전부담금 계산식 &mdash; 조문 그대로</h2>
+      <blockquote>
+        농지보전부담금의 제곱미터당 금액은 &hellip; 부과기준일 현재 가장 최근에 공시된
+        해당 농지의 <b>개별공시지가</b>에 다음 각 호의 구분에 따른 비율을 곱한 금액으로 한다.<br>
+        1. 농업진흥지역의 농지: <b>100분의 30</b><br>
+        2. 농업진흥지역 밖의 농지: <b>100분의 20</b>
+      </blockquote>
+      <p class="note-line">농지법 시행령 제53조 제1항 (시행 2026. 9. 18.).
+      같은 조 제2항에 따라 ㎡당 금액이 농림축산식품부령으로 정하는 금액을 넘으면 그 금액으로 하고,
+      시행규칙은 그 상한을 <b>5만원</b>으로 정하고 있습니다(공포 2026. 9. 22.).</p>
+
+      <h2 id="vs">농지보전부담금과 대체산림자원조성비는 다릅니다</h2>
+      <div class="table-scroll"><table>
+        <thead><tr><th>구분</th><th>농지보전부담금</th><th>대체산림자원조성비</th></tr></thead>
+        <tbody>
+        <tr><td><b>대상</b></td><td>농지(전·답·과수원 등)</td><td>산지(임야)</td></tr>
+        <tr><td><b>㎡당 금액</b></td><td>개별공시지가 &times; 30%% 또는 20%%</td><td>산림청 고시 단가 (2026년 8,340 / 10,840 / 16,680원)</td></tr>
+        <tr><td><b>공시지가 반영</b></td><td>금액의 <b>기준 자체</b></td><td>고시 단가에 <b>1000분의 1</b>만 가산</td></tr>
+        <tr><td><b>상한</b></td><td>㎡당 5만원</td><td>가산액만 8,340원 상한</td></tr>
+        <tr><td><b>근거</b></td><td class="law-cell">농지법 제38조 · 시행령 제53조</td><td class="law-cell">산지관리법 제19조 · 산림청고시</td></tr>
+        </tbody>
+      </table></div>
+      <p><a class="btn ghost sm" href="tool-sallim.html">대체산림자원조성비 계산기 \u2192</a>
+      <a class="btn ghost sm" href="guide-sanji-nongji.html">산지·농지 법령 가이드 \u2192</a></p>
+    </div>
+    %(nudge)s
+    <div class="ad-slot"></div>%(updated)s""" % {
+        "updated": updated_line("tool-nongji.html"),
+        "nudge": community_nudge_html(
+            "농업진흥지역 여부나 공시지가 확인이 막히면 커뮤니티에 남겨주십시오."
+        ),
+    }
+    write("tool-nongji.html", shell(
+        "tool-nongji.html",
+        "농지보전부담금 계산기 \u2014 공시지가 30%·20% 적용, 상한 5만원 | Land Master Pro",
+        "농지법 시행령 제53조에 따라 개별공시지가의 30%(농업진흥지역 안)·20%(밖)로 농지보전부담금을 계산합니다. ㎡당 상한 5만원과 감면율까지 반영합니다.",
+        body, extra_scripts='  <script src="assets/tool-nongji.js" defer></script>\n'))
+
+
 def build_notices():
     body = """
     <div class="page-head">
@@ -1535,7 +1645,7 @@ def static_pages():
     그래서 이 함수를 수동으로 다시 실행해도(=build_site.py 재실행) 커뮤니티 글 항목은
     다음 자동 실행 때 스스로 복구된다."""
     pages = ["index.html", "stage1.html", "stage2.html", "stage3.html", "stage4.html",
-             "stage5.html", "glossary.html", "tool-maengji.html", "tool-sallim.html", "guide.html",
+             "stage5.html", "glossary.html", "tool-maengji.html", "tool-sallim.html", "tool-nongji.html", "guide.html",
              "community.html", "about.html", "privacy.html"]
     pages += ["cases.html"] + ["case-%s.html" % c["slug"] for c in CASES]
     # 주제별 심층 가이드 (2026-11-14). 용어 상세 개별 페이지는 여기서 빠졌다 —
@@ -1663,6 +1773,7 @@ if __name__ == "__main__":
     build_guides()
     build_tool_maengji()
     build_tool_sallim()
+    build_tool_nongji()
     build_cases()
     build_notices()
     build_guide()
